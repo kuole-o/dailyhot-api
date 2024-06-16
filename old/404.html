@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 | API Collection</title>
+    <link
+      rel="shortcut icon"
+      href="./favicon1.png"
+      type="image/x-icon"
+    />
+    <link
+      rel="stylesheet"
+      href="./main.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.guole.fun/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <main>
+      <div class="ico"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+      <div class="title">404 Not Found</div>
+      <!-- <div class="text">出错了！请检查您的调用路径，与调用方法。</div> -->
+      <div class="terminal">
+        <div class="toolbar">
+          <div class="dot red"></div>
+          <div class="dot yellow"></div>
+          <div class="dot green"></div>
+        </div>
+        <div class="content fail">
+          <pre id="terminal-output"></pre>
+        </div>
+      </div>
+      <div class="control">
+        <button onclick="window.location.href = '/all'">
+          <i class="fa-solid fa-vial"></i>
+          <span>接口列表</span>
+        </button>
+        <button onclick="window.location.href = '/'">
+          <i class="fa-solid fa-house"></i>
+          <span>回到首页</span>
+        </button>
+      </div>
+    </main>
+    <footer>
+      <div class="social">
+        <i class="fa-brands fa-github" onclick="socialJump('github')"></i>
+        <div class="point"></div>
+        <i class="fa-solid fa-house" onclick="socialJump('home')"></i>
+        <div class="point"></div>
+        <i class="fa-solid fa-envelope" onclick="socialJump('email')"></i>
+      </div>
+      <!-- <div class="power">
+        Copyright © 2020
+        <script>
+          document.write(" - " + new Date().getFullYear());
+        </script>
+        <a href="https://imsyy.top/" target="_blank">無名</a>
+      </div> -->
+      <div class="icp">
+        <a href="https://beian.miit.gov.cn/" target="_blank"
+          >粤 ICP 备 2021063163 号</a
+        >
+      </div>
+    </footer>
+    <script defer="" src="./main.js"></script>
+    <script>
+      // // 跟随系统主题
+      // const darkModeMediaQuery = window.matchMedia(
+      //   "(prefers-color-scheme: dark)"
+      // );
+      // const toggleDarkMode = (darkModeMediaQuery) => {
+      //   if (darkModeMediaQuery.matches) {
+      //     document.documentElement.classList.add("dark");
+      //   } else {
+      //     document.documentElement.classList.remove("dark");
+      //   }
+      // };
+      // darkModeMediaQuery.addListener(toggleDarkMode);
+      // toggleDarkMode(darkModeMediaQuery);
+
+      // // 按钮事件
+      // const clickFunction = () => {
+      //   window.location.href = "/api/links";
+      // };
+
+      // // 社交链接跳转
+      // const socialJump = (type) => {
+      //   switch (type) {
+      //     case "github":
+      //       window.location.href = "https://github.com/kuole-o/";
+      //       break;
+      //     case "home":
+      //       window.location.href = "https://guole.fun/";
+      //       break;
+      //     case "email":
+      //       window.location.href = "mailto:guole.fun@qq.com";
+      //       break;
+      //     default:
+      //       break;
+      //   }
+      // };
+      // // 模拟终端效果
+      // const terminalOutput = document.getElementById('terminal-output');
+      // const time = new Date();
+      // const terminalText = `出错了！\n请检查您的调用路径与调用方法...\n\n${time}\n`;
+
+      // const printTerminalText = () => {
+      //   let index = 0;
+      //   const printChar = () => {
+      //     if (index < terminalText.length) {
+      //       terminalOutput.textContent += terminalText[index];
+      //       index++;
+      //       setTimeout(printChar, 20); //
+      //     }
+      //   };
+      //   printChar();
+      // };
+
+      // printTerminalText();
+    </script>
+  </body>
+</html>

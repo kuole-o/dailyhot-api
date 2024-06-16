@@ -22,12 +22,20 @@ export type RouterData = {
   title: string;
   type: string;
   description?: string;
-  parame?: Record<string, string | object>;
+  parameData?: Record<string, string | object>;
   total: number;
   link?: string;
   updateTime: string;
   fromCache: boolean;
   data: ListItem[];
+};
+
+// POST请求返回结果类型
+export type Response = {
+  code: number;
+  message: string;
+  objectId: string;
+  createdAt?: string;
 };
 
 // 请求类型
@@ -61,5 +69,8 @@ export type Web = {
 
 // 参数类型
 export type Options = {
-  [key: string]: string | number | undefined;
+  [key: string]: string | undefined;
 };
+
+// serveHotApi
+export default function serveHotApi(port?: number): unknown;

@@ -59,6 +59,7 @@ for (let index = 0; index < allRoutePath.length; index++) {
     continue;
   }
   const listApp = app.basePath(`/${router}`);
+
   // 返回榜单
   listApp.get("/", async (c) => {
     // 是否采用缓存
@@ -96,6 +97,46 @@ for (let index = 0; index < allRoutePath.length; index++) {
       ...listData,
     });
   });
+
+  // 返回榜单
+  listApp.post("/", async (c) => {
+    const body = await c.req.parseBody();
+    // 是否采用缓存
+    const noCache = body.cache === "false";
+    // 限制显示条目
+    const limit = body.limit;
+    // 是否输出 RSS
+    const rssEnabled = body.rss === "true";
+    // 获取路由路径
+    const { handleRoute } = await import(`./routes/${router}.js`);
+    const listData = await handleRoute(c, noCache);
+    // 是否限制条目
+    if (limit && typeof limit === "string" && listData?.data?.length > parseInt(limit)) {
+      listData.total = parseInt(limit);
+      listData.data = listData.data.slice(0, parseInt(limit));
+    }
+    // 是否输出 RSS
+    if (rssEnabled || config.RSS_MODE) {
+      const rss = getRSS(listData);
+      if (typeof rss === "string") {
+        c.header("Content-Type", "application/xml; charset=utf-8");
+        return c.body(rss);
+      } else {
+        return c.json(
+          {
+            code: 500,
+            message: "RSS 生成失败",
+          },
+          500,
+        );
+      }
+    }
+    return c.json({
+      code: 200,
+      ...listData,
+    });
+  });
+
   // 请求方式错误
   listApp.all("*", (c) =>
     c.json(
@@ -110,6 +151,29 @@ for (let index = 0; index < allRoutePath.length; index++) {
 
 // 获取全部路由
 app.get("/all", (c) =>
+  c.json(
+    {
+      code: 200,
+      count: allRoutePath.length,
+      routes: allRoutePath.map((path) => {
+        // 是否处于排除名单
+        if (excludeRoutes.includes(path)) {
+          return {
+            name: path,
+            path: null,
+            message: "该接口暂时下线",
+          };
+        }
+        return {
+          name: path,
+          path: `/${path}`,
+        };
+      }),
+    },
+    200,
+  ),
+);
+app.post("/all", (c) =>
   c.json(
     {
       code: 200,

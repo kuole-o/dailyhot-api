@@ -1,34 +1,11 @@
 <div align="center">
-<img alt="logo" height="120" src="./public/favicon.png" width="120"/>
-<h2>今日热榜</h2>
-<p>一个聚合热门数据的 API 接口</p>
-<br />
-<img src="https://img.shields.io/github/last-commit/imsyy/DailyHotApi" alt="last commit"/>
- <img src="https://img.shields.io/github/languages/code-size/imsyy/DailyHotApi" alt="code size"/>
- <img src="https://img.shields.io/docker/image-size/imsyy/dailyhot-api" alt="docker-image-size"/>
-<img src="https://github.com/imsyy/DailyHotApi/actions/workflows/docker.yml/badge.svg" alt="Publish Docker image"/>
-<img src="https://github.com/imsyy/DailyHotApi/actions/workflows/npm.yml/badge.svg" alt="Publish npm package"/>
+<h1>个人自用 API 接口集合</h1>
+<span>修改自：</span><a href="https://github.com/imsyy/DailyHotApi">DailyHotApi</a><span>，感谢<b>imsyy<b>的辛勤劳作！</span>
 </div>
-
-## 🚩 特性
-
-- 极快响应，便于开发
-- 支持 RSS 模式和 JSON 模式
-- 支持多种部署方式
-- 简明的路由目录，便于新增
-
-## 👀 示例
-
-> 这里是使用该 API 的示例站点  
-> 示例站点可能由于访问量或者长久未维护而访问异常  
-> 若您也使用了本 API 搭建了网站，欢迎提交您的站点链接
-
-- [今日热榜 - https://hot.imsyy.top/](https://hot.imsyy.top/)
 
 ## 🎉 总览
 
 > 🟢 状态正常 / 🟠 可能失效 / ❌ 无法使用 / ⚠️ 需要科学上网
-
 | **站点**         | **类别**     | **调用名称**   | **状态** |
 | ---------------- | ------------ | -------------- | -------- |
 | 哔哩哔哩         | 热门榜       | bilibili       | 🟢       |
@@ -66,7 +43,8 @@
 | HelloGitHub      | Trending     | hellogithub    | 🟢       |
 | 中央气象台       | 全国气象预警 | weatheralarm   | 🟢       |
 | 中国地震台       | 地震速报     | earthquake     | 🟢       |
-| 历史上的今天     | 月-日        | history        | 🟢       |
+| Github 提交日历 | 用户名 | GithubCalendar            | 🟢       |
+| 哔哔闪念 | 最近哔哔 | bbtalk            | 🟢       |
 
 ## ⚙️ 使用
 
@@ -75,7 +53,6 @@
 ```bash
 pnpm add dailyhot-api
 ```
-
 ```js
 import serveHotApi from "dailyhot-api";
 
@@ -94,7 +71,6 @@ serveHotApi(3000);
 ### Docker 部署
 
 > 安装及配置 Docker 将不在此处说明，请自行解决
-
 #### 本地构建
 
 ```bash

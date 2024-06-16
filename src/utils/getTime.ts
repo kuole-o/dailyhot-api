@@ -1,14 +1,6 @@
 import dayjs from "dayjs";
 
-interface CurrentDateTime {
-  year: number;
-  month: number;
-  day: number;
-  hour: number;
-  minute: number;
-  second: number;
-}
-export const getTime = (timeInput: string | number): number => {
+const getTime = (timeInput: string | number): number => {
   try {
     let num: number | string;
     // 尝试将输入转换为数字
@@ -33,15 +25,4 @@ export const getTime = (timeInput: string | number): number => {
   }
 };
 
-export const getCurrentDateTime = (): CurrentDateTime => {
-  const now = dayjs();
-
-  return {
-    year: now.year(),
-    month: now.month() + 1,
-    day: now.date(),
-    hour: now.hour(),
-    minute: now.minute(),
-    second: now.second(),
-  };
-};
+export default getTime;

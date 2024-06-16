@@ -1,7 +1,7 @@
 import type { Get, Post, Web } from "../types.ts";
 import { config } from "../config.js";
 import { getCache, setCache, delCache } from "./cache.js";
-// import { Cluster } from "puppeteer-cluster";
+import { Cluster } from "puppeteer-cluster";
 import logger from "./logger.js";
 import axios from "axios";
 
@@ -13,26 +13,25 @@ const request = axios.create({
 });
 
 // puppeteer-cluster
-// export const createCluster = async () => {
-//   return await Cluster.launch({
-//     concurrency: Cluster.CONCURRENCY_BROWSER,
-//     maxConcurrency: 5,
-//   });
-// };
+export const createCluster = async () => {
+  return await Cluster.launch({
+    concurrency: Cluster.CONCURRENCY_BROWSER,
+    maxConcurrency: 5,
+  });
+};
 
 // Cluster
-// const cluster = await createCluster();
-const cluster = null;
+const cluster = await createCluster();
 
 // Cluster configuration
-// cluster.task(async ({ page, data: { url, userAgent } }) => {
-//   if (userAgent) {
-//     await page.setUserAgent(userAgent);
-//   }
-//   await page.goto(url, { waitUntil: "networkidle0" });
-//   const pageContent = await page.content();
-//   return pageContent;
-// });
+cluster.task(async ({ page, data: { url, userAgent } }) => {
+  if (userAgent) {
+    await page.setUserAgent(userAgent);
+  }
+  await page.goto(url, { waitUntil: 'networkidle0' });
+  const pageContent = await page.content();
+  return pageContent;
+});
 
 // 请求拦截
 request.interceptors.request.use(
@@ -110,12 +109,13 @@ export const post = async (options: Post) => {
     // 存储新获取的数据到缓存
     const updateTime = new Date().toISOString();
     const data = originaInfo ? response : responseData;
+    const status = response.status;
     if (!noCache) {
       setCache(url, { data, updateTime }, ttl);
     }
     // 返回数据
     logger.info("接口调用成功", { status: response?.statusText });
-    return { fromCache: false, data, updateTime };
+    return { fromCache: false, data, updateTime, status };
   } catch (error) {
     logger.error("POST 请求出错", error);
     throw error;

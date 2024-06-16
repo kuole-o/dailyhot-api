@@ -11,8 +11,48 @@ import robotstxt from "./robots.txt.js";
 import NotFound from "./views/NotFound.js";
 import Home from "./views/Home.js";
 import Error from "./views/Error.js";
+import { HttpError } from './utils/errors.js';
 
 const app = new Hono();
+
+// 鉴权中间件
+app.use(async (c, next) => {
+  try {
+    let originURL: string;
+    const origin = c.req.header('origin');
+    const referer = c.req.header('referer');
+    const host = c.req.header('host');
+
+    if (origin) {
+      originURL = new URL(origin).hostname;
+    } else if (referer) {
+      originURL = new URL(referer).hostname;
+    } else if (host) {
+      originURL = host.split(":")[0];
+    } else {
+      originURL = '';
+    }
+
+    console.log("originURL:", originURL);
+
+    const domain = config.ALLOWED_DOMAIN;
+
+    if (domain === "*" || domain.includes(originURL) || originURL === '' || c.req.path === '/newbbtalk') {
+      await next();
+    } else {
+      return c.json({
+        code: 403,
+        message: "访问未经授权",
+      }, 403);
+    }
+  } catch (error) {
+    logger.error(`鉴权中间件出现错误：${error}`);
+    return c.json({
+      code: 500,
+      message: "内部服务器错误",
+    }, 500);
+  }
+});
 
 // 压缩响应
 app.use(compress());
@@ -27,7 +67,6 @@ app.use(trimTrailingSlash());
 app.use(
   "*",
   cors({
-    // 可写为数组
     origin: config.ALLOWED_DOMAIN,
     allowMethods: ["POST", "GET", "OPTIONS"],
     allowHeaders: ["X-Custom-Header", "Upgrade-Insecure-Requests"],
@@ -49,13 +88,34 @@ app.route("/", registry);
 
 // robots
 app.get("/robots.txt", robotstxt);
+
 // 首页
 app.get("/", (c) => c.html(<Home />));
+
 // 404
 app.notFound((c) => c.html(<NotFound />, 404));
+
 // error
 app.onError((err, c) => {
   logger.error(`出现致命错误：${err}`);
+
+  if (err instanceof HttpError) {
+    switch (err.statusCode){
+      case 400 :
+        return c.html(<Error error={err?.message} />, 400);
+        break;
+      case 401 :
+        return c.html(<Error error={err?.message} />, 401);
+        break;
+      case 405 :
+        return c.html(<Error error={err?.message} />, 405);
+        break;
+      case 500 :
+        return c.html(<Error error={err?.message} />, 500);
+        break;
+    }
+  }
+
   return c.html(<Error error={err?.message} />, 500);
 });
 

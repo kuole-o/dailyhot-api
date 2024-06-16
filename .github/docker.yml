@@ -42,7 +42,6 @@ jobs:
           images: |
             imsyy/dailyhot-api
             ghcr.io/${{ github.repository }}
-
       - name: Build and push
         uses: docker/build-push-action@v5
         with:

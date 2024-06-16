@@ -1,22 +1,11 @@
 {
-  "name": "dailyhot-api",
-  "version": "2.0.2",
-  "description": "An Api on Today's Hot list",
-  "keywords": [
-    "API",
-    "RSS"
-  ],
-  "homepage": "https://github.com/imsyy/DailyHotApi#readme",
-  "bugs": {
-    "url": "https://github.com/imsyy/DailyHotApi/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/imsyy/DailyHotApi.git"
-  },
+  "name": "api",
+  "version": "1.0.2",
+  "description": "自用 API 集合",
+  "author": "Guo Le <guole.fun@qq.com>",
   "license": "MIT",
-  "author": "imsyy",
   "main": "dist/index.js",
+  "types": "src/types.d.ts",
   "declaration": true,
   "declarationMap": true,
   "sourceMap": true,
@@ -24,6 +13,7 @@
     "LICENSE",
     "README.md",
     "dist/**/*",
+    "src/types.d.ts",
     "!dist/logs/**/*"
   ],
   "scripts": {
@@ -38,24 +28,25 @@
   "dependencies": {
     "@hono/node-server": "^1.11.2",
     "axios": "^1.7.2",
-    "chalk": "^5.3.0",
     "cheerio": "1.0.0-rc.12",
     "dayjs": "^1.11.11",
     "dotenv": "^16.4.5",
     "feed": "^4.2.2",
-    "hono": "^4.4.5",
+    "hono": "^4.4.3",
     "md5": "^2.3.0",
     "node-cache": "^5.1.2",
+    "puppeteer": "^22.10.0",
+    "puppeteer-cluster": "^0.24.0",
     "rss-parser": "^3.13.0",
     "winston": "^3.13.0"
   },
   "devDependencies": {
-    "@types/node": "^20.14.2",
-    "@typescript-eslint/eslint-plugin": "^7.13.0",
-    "@typescript-eslint/parser": "^7.13.0",
+    "@types/node": "^20.14.1",
+    "@typescript-eslint/eslint-plugin": "^7.12.0",
+    "@typescript-eslint/parser": "^7.12.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.57.0",
-    "prettier": "^3.3.2",
+    "prettier": "^3.3.0",
     "tsx": "^3.14.0",
     "typescript": "^5.4.5"
   },
