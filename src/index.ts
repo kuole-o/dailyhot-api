@@ -22,6 +22,6 @@ const serveHotApi = (port: number = config.PORT) => {
 //     serveHotApi(config.PORT);
 // }
 
-serveHotApi(8859);
+serveHotApi(config.PORT);
 
 export default serveHotApi;
