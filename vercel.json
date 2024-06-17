@@ -20,14 +20,5 @@
         "Access-Control-Allow-Headers": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
       }
     }
-  ],
-  "env": {
-    "PORT": "6688",
-    "DISALLOW_ROBOT": "true",
-    "CACHE_TTL": "3600",
-    "REQUEST_TIMEOUT": "6000",
-    "ALLOWED_DOMAIN": "*",
-    "USE_LOG_FILE": "true",
-    "RSS_MODE": "false"
-  }
+  ]
 }

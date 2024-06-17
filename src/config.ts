@@ -40,11 +40,11 @@ const getBooleanEnvVariable = (key: string, defaultValue: boolean): boolean => {
 
 // 创建配置对象
 export const config: Config = {
-  PORT: parseInt(process.env.PORT, 10) || 6688,
-  DISALLOW_ROBOT: process.env.DISALLOW_ROBOT?.toLowerCase() === "true" || true,
-  CACHE_TTL: parseInt(process.env.CACHE_TTL, 10) || 3600,
-  REQUEST_TIMEOUT: parseInt(process.env.REQUEST_TIMEOUT, 10) || 6000,
-  ALLOWED_DOMAIN: process.env.ALLOWED_DOMAIN || "*",
-  USE_LOG_FILE: process.env.USE_LOG_FILE?.toLowerCase() === "true" || true,
-  RSS_MODE: process.env.RSS_MODE?.toLowerCase() === "true" || false,
+  PORT: getNumericEnvVariable("PORT", 6688),
+  DISALLOW_ROBOT: getBooleanEnvVariable("DISALLOW_ROBOT", true),
+  CACHE_TTL: getNumericEnvVariable("CACHE_TTL", 3600),
+  REQUEST_TIMEOUT: getNumericEnvVariable("CACHE_TTL", 6000),
+  ALLOWED_DOMAIN: getEnvVariable("ALLOWED_DOMAIN") || "*",
+  USE_LOG_FILE: getBooleanEnvVariable("USE_LOG_FILE", true),
+  RSS_MODE: getBooleanEnvVariable("RSS_MODE", false),
 };
