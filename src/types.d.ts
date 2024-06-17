@@ -30,14 +30,6 @@ export type RouterData = {
   data: ListItem[];
 };
 
-// POST请求返回结果类型
-export type Response = {
-  code: number;
-  message: string;
-  objectId: string;
-  createdAt?: string;
-};
-
 // 请求类型
 export type Get = {
   url: string;

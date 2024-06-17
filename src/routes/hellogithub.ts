@@ -4,7 +4,7 @@ import { get } from "../utils/getData.js";
 import getTime from "../utils/getTime.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
-  const sort = c.req.query("sort") || "hot";
+  const sort = c.req.query("sort") || "featured";
   const { fromCache, data, updateTime } = await getList({ sort }, noCache);
   const routeData: RouterData = {
     name: "hellogithub",

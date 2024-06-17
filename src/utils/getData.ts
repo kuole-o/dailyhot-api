@@ -1,4 +1,4 @@
-import type { Get, Post, Web } from "../types.ts";
+import type { Get, Post, Web } from "../types.js";
 import { config } from "../config.js";
 import { getCache, setCache, delCache } from "./cache.js";
 import { Cluster } from "puppeteer-cluster";
@@ -109,13 +109,12 @@ export const post = async (options: Post) => {
     // 存储新获取的数据到缓存
     const updateTime = new Date().toISOString();
     const data = originaInfo ? response : responseData;
-    const status = response.status;
     if (!noCache) {
       setCache(url, { data, updateTime }, ttl);
     }
     // 返回数据
     logger.info("接口调用成功", { status: response?.statusText });
-    return { fromCache: false, data, updateTime, status };
+    return { fromCache: false, data, updateTime };
   } catch (error) {
     logger.error("POST 请求出错", error);
     throw error;
