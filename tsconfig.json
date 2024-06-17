@@ -8,7 +8,7 @@
     "types": ["node"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
-    "outDir": "./dist"
+    "outDir": "./public"
   },
   "exclude": ["node_modules", "*.test.*"]
 }

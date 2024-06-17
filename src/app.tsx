@@ -78,7 +78,7 @@ app.use(
 app.use(
   "/*",
   serveStatic({
-    root: "./public",
+    root: "./icon",
     rewriteRequestPath: (path) => (path === "/favicon.ico" ? "/favicon.png" : path),
   }),
 );
@@ -100,19 +100,22 @@ app.onError((err, c) => {
   logger.error(`出现致命错误：${err}`);
 
   if (err instanceof HttpError) {
-    switch (err.statusCode){
-      case 400 :
-        return c.html(<Error error={err?.message} />, 400);
-        break;
-      case 401 :
-        return c.html(<Error error={err?.message} />, 401);
-        break;
-      case 405 :
-        return c.html(<Error error={err?.message} />, 405);
-        break;
-      case 500 :
-        return c.html(<Error error={err?.message} />, 500);
-        break;
+    const statusCode = err.statusCode;
+    const errorMap = {
+      400: () => c.html(<Error error={err?.message} />, 400),
+      401: () => c.html(<Error error={err?.message} />, 401),
+      402: () => c.html(<Error error={err?.message} />, 402),
+      403: () => c.html(<Error error={err?.message} />, 403),
+      404: () => c.html(<Error error={err?.message} />, 404),
+      405: () => c.html(<Error error={err?.message} />, 405),
+      500: () => c.html(<Error error={err?.message} />, 500),
+      501: () => c.html(<Error error={err?.message} />, 501),
+      502: () => c.html(<Error error={err?.message} />, 502),
+      503: () => c.html(<Error error={err?.message} />, 503),
+      504: () => c.html(<Error error={err?.message} />, 504),
+    };
+    if (statusCode in errorMap) {
+      return errorMap[statusCode]();
     }
   }
 
