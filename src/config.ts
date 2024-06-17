@@ -40,7 +40,7 @@ const getBooleanEnvVariable = (key: string, defaultValue: boolean): boolean => {
 
 // 创建配置对象
 export const config: Config = {
-  PORT: getNumericEnvVariable("PORT", 6688),
+  PORT: getNumericEnvVariable("PORT", 8859),
   DISALLOW_ROBOT: getBooleanEnvVariable("DISALLOW_ROBOT", true),
   CACHE_TTL: getNumericEnvVariable("CACHE_TTL", 3600),
   REQUEST_TIMEOUT: getNumericEnvVariable("CACHE_TTL", 6000),
