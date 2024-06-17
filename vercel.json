@@ -2,11 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "use": "@vercel/node",
-      "src": "src/index.ts",
-      "config": {
-        "includeFiles": ["./**/*.ts", ".env"]
-      }
+      "use": "@vercel/node"
     }
   ],
   "routes": [
