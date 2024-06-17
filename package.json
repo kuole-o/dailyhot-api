@@ -4,7 +4,7 @@
   "description": "自用 API 集合",
   "author": "Guo Le <guole.fun@qq.com>",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "public/index.js",
   "types": "src/types.d.ts",
   "declaration": true,
   "declarationMap": true,
@@ -12,9 +12,9 @@
   "files": [
     "LICENSE",
     "README.md",
-    "dist/**/*",
+    "public/**/*",
     "src/types.d.ts",
-    "!dist/logs/**/*"
+    "!public/logs/**/*"
   ],
   "scripts": {
     "format": "prettier --write .",
@@ -22,7 +22,7 @@
     "dev": "cross-env NODE_ENV=development tsx watch --no-cache src/index.ts",
     "dev:cache": "cross-env NODE_ENV=development tsx watch src/index.ts",
     "build": "tsc --project tsconfig.json",
-    "start": "node dist/index.js"
+    "start": "node public/index.js"
   },
   "type": "module",
   "dependencies": {
