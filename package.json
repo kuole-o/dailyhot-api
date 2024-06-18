@@ -1,6 +1,6 @@
 {
   "name": "guole.fun.api",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "自用 API 集合",
   "keywords": [
     "API",
@@ -29,7 +29,7 @@
     "dev": "cross-env NODE_ENV=development tsx watch --no-cache src/index.ts",
     "dev:cache": "cross-env NODE_ENV=development tsx watch src/index.ts",
     "build": "tsc --project tsconfig.json",
-    "start": "tsx src/index.ts"
+    "start": "cross-env NODE_ENV=development tsx src/index.ts"
   },
   "type": "module",
   "dependencies": {

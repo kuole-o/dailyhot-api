@@ -260,6 +260,10 @@ const Layout: FC = (props) => {
         main.home {
           margin: 20px 0px 100px 0px;
         }
+        main.home .img {
+          width: 100px;
+          height: 100px;
+        }
         .ico {
           font-size: 5rem;
           margin: 5rem 2rem 2rem 2rem;
