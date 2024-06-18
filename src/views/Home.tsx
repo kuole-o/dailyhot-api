@@ -115,7 +115,7 @@ const Home: FC = () => {
             fetch('/version')
               .then(response => response.json())
               .then(data => {
-                console.log('版本号:', data.version);
+                console.log('当前 API 接口版本号:', data.version);
               })
               .catch(error => {
                 console.error('获取版本号失败:', error);

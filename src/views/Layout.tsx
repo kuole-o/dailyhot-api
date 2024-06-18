@@ -7,7 +7,6 @@ const Layout: FC = (props) => {
       * {
         margin: 0;
         padding: 0;
-        user-select: none;
         box-sizing: border-box;
         -webkit-user-drag: none;
       }
@@ -41,6 +40,10 @@ const Layout: FC = (props) => {
         font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei";
         transition: color 0.3s, background-color 0.3s;
         overflow: hidden; /* 防止滚动条出现 */
+        -webkit-user-select: text; /* Safari */
+        -moz-user-select: text; /* Firefox */
+        -ms-user-select: text; /* IE10+ */
+        user-select: text; /* 标准语法 */
       }
       main {
         display: flex;

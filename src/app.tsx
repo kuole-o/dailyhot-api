@@ -94,7 +94,7 @@ app.get("/robots.txt", robotstxt);
 
 // 版本号
 app.get('/version', (c) => {
-  const packageJsonPath = resolve(__dirname, 'package.json');
+  const packageJsonPath = resolve('./', 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
   const version = packageJson.version;
   return c.json({ version });
