@@ -35,5 +35,6 @@ jobs:
         run: npm publish --version ${{ env.VERSION }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  # Indentation fixed here
       persist-env: |
         VERSION
