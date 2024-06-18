@@ -1,6 +1,6 @@
 {
   "name": "guole.fun.api",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "自用 API 集合",
   "keywords": [
     "API",
@@ -29,8 +29,7 @@
     "dev": "cross-env NODE_ENV=development tsx watch --no-cache src/index.ts",
     "dev:cache": "cross-env NODE_ENV=development tsx watch src/index.ts",
     "build": "tsc --project tsconfig.json",
-    "start": "cross-env NODE_ENV=development tsx src/index.ts",
-    "postbuild": "copyfiles -u 1 public/**/* dist/"
+    "start": "cross-env NODE_ENV=development tsx src/index.ts"
   },
   "type": "module",
   "dependencies": {
@@ -51,7 +50,6 @@
     "@types/node": "^20.14.2",
     "@typescript-eslint/eslint-plugin": "^7.13.0",
     "@typescript-eslint/parser": "^7.13.0",
-    "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
     "eslint": "^8.57.0",
     "prettier": "^3.3.2",
