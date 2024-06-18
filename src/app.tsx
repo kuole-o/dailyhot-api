@@ -78,13 +78,13 @@ app.use(
 );
 
 // 静态资源
-app.use(
-  "/*",
-  serveStatic({
-    root: "./public",
-    rewriteRequestPath: (path) => (path === "/favicon.ico" ? "/favicon.png" : path),
-  }),
-);
+// app.use(
+//   "/*",
+//   serveStatic({
+//     root: "./public",
+//     rewriteRequestPath: (path) => (path === "/favicon.ico" ? "/favicon.png" : path),
+//   }),
+// );
 
 // 主路由
 app.route("/", registry);
@@ -94,7 +94,7 @@ app.get("/robots.txt", robotstxt);
 
 // 版本号
 app.get('/version', (c) => {
-  const packageJsonPath = resolve('./', 'package.json');
+  const packageJsonPath = resolve('./dist/', 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
   const version = packageJson.version;
   return c.json({ version });
