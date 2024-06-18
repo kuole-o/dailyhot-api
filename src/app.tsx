@@ -67,6 +67,7 @@ app.use(trimTrailingSlash());
 app.use(
   "*",
   cors({
+    // 可写为数组
     origin: config.ALLOWED_DOMAIN,
     allowMethods: ["POST", "GET", "OPTIONS"],
     allowHeaders: ["X-Custom-Header", "Upgrade-Insecure-Requests"],
@@ -78,7 +79,7 @@ app.use(
 app.use(
   "/*",
   serveStatic({
-    root: "./icon",
+    root: "./public",
     rewriteRequestPath: (path) => (path === "/favicon.ico" ? "/favicon.png" : path),
   }),
 );

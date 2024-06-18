@@ -22,7 +22,7 @@ export type RouterData = {
   title: string;
   type: string;
   description?: string;
-  parameData?: Record<string, string | object>;
+  parame?: Record<string, string | object>;
   total: number;
   link?: string;
   updateTime: string;
@@ -63,6 +63,3 @@ export type Web = {
 export type Options = {
   [key: string]: string | undefined;
 };
-
-// serveHotApi
-export default function serveHotApi(port?: number): unknown;

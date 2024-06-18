@@ -1,7 +1,7 @@
 import type { RouterData, ListContext, Options } from "../types.js";
 import type { RouterType } from "../router.types.js";
 import { get } from "../utils/getData.js";
-import getTime from "../utils/getTime.js";
+import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const sort = c.req.query("sort") || "featured";
@@ -11,12 +11,12 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
     title: "HelloGitHub",
     type: "热门仓库",
     description: "分享 GitHub 上有趣、入门级的开源项目",
-    parameData: {
+    parame: {
       sort: {
         name: "排行榜分区",
         type: {
-          hot: "热门",
-          last: "最新",
+          featured: "精选",
+          all: "全部",
         },
       },
     },

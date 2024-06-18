@@ -18,9 +18,8 @@ const serveHotApi: (port?: number) => void = (port: number = config.PORT) => {
   }
 };
 
-// if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "docker") {
-//   serveHotApi(config.PORT);
-// }
-serveHotApi(8859);
+if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "docker") {
+  serveHotApi(config.PORT);
+}
 
 export default serveHotApi;

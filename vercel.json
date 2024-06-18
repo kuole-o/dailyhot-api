@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "public/index.js",
+      "src": "dist/index.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "public/index.js",
+      "dest": "/",
       "headers": {
         "Access-Control-Allow-Credentials": "true",
         "Access-Control-Allow-Origin": "*",

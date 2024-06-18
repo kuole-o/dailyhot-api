@@ -2,8 +2,8 @@ import { fileURLToPath } from "url";
 import { config } from "./config.js";
 import { Hono } from "hono";
 import getRSS from "./utils/getRSS.js";
-import * as path from "path";
-import * as fs from "fs";
+import path from "path";
+import fs from "fs";
 
 const app = new Hono();
 
