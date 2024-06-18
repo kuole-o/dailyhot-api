@@ -260,13 +260,22 @@ export type RouterType = {
     comment_count: number;
     created_at: number;
   };
+  csdn: {
+    nickName: string;
+    articleTitle: string;
+    articleDetailUrl: string;
+    picList: [string];
+    hotRankScore: string;
+    period: string;
+    productId: string;
+  };
   BBtalk: {
-      createdAt: string;
-      content: string;
-      from: string;
-      MsgType: string;
-      other: string;
-      objectId: string;
+    createdAt: string;
+    content: string;
+    from: string;
+    MsgType: string;
+    other: string;
+    objectId: string;
   };
   GithubCalendar: {
     totalContributions: number;

@@ -5,8 +5,8 @@ import { getCurrentDateTime } from "../utils/getTime.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   // 获取日期
-  const day = c.req.query("day") || getCurrentDateTime().day;
-  const month = c.req.query("month") || getCurrentDateTime().month;
+  const day = c.req.query("day") || String(getCurrentDateTime().day);
+  const month = c.req.query("month") || String(getCurrentDateTime().month);
   const { fromCache, data, updateTime } = await getList({ month, day }, noCache);
   const routeData: RouterData = {
     name: "history",
