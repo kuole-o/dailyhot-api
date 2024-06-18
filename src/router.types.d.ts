@@ -88,6 +88,13 @@ export type RouterType = {
     category: string;
     raw_hot: number;
     onboard_time: number;
+    flag_desc: string;
+    icon_desc: string;
+    is_boom: string;
+    is_hot: string;
+    is_fei: string;
+    is_new: string;
+    is_warm: string;
   };
   zhihu: {
     target: {

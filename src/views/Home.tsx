@@ -7,7 +7,7 @@ const Home: FC = () => {
     <Layout title="API Collection">
       <main className="home">
         <div className="img">
-          <img src="./public/code-solid.svg" alt="logo" style="opacity:0.5;" />
+          <img src="/dist/code-solid.svg" alt="logo" style="opacity:0.5;" />
         </div>
         <div className="title">
           <h1 className="title-text" style="font-size:2rem;">API Collection</h1>
