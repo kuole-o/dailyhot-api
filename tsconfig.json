@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "declaration": true,
     "declarationMap": true,
     "strict": false,
@@ -10,6 +10,10 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "outDir": "./public",
+    "allowSyntheticDefaultImports": true,
   },
-  "exclude": ["node_modules", "*.test.*"]
+  "exclude": [
+    "node_modules",
+    "*.test.*"
+  ],
 }
