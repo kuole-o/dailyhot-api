@@ -112,6 +112,14 @@ const Home: FC = () => {
 
           document.addEventListener('DOMContentLoaded', function () {
             printTerminalText();
+            fetch('/version')
+              .then(response => response.json())
+              .then(data => {
+                console.log('版本号:', data.version);
+              })
+              .catch(error => {
+                console.error('获取版本号失败:', error);
+              });
           });
         </script>
 

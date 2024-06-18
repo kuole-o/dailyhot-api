@@ -27,6 +27,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Copy package.json
+        run: cp package.json dist/
+
       - name: Publish to npm
         run: npm publish
         env:

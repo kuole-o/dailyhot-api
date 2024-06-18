@@ -12,6 +12,8 @@ import NotFound from "./views/NotFound.js";
 import Home from "./views/Home.js";
 import Error from "./views/Error.js";
 import { HttpError } from './utils/errors.js';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
 const app = new Hono();
 
@@ -89,6 +91,14 @@ app.route("/", registry);
 
 // robots
 app.get("/robots.txt", robotstxt);
+
+// 版本号
+app.get('/version', (c) => {
+  const packageJsonPath = resolve(__dirname, 'package.json');
+  const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+  const version = packageJson.version;
+  return c.json({ version });
+});
 
 // 首页
 app.get("/", (c) => c.html(<Home />));
