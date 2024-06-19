@@ -10,7 +10,7 @@ type Response = {
   createdAt: string;
 };
 
-const noCache: boolean = false;
+const noCache: boolean = true;
 
 // 处理 /newbbtalk 路由
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
