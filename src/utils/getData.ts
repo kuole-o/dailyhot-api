@@ -76,10 +76,12 @@ export const get = async (options: Get) => {
     logger.info("请求接口", { url });
     const response = await request.get(url, { headers, params });
     const responseData = response?.data || response;
-    // 存储新获取的数据到缓存
     const updateTime = new Date().toISOString();
     const data = originaInfo ? response : responseData;
-    setCache(url, { data, updateTime }, ttl);
+    if (!noCache) {
+      // 存储新获取的数据到缓存
+      setCache(url, { data, updateTime }, ttl);
+    }
     // 返回数据
     logger.info("接口调用成功", { status: response?.statusText });
     return { fromCache: false, data, updateTime };
@@ -107,10 +109,10 @@ export const post = async (options: Post) => {
     logger.info("请求接口", { url });
     const response = await request.post(url, body, { headers });
     const responseData = response?.data || response;
-    // 存储新获取的数据到缓存
     const updateTime = new Date().toISOString();
     const data = originaInfo ? response : responseData;
     if (!noCache) {
+      // 存储新获取的数据到缓存
       setCache(url, { data, updateTime }, ttl);
     }
     // 返回数据
@@ -140,9 +142,11 @@ export const web = async (options: Web) => {
     // 缓存不存在时使用 Puppeteer 请求页面
     logger.info("启动浏览器请求页面", { url });
     const pageContent = await cluster.execute({ url, userAgent });
-    // 存储新获取的数据到缓存
     const updateTime = new Date().toISOString();
-    setCache(url, { data: pageContent, updateTime }, ttl);
+    if  (!noCache) {
+      // 存储新获取的数据到缓存
+      setCache(url, { data: pageContent, updateTime }, ttl);
+    }
     // 返回数据
     logger.info("页面内容获取成功");
     return { fromCache: false, data: pageContent, updateTime };
