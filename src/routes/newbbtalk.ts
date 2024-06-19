@@ -38,7 +38,7 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const body = JSON.stringify({ from, content });
   const { fromCache, data, updateTime } = await getList({ body, appId, appKey });
   const response: Response = {
-    code: (data as any).status as number,
+    code: 200,
     message: "哔哔成功",
     objectId: (data as any).objectId as string,
     createdAt: (data as any).createdAt as string,

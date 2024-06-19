@@ -8,7 +8,6 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
     let page: number;
     let limit: number;
     let type: number;
-
     if (c.req.method == "GET") {
       page = c.req.query("page") ? parseInt(c.req.query("page")) : 1;
       limit = c.req.query("limit") ? parseInt(c.req.query("limit")) : 10;
