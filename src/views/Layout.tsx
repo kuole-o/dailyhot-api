@@ -52,6 +52,7 @@ const Layout: FC = (props) => {
         align-items: center;
         padding: 20px;
         margin: 20px 20px 80px 20px;
+        position: absolute;
       }
       .img {
         width: 120px;
@@ -77,6 +78,9 @@ const Layout: FC = (props) => {
       .title .title-tip {
         font-size: 20px;
         opacity: 0.8;
+      }
+      .content  {
+        flex: 1;
       }
       .title .content {
         margin: 20px 0px 0px 0px;
@@ -124,10 +128,9 @@ const Layout: FC = (props) => {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        line-height: 30px;
         padding: 20px;
-        bottom: 0px;
-        position: absolute;
+        position: relative;
+        margin-top: auto;
       }
       .social {
         display: flex;
@@ -260,9 +263,6 @@ const Layout: FC = (props) => {
       @media screen and (max-width: 1024px) {
         body {
           font-size: 24px;
-        }
-        main.home {
-          margin: 20px 0px 100px 0px;
         }
         main.home .img {
           width: 100px;
