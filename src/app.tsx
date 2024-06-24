@@ -12,8 +12,6 @@ import NotFound from "./views/NotFound.js";
 import Home from "./views/Home.js";
 import Error from "./views/Error.js";
 import { HttpError } from './utils/errors.js';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
 
 const app = new Hono();
 
