@@ -116,7 +116,8 @@ const parseData = (data: string) => {
 const getList = async (options: Options, noCache: boolean) => {
   const { type } = options;
   // 必要数据
-  const { params, www } = listType[type];
+  const typeValue = type as keyof typeof listType; 
+  const { params, www } = listType[typeValue];
   const { year, month, day } = getCurrentDateTime(true);
   const url = `https://top.${www}.sina.com.cn/ws/GetTopDataList.php?top_type=day&top_cat=${params}&top_time=${year + month + day}&top_show_num=50`;
   const result = await get({ url, noCache });

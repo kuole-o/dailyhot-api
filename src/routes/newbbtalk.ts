@@ -19,7 +19,9 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const appId: string = c.req.header("X-LC-Id");
   const appKey: string = c.req.header("X-LC-Key");
 
-  if (!appId || !appKey) {
+  if (typeof appId!=='string' || typeof appKey!=='string') {
+    throw new HttpError(500, 'X-LC-Id 和 X-LC-Key 必须是 string 类型');
+  } else if (!appId || !appKey) {
     throw new HttpError(401, '访问未经授权');
   }
 
@@ -40,8 +42,8 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const response: Response = {
     code: 200,
     message: "哔哔成功",
-    objectId: (data as any).objectId as string,
-    createdAt: (data as any).createdAt as string,
+    objectId: ((data as any).objectId as string),
+    createdAt: ((data as any).createdAt as string),
   }
   return response;
 };
@@ -53,11 +55,11 @@ const getList = async ({ body, appId, appKey }: Options) => {
     const result = await post({
       url,
       headers: {
-        'X-LC-Id': appId,
-        'X-LC-Key': appKey,
+        'X-LC-Id': appId as string,
+        'X-LC-Key': appKey as string,
         'Content-Type': 'application/json'
       },
-      body: body,
+      body: body as string,
       noCache,
     });
     await notifyCosFileUpdate();

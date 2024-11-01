@@ -5,23 +5,27 @@ import { HttpError } from "../utils/errors.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   try {
-    let page: number;
-    let limit: number;
-    let type: number;
+    let page: string;
+    let limit: string;
+    let type: string;
     if (c.req.method == "GET") {
-      page = c.req.query("page") ? parseInt(c.req.query("page")) : 1;
-      limit = c.req.query("limit") ? parseInt(c.req.query("limit")) : 10;
-      type = c.req.query("type") ? parseInt(c.req.query("type")) : 1;
+      page = c.req.query("page") ? c.req.query("page") : "1";
+      limit = c.req.query("limit") ? c.req.query("limit") : "10";
+      type = c.req.query("type") ? c.req.query("type") : "1";
     } else if (c.req.method == "POST") {
       const body = await c.req.parseBody();
-      limit = typeof body.limit === 'string' ? parseInt(body.limit) : 10;
-      page = typeof body.page === 'string' ? parseInt(body.page) : 1;
-      type = typeof body.type === 'string' ? parseInt(body.type) : 1;
+      limit = typeof body.limit === 'string' ? body.limit : "10";
+      page = typeof body.page === 'string' ? body.page : "1";
+      type = typeof body.type === 'string' ? body.type : "1";
     } else {
       throw new HttpError(405, 'Method Not Allowed');
     }
 
-    const { fromCache, data, updateTime } = await getList({ page: page.toString(), limit: limit.toString(), type: type.toString() }, noCache);
+    const { fromCache, data, updateTime } = await getList({
+      page: page.toString(),
+      limit: limit.toString(),
+      type: type.toString()
+  }, noCache);
 
     const routeData: RouterData = {
       name: "BBtalk",
@@ -41,9 +45,9 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
 
 const getList = async ({ page, limit, type }: Options, noCache: boolean) => {
   try {
-    const pageNumber = parseInt(page || "1");
-    const limitNumber = parseInt(limit || "10");
-    const typeNumber = parseInt(type || "1");
+    const pageNumber = parseInt(page as string) || 1;
+    const limitNumber = parseInt(limit as string) || 10;
+    const typeNumber = type || "1";
 
     const url = `https://leancloud.guole.fun/1.1/classes/content?limit=${limitNumber}&skip=${(pageNumber - 1) * limitNumber}&order=-createdAt&count=1`;
     const result = await get({
