@@ -10,7 +10,7 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
     name: "genshin",
     title: "原神",
     type: "最新动态",
-    parame: {
+    params: {
       type: {
         name: "榜单分类",
         type: {
@@ -44,9 +44,9 @@ const getList = async (options: Options, noCache: boolean) => {
         title: data.subject,
         desc: data.content,
         cover: data.cover,
-        author: v.user.nickname,
+        author: v.user?.nickname || null,
         timestamp: getTime(data.created_at),
-        hot: v.stat.view_num,
+        hot: data.view_status,
         url: `https://www.miyoushe.com/ys/article/${data.post_id}`,
         mobileUrl: `https://m.miyoushe.com/ys/#/article/${data.post_id}`,
       };

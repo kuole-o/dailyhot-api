@@ -1,52 +1,83 @@
 <div align="center">
 <h1>个人自用 API 接口集合</h1>
 <span>修改自：</span><a href="https://github.com/imsyy/DailyHotApi">DailyHotApi</a><span>，感谢<b>imsyy<b>的分享！</span>
+<br />
+<img src="https://img.shields.io/github/last-commit/imsyy/DailyHotApi" alt="last commit"/>
+ <img src="https://img.shields.io/github/languages/code-size/imsyy/DailyHotApi" alt="code size"/>
+ <img src="https://img.shields.io/docker/image-size/imsyy/dailyhot-api" alt="docker-image-size"/>
+<img src="https://github.com/imsyy/DailyHotApi/actions/workflows/docker.yml/badge.svg" alt="Publish Docker image"/>
+<img src="https://github.com/imsyy/DailyHotApi/actions/workflows/npm.yml/badge.svg" alt="Publish npm package"/>
 </div>
 
+## 🚩 特性
 
+- 极快响应，便于开发
+- 支持 RSS 模式和 JSON 模式
+- 支持多种部署方式
+- 简明的路由目录，便于新增
+
+## 👀 示例
+
+> 这里是使用该 API 的示例站点  
+> 示例站点可能由于访问量或者长久未维护而访问异常  
+> 若您也使用了本 API 搭建了网站，欢迎提交您的站点链接
+
+- [今日热榜 - https://hot.imsyy.top/](https://hot.imsyy.top/)
 ## 🎉 总览
 
 > 🟢 状态正常 / 🟠 可能失效 / ❌ 无法使用 / ⚠️ 需要科学上网
->
-> | **站点**         | **类别**     | **调用名称**   | **状态** |
-> | ---------------- | ------------ | -------------- | -------- |
-> | 哔哩哔哩         | 热门榜       | bilibili       | 🟢        |
-> | AcFun            | 排行榜       | acfun          | 🟢        |
-> | 微博             | 热搜榜       | weibo          | 🟢        |
-> | 知乎             | 热榜         | zhihu          | 🟢        |
-> | 知乎日报         | 推荐榜       | zhihu-daily    | 🟢        |
-> | 百度             | 热搜榜       | baidu          | 🟢        |
-> | 抖音             | 热点榜       | douyin         | 🟢        |
-> | 豆瓣电影         | 新片榜       | douban-movie   | 🟢        |
-> | 豆瓣讨论小组     | 讨论精选     | douban-group   | 🟢        |
-> | 百度贴吧         | 热议榜       | tieba          | 🟢        |
-> | 少数派           | 热榜         | sspai          | 🟢        |
-> | IT之家           | 热榜         | ithome         | 🟠        |
-> | IT之家「喜加一」 | 最新动态     | ithome-xijiayi | 🟠        |
-> | 简书             | 热门推荐     | jianshu        | 🟠        |
-> | 澎湃新闻         | 热榜         | thepaper       | 🟢        |
-> | 今日头条         | 热榜         | toutiao        | 🟢        |
-> | 36 氪            | 热榜         | 36kr           | 🟢        |
-> | 51CTO            | 推荐榜       | 51cto          | 🟢        |
-> | 稀土掘金         | 热榜         | juejin         | 🟢        |
-> | 腾讯新闻         | 热点榜       | qq-news        | 🟢        |
-> | 网易新闻         | 热点榜       | netease-news   | 🟢        |
-> | 吾爱破解         | 榜单         | 52pojie        | ❌        |
-> | 全球主机交流     | 榜单         | hostloc        | ❌        |
-> | 虎嗅             | 24小时       | huxiu          | 🟢        |
-> | 爱范儿           | 快讯         | ifanr          | 🟢        |
-> | 英雄联盟         | 更新公告     | lol            | 🟢        |
-> | 原神             | 最新消息     | genshin        | 🟢        |
-> | 崩坏3            | 最新动态     | honkai         | 🟢        |
-> | 崩坏：星穹铁道   | 最新动态     | starrail       | 🟢        |
-> | 微信读书         | 飙升榜       | weread         | 🟢        |
-> | NGA              | 热帖         | ngabbs         | 🟢        |
-> | V2EX             | 主题榜       | v2ex           | ⚠️        |
-> | HelloGitHub      | Trending     | hellogithub    | 🟢        |
-> | 中央气象台       | 全国气象预警 | weatheralarm   | 🟢        |
-> | 中国地震台       | 地震速报     | earthquake     | 🟢        |
-> | Github 提交日历  | 用户名       | GithubCalendar | 🟢        |
-> | 哔哔闪念         | 最近哔哔     | bbtalk         | 🟢        |
+
+<details>
+<summary>查看全部接口状态</summary>
+
+| **站点**         | **类别**     | **调用名称**   | **状态** |
+| ---------------- | ------------ | -------------- | -------- |
+| 哔哩哔哩         | 热门榜       | bilibili       | 🟢       |
+| AcFun            | 排行榜       | acfun          | 🟢       |
+| 微博             | 热搜榜       | weibo          | 🟢       |
+| 知乎             | 热榜         | zhihu          | 🟢       |
+| 知乎日报         | 推荐榜       | zhihu-daily    | 🟢       |
+| 百度             | 热搜榜       | baidu          | 🟢       |
+| 抖音             | 热点榜       | douyin         | 🟢       |
+| 豆瓣电影         | 新片榜       | douban-movie   | 🟢       |
+| 豆瓣讨论小组     | 讨论精选     | douban-group   | 🟢       |
+| 百度贴吧         | 热议榜       | tieba          | 🟢       |
+| 少数派           | 热榜         | sspai          | 🟢       |
+| IT之家           | 热榜         | ithome         | 🟠       |
+| IT之家「喜加一」 | 最新动态     | ithome-xijiayi | 🟠       |
+| 简书             | 热门推荐     | jianshu        | 🟠       |
+| 澎湃新闻         | 热榜         | thepaper       | 🟢       |
+| 今日头条         | 热榜         | toutiao        | 🟢       |
+| 36 氪            | 热榜         | 36kr           | 🟢       |
+| 51CTO            | 推荐榜       | 51cto          | 🟢       |
+| CSDN             | 排行榜       | csdn           | 🟢       |
+| NodeSeek         | 最新动态     | nodeseek       | 🟢       |
+| 稀土掘金         | 热榜         | juejin         | 🟢       |
+| 腾讯新闻         | 热点榜       | qq-news        | 🟢       |
+| 新浪网           | 热榜         | sina           | 🟢       |
+| 新浪新闻         | 热点榜       | sina-news      | 🟢       |
+| 网易新闻         | 热点榜       | netease-news   | 🟢       |
+| 吾爱破解         | 榜单         | 52pojie        | ❌       |
+| 全球主机交流     | 榜单         | hostloc        | ❌       |
+| 虎嗅             | 24小时       | huxiu          | 🟢       |
+| 虎扑             | 步行街热帖   | hupu           | 🟢       |
+| 爱范儿           | 快讯         | ifanr          | 🟢       |
+| 英雄联盟         | 更新公告     | lol            | 🟢       |
+| 原神             | 最新消息     | genshin        | 🟢       |
+| 崩坏3            | 最新动态     | honkai         | 🟢       |
+| 崩坏：星穹铁道   | 最新动态     | starrail       | 🟢       |
+| 微信读书         | 飙升榜       | weread         | 🟢       |
+| NGA              | 热帖         | ngabbs         | 🟢       |
+| V2EX             | 主题榜       | v2ex           | ⚠️       |
+| HelloGitHub      | Trending     | hellogithub    | 🟢       |
+| 中央气象台       | 全国气象预警 | weatheralarm   | 🟢       |
+| 中国地震台       | 地震速报     | earthquake     | 🟢       |
+| 历史上的今天     | 月-日        | history        | 🟢       |
+| Github 提交日历  | 用户名       | GithubCalendar | 🟢       |
+| 哔哔闪念         | 最近哔哔     | bbtalk         | 🟢       |
+
+
+</details>
 
 ## ⚙️ 使用
 
@@ -54,6 +85,9 @@
 
 ```bash
 pnpm add dailyhot-api
+```
+
+```js
 import serveHotApi from "dailyhot-api";
 
 /**
@@ -66,7 +100,7 @@ serveHotApi(3000);
 
 ## ⚙️ 部署
 
-具体使用说明可参考 [原作者博客](https://blog.imsyy.top/posts/2024/0408)，下方仅讲解基础操作：
+具体使用说明可参考 [我的博客](https://blog.imsyy.top/posts/2024/0408)，下方仅讲解基础操作：
 
 ### Docker 部署
 
@@ -151,3 +185,13 @@ npm run start
 - 本项目并未与相关信息提供方建立任何关联或合作关系，获取的信息均来自公开渠道，如因使用该 `API` 获取信息而产生的任何法律责任，由使用者自行承担
 - 本项目对使用 `API` 获取的信息进行了最大限度的筛选和整理，但不保证信息的准确性和完整性。使用 `API` 获取信息时，请务必自行核实信息的真实性和可靠性，谨慎处理相关事项
 - 本项目保留对 `API` 的随时更改、停用、限制使用等措施的权利。任何因使用本 `API` 产生的损失，本项目不负担任何赔偿和责任
+
+## 😘 鸣谢
+
+特此感谢为本项目提供支持与灵感的项目
+
+- [RSSHub](https://github.com/DIYgod/RSSHub)
+
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=imsyy/DailyHotApi&type=Date)](https://star-history.com/#imsyy/DailyHotApi&Date)

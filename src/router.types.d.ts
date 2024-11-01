@@ -85,8 +85,8 @@ export type RouterType = {
     word: string;
     word_scheme: string;
     note: string;
-    category: string;
-    raw_hot: number;
+    flag_desc: string;
+    num: number;
     onboard_time: number;
     flag_desc: string;
     icon_desc: string;
@@ -135,7 +135,7 @@ export type RouterType = {
       created_at: number;
     };
     stat: {
-      view_num: number;
+      view_status: number;
     };
     user: {
       nickname: string;
@@ -287,5 +287,43 @@ export type RouterType = {
   GithubCalendar: {
     totalContributions: number;
     contributionsSplit: string;
+  };
+    history: {
+    year: string;
+    title: string;
+    link: string;
+    desc: string;
+    cover: string;
+    pic_share: string;
+  };
+  hupu: {
+    tid: number;
+    title: string;
+    replies: number;
+    username: string;
+    time: string;
+    url: string;
+  };
+  sina: {
+    base: {
+      base: {
+        uniqueId: string;
+        url: string;
+      };
+    };
+    info: {
+      hotValue: string;
+      title: string;
+    };
+  };
+  "sina-news": {
+    id: string;
+    title: string;
+    media: string;
+    url: string;
+    create_date: string;
+    create_time: string;
+    top_num: string;
+    time: string;
   };
 };
