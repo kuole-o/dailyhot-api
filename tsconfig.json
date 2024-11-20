@@ -5,6 +5,8 @@
     "moduleResolution": "Bundler",
     "declaration": true,
     "declarationMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
     "strict": false,
     "types": ["node"],
     "jsx": "react-jsx",

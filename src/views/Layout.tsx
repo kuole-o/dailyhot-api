@@ -1,7 +1,9 @@
 import type { FC } from "hono/jsx";
 import { css, Style } from "hono/css";
+import packageJson from '../../package.json';
 
 const Layout: FC = (props) => {
+  const version = packageJson.version;
   const globalClass = css`
     :-hono-global {
       * {
@@ -374,11 +376,11 @@ const Layout: FC = (props) => {
             </a>
           </div>
           <div className="power">
-            Copyright&nbsp;©&nbsp;
+            v{version}&nbsp;&nbsp;|&nbsp;&nbsp;Copyright&nbsp;©&nbsp;
             <a href="https://www.imsyy.top/" target="_blank">
               無名
             </a>
-            &nbsp;|&nbsp;Power by&nbsp;
+            &nbsp;&nbsp;|&nbsp;&nbsp;Power by&nbsp;
             <a href="https://github.com/honojs/hono/" target="_blank">
               Hono
             </a>
