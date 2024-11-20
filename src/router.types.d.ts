@@ -132,9 +132,8 @@ export type RouterType = {
       content: string;
       cover: string;
       created_at: number;
-    };
-    stat: {
       view_status: number;
+      images: string[];
     };
     user: {
       nickname: string;
@@ -324,5 +323,14 @@ export type RouterType = {
     create_time: string;
     top_num: string;
     time: string;
+  };
+  coolapk: {
+    id: number;
+    ttitle: string;
+    shareUrl: string;
+    username:string;
+    tpic: string;
+    message: string;
+    replynum: number;
   };
 };

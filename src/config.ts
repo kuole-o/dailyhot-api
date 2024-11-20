@@ -9,6 +9,7 @@ export type Config = {
   CACHE_TTL: number;
   REQUEST_TIMEOUT: number;
   ALLOWED_DOMAIN: string;
+  ALLOWED_HOST: string;
   USE_LOG_FILE: boolean;
   RSS_MODE: boolean;
 };
@@ -46,5 +47,6 @@ export const config: Config = {
   REQUEST_TIMEOUT: getNumericEnvVariable("CACHE_TTL", 6000),
   ALLOWED_DOMAIN: getEnvVariable("ALLOWED_DOMAIN") || "*",
   USE_LOG_FILE: getBooleanEnvVariable("USE_LOG_FILE", true),
+  ALLOWED_HOST: getEnvVariable("ALLOWED_HOST") || "guole.fun",
   RSS_MODE: getBooleanEnvVariable("RSS_MODE", false),
 };
