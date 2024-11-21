@@ -1,12 +1,6 @@
 import type { FC } from "hono/jsx";
 import { html } from "hono/html";
 import Layout from "./Layout.js";
-import fs from 'fs/promises';
-import path from 'path';
-
-const packagePath = path.resolve('./', 'package.json');
-const packageJson = JSON.parse(await fs.readFile(packagePath, 'utf-8'));
-const version = packageJson.version;
 
 const Home: FC = () => {
   return (
@@ -96,7 +90,7 @@ const Home: FC = () => {
           let terminalText, type, speed;
           let path = window.location.pathname;
           if (path === "/") {
-            terminalText = \`Hello World!\\n服务已正常运行...\\nVersion: ${version}\\n\\n\${times}\\n\`;
+            terminalText = \`Hello World!\\n服务已正常运行...\\n\\n\${times}\\n\`;
             type = 1;
             speed = 30;
           } else {
@@ -117,10 +111,16 @@ const Home: FC = () => {
           };
           document.addEventListener('DOMContentLoaded', function () {
             printTerminalText();
-            console.log('当前 API 接口版本号:', '${version}');
+            fetch('https://raw.githubusercontent.com/kuole-o/api/main/package.json')
+              .then(response => response.json())
+              .then(data => {
+                console.log('当前 API 远程仓库版本号:', data.version);
+              })
+              .catch(error => {
+                console.error('获取版本号失败:', error);
+              });
           });
         </script>
-
       `}
     </Layout>
   );
