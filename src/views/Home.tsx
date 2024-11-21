@@ -1,8 +1,14 @@
 import type { FC } from "hono/jsx";
 import { html } from "hono/html";
 import Layout from "./Layout.js";
-import packageJson from './package.json';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const packagePath = path.resolve(__dirname, 'package.json');
+const packageJson = JSON.parse(await fs.readFile(packagePath, 'utf-8'));
 const version = packageJson.version;
 
 const Home: FC = () => {
