@@ -1,3 +1,4 @@
+# 由于当前 vercel 部署使用 npm 包方式安装，因此需保持 npm 版本发布
 name: Publish npm package
 
 on:
