@@ -56,6 +56,15 @@ const Layout: FC = (props) => {
         margin: 20px 20px 80px 20px;
         position: absolute;
       }
+      @media screen and (max-width: 768px) {
+        main {
+          margin: 0px 0px 80px 0px;
+          padding: 0px;
+        }
+        .terminal {
+          margin-top: 0rem;
+        }
+      }
       .img {
         width: 120px;
         height: 120px;
@@ -217,7 +226,7 @@ const Layout: FC = (props) => {
         background-color: var(--text-color-hover);
         border: var(--text-color) solid;
         border-radius: 4px;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 1.2rem;
         transition: all 0.5s ease;
         margin: 1rem 0.4rem;
         color: var(--text-color);
@@ -282,7 +291,7 @@ const Layout: FC = (props) => {
           margin-top: 2rem;
         }
         .typewriterContent {
-          width: calc(100vw - 32px); /* 计算宽度 */
+          width: calc(100vw - 22px); /* 计算宽度 */
           overflow-x: auto; /* 横向滚动条 */
           padding: 50px 10px;
         }
@@ -376,11 +385,11 @@ const Layout: FC = (props) => {
             </a>
           </div>
           <div className="power">
-            v{version}&nbsp;&nbsp;|&nbsp;&nbsp;Copyright&nbsp;©&nbsp;
+            Copyright&nbsp;©&nbsp;
             <a href="https://www.imsyy.top/" target="_blank">
               無名
             </a>
-            &nbsp;&nbsp;|&nbsp;&nbsp;Power by&nbsp;
+            &nbsp;|&nbsp;Power by&nbsp;
             <a href="https://github.com/honojs/hono/" target="_blank">
               Hono
             </a>

@@ -1,6 +1,9 @@
 import type { FC } from "hono/jsx";
 import { html } from "hono/html";
 import Layout from "./Layout.js";
+import packageJson from '../../package.json';
+
+const version = packageJson.version;
 
 const Home: FC = () => {
   return (
@@ -87,14 +90,15 @@ const Home: FC = () => {
           // 模拟终端效果
           const terminalOutput = document.getElementById('terminal-output');
           const time = new Date();
+          const times = time.toLocaleDateString() + " " + time.toTimeString();
           let terminalText, type, speed;
           let path = window.location.pathname;
           if (path === "/") {
-            terminalText = \`Hello World!\\n服务已正常运行...\\n\\n\${time}\\n\`;
+            terminalText = \`Hello World!\\n服务已正常运行...\\nVersion: ${version}\\n\\n\${times}\\n\`;
             type = 1;
-            speed = 50;
+            speed = 30;
           } else {
-            terminalText = \`出错了！\\n请检查您的调用路径与调用方法...\\n\\n\${time}\\n\`;
+            terminalText = \`出错了！\\n请检查您的调用路径与调用方法...\\n\\n\${times}\\n\`;
             type = 2;
             speed = 20;
           }
