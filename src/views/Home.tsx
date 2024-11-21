@@ -116,14 +116,7 @@ const Home: FC = () => {
 
           document.addEventListener('DOMContentLoaded', function () {
             printTerminalText();
-            fetch('https://raw.githubusercontent.com/kuole-o/api/main/package.json')
-              .then(response => response.json())
-              .then(data => {
-                console.log('当前 API 接口版本号:', data.version);
-              })
-              .catch(error => {
-                console.error('获取版本号失败:', error);
-              });
+            console.log('当前 API 接口版本号:', '${version}');
           });
         </script>
 
