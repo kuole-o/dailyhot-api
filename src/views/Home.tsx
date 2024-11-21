@@ -83,42 +83,49 @@ const Home: FC = () => {
           darkModeMediaQuery.addEventListener("change", toggleDarkMode);
           toggleDarkMode(darkModeMediaQuery);
 
-          // 模拟终端效果
-          const terminalOutput = document.getElementById('terminal-output');
-          const time = new Date();
-          const times = time.toLocaleDateString() + " " + time.toTimeString();
-          let terminalText, type, speed;
-          let path = window.location.pathname;
-          if (path === "/") {
-            terminalText = \`Hello World!\\n服务已正常运行...\\n\\n\${times}\\n\`;
-            type = 1;
-            speed = 30;
-          } else {
-            terminalText = \`出错了！\\n请检查您的调用路径与调用方法...\\n\\n\${times}\\n\`;
-            type = 2;
-            speed = 20;
-          }
-          const printTerminalText = () => {
-            let index = 0;
-            const printChar = () => {
-              if (index < terminalText.length) {
-                terminalOutput.textContent += terminalText[index];
-                index++;
-                setTimeout(printChar, speed);
+          const getApiVersion = async () => {
+            try {
+              const response = await fetch('/package.json');
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
               }
+              const data = await response.json();
+              return data.version;
+            } catch (error) {
+              console.error('Failed to fetch API version:', error);
+              return null;
+            }
+          }
+          document.addEventListener('DOMContentLoaded', async () => {
+            const version = await getApiVersion();
+            // 模拟终端效果
+            const terminalOutput = document.getElementById('terminal-output');
+            const time = new Date();
+            const times = time.toLocaleDateString() + " " + time.toTimeString();
+            let terminalText, type, speed;
+            let path = window.location.pathname;
+            if (path === "/") {
+              terminalText = \`Hello World!\\n服务已正常运行...\\nVersion: \${version}\\n\\n\${times}\\n\`;
+              type = 1;
+              speed = 30;
+            } else {
+              terminalText = \`出错了！\\n请检查您的调用路径与调用方法...\\nVersion: \${version}\\n\\n\${times}\\n\`;
+              type = 2;
+              speed = 20;
+            }
+            const printTerminalText = () => {
+              let index = 0;
+              const printChar = () => {
+                if (index < terminalText.length) {
+                  terminalOutput.textContent += terminalText[index];
+                  index++;
+                  setTimeout(printChar, speed);
+                }
+              };
+              printChar();
             };
-            printChar();
-          };
-          document.addEventListener('DOMContentLoaded', function () {
             printTerminalText();
-            fetch('https://raw.githubusercontent.com/kuole-o/api/main/package.json')
-              .then(response => response.json())
-              .then(data => {
-                console.log('当前 API 远程仓库版本号:', data.version);
-              })
-              .catch(error => {
-                console.error('获取版本号失败:', error);
-              });
+            console.log('当前 API 远程仓库版本号:', version);
           });
         </script>
       `}

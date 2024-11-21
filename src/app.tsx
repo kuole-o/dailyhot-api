@@ -80,13 +80,13 @@ app.use(
 );
 
 // 静态资源
-// app.use(
-//   "/*",
-//   serveStatic({
-//     root: "./public",
-//     rewriteRequestPath: (path) => (path === "/favicon.ico" ? "/favicon.png" : path),
-//   }),
-// );
+app.use(
+  "/*",
+  serveStatic({
+    root: "./public",
+    rewriteRequestPath: (path) => (path === "/favicon.ico" ? "/favicon.png" : path),
+  }),
+);
 
 // 主路由
 app.route("/", registry);

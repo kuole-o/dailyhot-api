@@ -16,7 +16,7 @@ const NotFound: FC = () => {
         </div>
         <div className="title">
           <h1 className="title-text">404 Not Found</h1>
-          <span className="title-tip">请检查您的路径</span>
+          <span className="title-tip">请检查您的访问路径</span>
         </div>
         <div class="control">
           <button id="home-button">
