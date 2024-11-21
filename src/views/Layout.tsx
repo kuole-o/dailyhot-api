@@ -1,9 +1,7 @@
 import type { FC } from "hono/jsx";
 import { css, Style } from "hono/css";
-import packageJson from '../../package.json';
 
 const Layout: FC = (props) => {
-  const version = packageJson.version;
   const globalClass = css`
     :-hono-global {
       * {

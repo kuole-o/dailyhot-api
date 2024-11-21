@@ -1,7 +1,7 @@
 import type { FC } from "hono/jsx";
 import { html } from "hono/html";
 import Layout from "./Layout.js";
-import packageJson from '../../package.json';
+import packageJson from './package.json';
 
 const version = packageJson.version;
 
@@ -74,7 +74,6 @@ const Home: FC = () => {
               console.error('Failed to fetch paths:', error);
             }
           });
-          
           // 跟随系统主题
           const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
           const toggleDarkMode = (darkModeMediaQuery) => {
@@ -113,7 +112,6 @@ const Home: FC = () => {
             };
             printChar();
           };
-
           document.addEventListener('DOMContentLoaded', function () {
             printTerminalText();
             console.log('当前 API 接口版本号:', '${version}');
