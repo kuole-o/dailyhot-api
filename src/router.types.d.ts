@@ -341,6 +341,6 @@ export type RouterType = {
       startdate: string;
       fullstartdate: string;
       enddate: string;
-      quiz: string;
+      title: string;
   };
 };

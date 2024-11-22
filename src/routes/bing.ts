@@ -1,16 +1,16 @@
-import type { RouterData, ListContext, Options } from "../types.js";
+import type { OtherData, ListContext, Options } from "../types.js";
 import type { RouterType } from "../router.types.js";
 import { get } from "../utils/getData.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const { fromCache, data, updateTime } = await getList(noCache);
-  const routeData: RouterData = {
+  const routeData: OtherData = {
     name: "Bing",
     title: "必应",
     type: "每日一图",
     description: "必应精品每日一图，可用作壁纸",
     link: "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1",
-    total: data?.length || 0,
+    total: 1,
     updateTime,
     fromCache,
     data,
@@ -29,19 +29,27 @@ const getList = async (noCache: boolean) => {
     },
   });
 
-  const list = result.data.images[0];
+  const images = result.data?.images || [];
+
+  if (images.length === 0) {
+    throw new Error("No images found in the response");
+  }
+
+  const firstImage = images[0];
+  console.log(firstImage);
+
   return {
     fromCache: result.fromCache,
     updateTime: result.updateTime,
-    data: list.map((v: RouterType["bing"]) => ({
-      url: v.url,
-      urlbase: v.urlbase,
-      copyright: v.copyright,
-      copyrightlink: v.copyrightlink,
-      startdate: v.startdate,
-      fullstartdate: v.fullstartdate,
-      enddate: v.enddate,
-      quiz: v.quiz,
-    })),
+    data: {
+      title: firstImage.title,
+      url: firstImage.url,
+      urlbase: firstImage.urlbase,
+      copyright: firstImage.copyright,
+      copyrightlink: firstImage.copyrightlink,
+      startdate: firstImage.startdate,
+      fullstartdate: firstImage.fullstartdate,
+      enddate: firstImage.enddate,
+    },
   };
 };

@@ -30,6 +30,29 @@ export type RouterData = {
   data: ListItem[];
 };
 
+// 其他数据
+export type OtherData = {
+  name: string;
+  title: string;
+  type: string;
+  description?: string;
+  params?: Record<string, string | object>;
+  total: number;
+  link?: string;
+  updateTime: string;
+  fromCache: boolean;
+  data: {
+    url: string;
+    urlbase: string;
+    copyright: string;
+    copyrightlink: string;
+    startdate: string;
+    fullstartdate: string;
+    enddate: string;
+    title: string;
+  };
+};
+
 // 请求类型
 export type Get = {
   url: string;
