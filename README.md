@@ -76,6 +76,7 @@
 | 历史上的今天     | 月-日        | history        | 🟢       |
 | Github 提交日历  | 用户名       | GithubCalendar | 🟢       |
 | 哔哔闪念         | 最近哔哔     | bbtalk         | 🟢       |
+| 必应        | 每日一图     | bing         | 🟢       |
 
 
 </details>

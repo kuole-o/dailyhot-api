@@ -333,14 +333,4 @@ export type RouterType = {
     message: string;
     replynum: number;
   };
-  bing: {
-      url: string;
-      urlbase: string;
-      copyright: string;
-      copyrightlink: string;
-      startdate: string;
-      fullstartdate: string;
-      enddate: string;
-      title: string;
-  };
 };

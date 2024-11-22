@@ -3,6 +3,7 @@ import type { RouterType } from "../router.types.js";
 import { get } from "../utils/getData.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
+  const format = c.req.query("format") || "json";
   const { fromCache, data, updateTime } = await getList(noCache);
   const routeData: OtherData = {
     name: "Bing",
@@ -15,7 +16,14 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
     fromCache,
     data,
   };
-  return routeData;
+  const imagesData = `https://cn.bing.com${data.url}`;
+  if(format && format == 'json') {
+    return routeData;
+  } else {
+    c.status(307);
+    c.redirect(imagesData);
+    return;
+  }
 };
 
 const getList = async (noCache: boolean) => {
