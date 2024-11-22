@@ -3,7 +3,7 @@ import type { RouterType } from "../router.types.js";
 import { get } from "../utils/getData.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
-  const format = c.req.query("format") || "json";
+  const format = c.req.query("format");
   const { fromCache, data, updateTime } = await getList(noCache);
   const routeData: OtherData = {
     name: "Bing",
