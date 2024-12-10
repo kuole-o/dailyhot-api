@@ -4,7 +4,7 @@
 <br />
 <img src="https://img.shields.io/github/last-commit/imsyy/DailyHotApi" alt="last commit"/>
  <img src="https://img.shields.io/github/languages/code-size/imsyy/DailyHotApi" alt="code size"/>
- <img src="https://img.shields.io/docker/image-size/imsyy/dailyhot-api" alt="docker-image-size"/>
+ <img src="https://img.shields.io/docker/image-size/imsyy/guole.fun.api" alt="docker-image-size"/>
 <img src="https://github.com/imsyy/DailyHotApi/actions/workflows/docker.yml/badge.svg" alt="Publish Docker image"/>
 <img src="https://github.com/imsyy/DailyHotApi/actions/workflows/npm.yml/badge.svg" alt="Publish npm package"/>
 </div>
@@ -23,6 +23,7 @@
 > 若您也使用了本 API 搭建了网站，欢迎提交您的站点链接
 
 - [今日热榜 - https://hot.imsyy.top/](https://hot.imsyy.top/)
+- [每日热搜 - https://hot.guole.fun/](https://hot.guole.fun/)
 ## 🎉 总览
 
 > 🟢 状态正常 / 🟠 可能失效 / ❌ 无法使用 / ⚠️ 需要科学上网
@@ -86,11 +87,11 @@
 本项目支持 `Node.js` 调用，可在安装完成后调用 `serveHotApi` 来开启服务器
 
 ```bash
-pnpm add dailyhot-api
+pnpm add guole.fun.api
 ```
 
 ```js
-import serveHotApi from "dailyhot-api";
+import serveHotApi from "guole.fun.api";
 
 /**
  * 启动服务器
@@ -112,9 +113,9 @@ serveHotApi(3000);
 
 ```bash
 # 构建
-docker build -t dailyhot-api .
+docker build -t guole.fun.api .
 # 运行
-docker run -p 6688:6688 -d dailyhot-api
+docker run -p 6688:6688 -d guole.fun.api
 # 或使用 Docker Compose
 docker-compose up -d
 ```
@@ -123,9 +124,9 @@ docker-compose up -d
 
 ```bash
 # 拉取
-docker pull imsyy/dailyhot-api:latest
+docker pull kuole-o/guole.fun.api:latest
 # 运行
-docker run -p 6688:6688 -d imsyy/dailyhot-api:latest
+docker run -p 6688:6688 -d kuole-o/guole.fun.api:latest
 ```
 
 ### 手动部署
@@ -135,7 +136,7 @@ docker run -p 6688:6688 -d imsyy/dailyhot-api:latest
 #### 安装
 
 ```bash
-git clone https://github.com/imsyy/DailyHotApi.git
+git clone https://github.com/kuole-o/api.git
 cd DailyHotApi
 ```
 

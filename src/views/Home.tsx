@@ -83,21 +83,23 @@ const Home: FC = () => {
           darkModeMediaQuery.addEventListener("change", toggleDarkMode);
           toggleDarkMode(darkModeMediaQuery);
 
-          const getApiVersion = async () => {
+          const getApiVersion = async (url) => {
             try {
-              const response = await fetch('/package.json');
+              const response = await fetch(url);
               if (!response.ok) {
                 throw new Error('Network response was not ok');
               }
               const data = await response.json();
-              return data.version;
+              return data
             } catch (error) {
               console.error('Failed to fetch API version:', error);
               return null;
             }
           }
           document.addEventListener('DOMContentLoaded', async () => {
-            const version = await getApiVersion();
+            const version = await getApiVersion('/package.json');
+            const version_git = await getApiVersion('//raw.githubusercontent.com/kuole-o/api/refs/heads/main/package.json');
+            const version_vercel = await getApiVersion('//raw.githubusercontent.com/kuole-o/api-vercel/refs/heads/main/package.json');
             // 模拟终端效果
             const terminalOutput = document.getElementById('terminal-output');
             const time = new Date();
@@ -105,11 +107,11 @@ const Home: FC = () => {
             let terminalText, type, speed;
             let path = window.location.pathname;
             if (path === "/") {
-              terminalText = \`Hello World!\\n服务已正常运行...\\nVersion: \${version}\\n\\n\${times}\\n\`;
+              terminalText = \`Hello World!\\n服务已正常运行...\\nVersion: \${version_git.version}\\n\\n\${times}\\n\`;
               type = 1;
               speed = 30;
             } else {
-              terminalText = \`出错了！\\n请检查您的调用路径与调用方法...\\nVersion: \${version}\\n\\n\${times}\\n\`;
+              terminalText = \`出错了！\\n请检查您的调用路径与调用方法...\\nVersion: \${version_git.version}\\n\\n\${times}\\n\`;
               type = 2;
               speed = 20;
             }
@@ -125,7 +127,9 @@ const Home: FC = () => {
               printChar();
             };
             printTerminalText();
-            console.log('当前 API 远程仓库版本号:', version);
+            console.log('当前 API 本地版本号:', version.version);
+            console.log('当前 API 远程仓库版本:', version_git.version);
+            console.log('当前 API 部署依赖版本:', version_vercel.dependencies["guole.fun.api"]);
           });
         </script>
       `}
