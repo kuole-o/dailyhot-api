@@ -127,7 +127,7 @@ const Home: FC = () => {
               printChar();
             };
             printTerminalText();
-            console.log('当前 API 本地版本号:', version.version);
+            console.log('当前 API 本地版本号:', version.version || version_git.version);
             console.log('当前 API 远程仓库版本:', version_git.version);
             console.log('当前 API 部署依赖版本:', version_vercel.dependencies["guole.fun.api"]);
           });
