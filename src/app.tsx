@@ -94,11 +94,17 @@ app.route("/", registry);
 // robots
 app.get("/robots.txt", robotstxt);
 
+const headContent = `
+<head>
+  <script defer src="https://umami.guole.fun/script.js" data-website-id="45118a74-6cda-4f3e-bd9b-7f68181a2bc1" data-domains="api.guole.fun"></script>
+</head>
+`;
+
 // 首页
-app.get("/", (c) => c.html(<Home />));
+app.get("/", (c) => c.html(headContent + <Home />));
 
 // 404
-app.notFound((c) => c.html(<NotFound />, 404));
+app.notFound((c) => c.html(headContent + <NotFound />, 404));
 
 // error
 app.onError((err, c) => {
@@ -124,7 +130,7 @@ app.onError((err, c) => {
     }
   }
 
-  return c.html(<Error error={err?.message} />, 500);
+  return c.html(headContent + <Error error={err?.message} />, 500);
 });
 
 export default app;

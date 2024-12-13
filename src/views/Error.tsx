@@ -47,7 +47,6 @@ const Error: FC = (props) => {
         </div>
       </main>
       {html`
-        <script defer src="https://umami.guole.fun/script.js" data-website-id="45118a74-6cda-4f3e-bd9b-7f68181a2bc1" data-domains="api.guole.fun"></script>
         <script>
           document.getElementById("reload-button").addEventListener("click", () => {
             window.location.reload();
