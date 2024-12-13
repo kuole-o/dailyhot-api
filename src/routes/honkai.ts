@@ -5,7 +5,7 @@ import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const type = c.req.query("type") || "1";
-  const { fromCache, data, updateTime } = await getList({ type }, noCache);
+  const listData = await getList({ type }, noCache);
   const routeData: RouterData = {
     name: "honkai",
     title: "崩坏3",
@@ -21,10 +21,8 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
       },
     },
     link: "https://www.miyoushe.com/bh3/home/6",
-    total: data?.length || 0,
-    updateTime,
-    fromCache,
-    data,
+    total: listData.data?.length || 0,
+    ...listData,
   };
   return routeData;
 };
@@ -35,8 +33,7 @@ const getList = async (options: Options, noCache: boolean) => {
   const result = await get({ url, noCache });
   const list = result.data.data.list;
   return {
-    fromCache: result.fromCache,
-    updateTime: result.updateTime,
+    ...result,
     data: list.map((v: RouterType["miyoushe"]) => {
       const data = v.post;
       return {
@@ -44,7 +41,7 @@ const getList = async (options: Options, noCache: boolean) => {
         title: data.subject,
         desc: data.content,
         cover: data.cover || data?.images?.[0],
-        author: v.user?.nickname || null,
+        author: v.user?.nickname || undefined,
         timestamp: getTime(data.created_at),
         hot: data.view_status,
         url: `https://www.miyoushe.com/bh3/article/${data.post_id}`,

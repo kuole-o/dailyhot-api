@@ -1,19 +1,18 @@
 import type { RouterData } from "../types.js";
 import { load } from "cheerio";
 import { get } from "../utils/getData.js";
+import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
-  const { fromCache, data, updateTime } = await getList(noCache);
+  const listData = await getList(noCache);
   const routeData: RouterData = {
     name: "ithome",
     title: "IT之家",
     type: "热榜",
     description: "爱科技，爱这里 - 前沿科技新闻网站",
     link: "https://m.ithome.com/rankm/",
-    total: data?.length || 0,
-    updateTime,
-    fromCache,
-    data,
+    total: listData.data?.length || 0,
+    ...listData,
   };
   return routeData;
 };
@@ -43,15 +42,14 @@ const getList = async (noCache: boolean) => {
       id: href ? Number(replaceLink(href, true)) : 100000,
       title: dom.find(".plc-title").text().trim(),
       cover: dom.find("img").attr("data-original"),
-      timestamp: dom.find("span.post-time").text().trim(),
+      timestamp: getTime(dom.find("span.post-time").text().trim()),
       hot: Number(dom.find(".review-num").text().replace(/\D/g, "")),
-      url: href ? replaceLink(href) : undefined,
-      mobileUrl: href || undefined,
+      url: href ? replaceLink(href) : "",
+      mobileUrl: href ? replaceLink(href) : "",
     };
   });
   return {
-    fromCache: result.fromCache,
-    updateTime: result.updateTime,
+    ...result,
     data: listData,
   };
 };

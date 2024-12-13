@@ -1,12 +1,23 @@
 import RSSParser from "rss-parser";
 import logger from "./logger.js";
 
+/**
+ * 提取 RSS 内容
+ * @param content HTML 内容
+ * @returns RSS 内容
+ */
 export const extractRss = (content: string): string | null => {
   // 匹配 <rss> 标签及内容
   const rssRegex = /(<rss[\s\S]*?<\/rss>)/i;
   const matches = content.match(rssRegex);
   return matches ? matches[0] : null;
 };
+
+/**
+ * 解析 RSS 内容
+ * @param rssContent RSS 内容
+ * @returns 解析后的 RSS 内容
+ */
 export const parseRSS = async (rssContent: string) => {
   const parser = new RSSParser();
   // 是否为网址
@@ -14,7 +25,8 @@ export const parseRSS = async (rssContent: string) => {
     try {
       new URL(url);
       return true;
-    } catch (_) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
       return false;
     }
   };
@@ -35,7 +47,7 @@ export const parseRSS = async (rssContent: string) => {
     // 返回解析数据
     return items;
   } catch (error) {
-    logger.error("解析 RSS 内容时出错：", error);
-    return null;
+    logger.error("❌ [RSS] An error occurred while parsing RSS content");
+    throw error;
   }
 };

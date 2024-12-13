@@ -1,6 +1,6 @@
 <div align="center">
 <h1>个人自用 API 接口集合</h1>
-<span>修改自：</span><a href="https://github.com/imsyy/DailyHotApi">DailyHotApi（v2.0.6）</a><span>，感谢<b>imsyy<b>的分享！</span>
+<span>修改自：</span><a href="https://github.com/imsyy/DailyHotApi">DailyHotApi（v2.0.7）</a><span>，感谢<b>imsyy<b>的分享！</span>
 <br />
 <img src="https://img.shields.io/github/last-commit/imsyy/DailyHotApi" alt="last commit"/>
  <img src="https://img.shields.io/github/languages/code-size/imsyy/DailyHotApi" alt="code size"/>
@@ -24,67 +24,72 @@
 
 - [今日热榜 - https://hot.imsyy.top/](https://hot.imsyy.top/)
 - [每日热搜 - https://hot.guole.fun/](https://hot.guole.fun/)
-## 🎉 总览
+
+## 📊 接口总览
 
 > 🟢 状态正常 / 🟠 可能失效 / ❌ 无法使用 / ⚠️ 需要科学上网
 
 <details>
-<summary>查看全部接口状态</summary>
+<summary>查看全部接口</summary>
 
-| **站点**         | **类别**     | **调用名称**   | **状态** |
-| ---------------- | ------------ | -------------- | -------- |
-| 哔哩哔哩         | 热门榜       | bilibili       | 🟢       |
-| AcFun            | 排行榜       | acfun          | 🟢       |
-| 微博             | 热搜榜       | weibo          | 🟢       |
-| 知乎             | 热榜         | zhihu          | 🟢       |
-| 知乎日报         | 推荐榜       | zhihu-daily    | 🟢       |
-| 百度             | 热搜榜       | baidu          | 🟢       |
-| 抖音             | 热点榜       | douyin         | 🟢       |
-| 豆瓣电影         | 新片榜       | douban-movie   | 🟢       |
-| 豆瓣讨论小组     | 讨论精选     | douban-group   | 🟢       |
-| 百度贴吧         | 热议榜       | tieba          | 🟢       |
-| 少数派           | 热榜         | sspai          | 🟢       |
-| IT之家           | 热榜         | ithome         | 🟠       |
-| IT之家「喜加一」 | 最新动态     | ithome-xijiayi | 🟠       |
-| 简书             | 热门推荐     | jianshu        | 🟠       |
-| 澎湃新闻         | 热榜         | thepaper       | 🟢       |
-| 今日头条         | 热榜         | toutiao        | 🟢       |
-| 36 氪            | 热榜         | 36kr           | 🟢       |
-| 51CTO            | 推荐榜       | 51cto          | 🟢       |
-| CSDN             | 排行榜       | csdn           | 🟢       |
-| NodeSeek         | 最新动态     | nodeseek       | 🟠       |
-| 稀土掘金         | 热榜         | juejin         | 🟢       |
-| 腾讯新闻         | 热点榜       | qq-news        | 🟢       |
-| 新浪网           | 热榜         | sina           | 🟢       |
-| 新浪新闻         | 热点榜       | sina-news      | 🟢       |
-| 网易新闻         | 热点榜       | netease-news   | 🟢       |
-| 吾爱破解         | 榜单         | 52pojie        | ❌       |
-| 全球主机交流     | 榜单         | hostloc        | ❌       |
-| 虎嗅             | 24小时       | huxiu          | 🟢       |
-| 酷安             | 热榜   | coolapk           | 🟢       |
-| 虎扑             | 步行街热帖   | hupu           | 🟢       |
-| 爱范儿           | 快讯         | ifanr          | 🟢       |
-| 英雄联盟         | 更新公告     | lol            | 🟢       |
-| 原神             | 最新消息     | genshin        | 🟢       |
-| 崩坏3            | 最新动态     | honkai         | 🟢       |
-| 崩坏：星穹铁道   | 最新动态     | starrail       | 🟢       |
-| 微信读书         | 飙升榜       | weread         | 🟢       |
-| NGA              | 热帖         | ngabbs         | 🟢       |
-| V2EX             | 主题榜       | v2ex           | ⚠️       |
-| HelloGitHub      | Trending     | hellogithub    | 🟢       |
-| 中央气象台       | 全国气象预警 | weatheralarm   | 🟠       |
-| 中国地震台       | 地震速报     | earthquake     | 🟠       |
-| 历史上的今天     | 月-日        | history        | 🟢       |
-| Github 提交日历  | 用户名       | GithubCalendar | 🟢       |
-| 哔哔闪念         | 最近哔哔     | bbtalk         | 🟢       |
-| 必应        | 每日一图     | bing         | 🟢       |
-
-
+> 示例站点运行于海外服务器，部分国内站点可能存在访问异常，请以实际情况为准
+| **站点**         | **类别**     | **调用名称**   | **状态**                                                                                                                                                            |
+| ---------------- | ------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 哔哩哔哩         | 热门榜       | bilibili       | ![https://api.guole.fun/bilibili](https://img.shields.io/website.svg?label=bilibili&url=https://api.guole.fun/bilibili&cacheSeconds=7200)                   |
+| AcFun            | 排行榜       | acfun          | ![https://api.guole.fun/acfun](https://img.shields.io/website.svg?label=acfun&url=https://api.guole.fun/acfun&cacheSeconds=7200)                            |
+| 微博             | 热搜榜       | weibo          | ![https://api.guole.fun/weibo](https://img.shields.io/website.svg?label=weibo&url=https://api.guole.fun/weibo&cacheSeconds=7200)                            |
+| 知乎             | 热榜         | zhihu          | ![https://api.guole.fun/zhihu](https://img.shields.io/website.svg?label=zhihu&url=https://api.guole.fun/zhihu&cacheSeconds=7200)                            |
+| 知乎日报         | 推荐榜       | zhihu-daily    | ![https://api.guole.fun/zhihu-daily](https://img.shields.io/website.svg?label=zhihu-daily&url=https://api.guole.fun/zhihu-daily&cacheSeconds=7200)          |
+| 百度             | 热搜榜       | baidu          | ![https://api.guole.fun/baidu](https://img.shields.io/website.svg?label=baidu&url=https://api.guole.fun/baidu&cacheSeconds=7200)                            |
+| 抖音             | 热点榜       | douyin         | ![https://api.guole.fun/douyin](https://img.shields.io/website.svg?label=douyin&url=https://api.guole.fun/douyin&cacheSeconds=7200)                         |
+| 快手             | 热点榜       | kuaishou       | ![https://api.guole.fun/kuaishou](https://img.shields.io/website.svg?label=kuaishou&url=https://api.guole.fun/kuaishou&cacheSeconds=7200)                   |
+| 豆瓣电影         | 新片榜       | douban-movie   | ![https://api.guole.fun/douban-movie](https://img.shields.io/website.svg?label=douban-movie&url=https://api.guole.fun/douban-movie&cacheSeconds=7200)       |
+| 豆瓣讨论小组     | 讨论精选     | douban-group   | ![https://api.guole.fun/douban-group](https://img.shields.io/website.svg?label=douban-group&url=https://api.guole.fun/douban-group&cacheSeconds=7200)       |
+| 百度贴吧         | 热议榜       | tieba          | ![https://api.guole.fun/tieba](https://img.shields.io/website.svg?label=tieba&url=https://api.guole.fun/tieba&cacheSeconds=7200)                            |
+| 少数派           | 热榜         | sspai          | ![https://api.guole.fun/sspai](https://img.shields.io/website.svg?label=sspai&url=https://api.guole.fun/sspai&cacheSeconds=7200)                            |
+| IT之家           | 热榜         | ithome         | ![https://api.guole.fun/ithome](https://img.shields.io/website.svg?label=ithome&url=https://api.guole.fun/ithome&cacheSeconds=7200)                         |
+| IT之家「喜加一」 | 最新动态     | ithome-xijiayi | ![https://api.guole.fun/ithome-xijiayi](https://img.shields.io/website.svg?label=ithome-xijiayi&url=https://api.guole.fun/ithome-xijiayi&cacheSeconds=7200) |
+| 简书             | 热门推荐     | jianshu        | ![https://api.guole.fun/jianshu](https://img.shields.io/website.svg?label=jianshu&url=https://api.guole.fun/jianshu&cacheSeconds=7200)                      |
+| 果壳             | 热门文章     | guokr          | ![https://api.guole.fun/guokr](https://img.shields.io/website.svg?label=guokr&url=https://api.guole.fun/guokr&cacheSeconds=7200)                            |
+| 澎湃新闻         | 热榜         | thepaper       | ![https://api.guole.fun/thepaper](https://img.shields.io/website.svg?label=thepaper&url=https://api.guole.fun/thepaper&cacheSeconds=7200)                   |
+| 今日头条         | 热榜         | toutiao        | ![https://api.guole.fun/toutiao](https://img.shields.io/website.svg?label=toutiao&url=https://api.guole.fun/toutiao&cacheSeconds=7200)                      |
+| 36 氪            | 热榜         | 36kr           | ![https://api.guole.fun/36kr](https://img.shields.io/website.svg?label=36kr&url=https://api.guole.fun/36kr&cacheSeconds=7200)                               |
+| 51CTO            | 推荐榜       | 51cto          | ![https://api.guole.fun/51cto](https://img.shields.io/website.svg?label=51cto&url=https://api.guole.fun/51cto&cacheSeconds=7200)                            |
+| CSDN             | 排行榜       | csdn           | ![https://api.guole.fun/csdn](https://img.shields.io/website.svg?label=csdn&url=https://api.guole.fun/csdn&cacheSeconds=7200)                               |
+| NodeSeek         | 最新动态     | nodeseek       | ![https://api.guole.fun/nodeseek](https://img.shields.io/website.svg?label=nodeseek&url=https://api.guole.fun/nodeseek&cacheSeconds=7200)                   |
+| 稀土掘金         | 热榜         | juejin         | ![https://api.guole.fun/juejin](https://img.shields.io/website.svg?label=juejin&url=https://api.guole.fun/juejin&cacheSeconds=7200)                         |
+| 腾讯新闻         | 热点榜       | qq-news        | ![https://api.guole.fun/qq-news](https://img.shields.io/website.svg?label=qq-news&url=https://api.guole.fun/qq-news&cacheSeconds=7200)                      |
+| 新浪网           | 热榜         | sina           | ![https://api.guole.fun/sina](https://img.shields.io/website.svg?label=sina&url=https://api.guole.fun/sina&cacheSeconds=7200)                               |
+| 新浪新闻         | 热点榜       | sina-news      | ![https://api.guole.fun/sina-news](https://img.shields.io/website.svg?label=sina-news&url=https://api.guole.fun/sina-news&cacheSeconds=7200)                |
+| 网易新闻         | 热点榜       | netease-news   | ![https://api.guole.fun/netease-news](https://img.shields.io/website.svg?label=netease-news&url=https://api.guole.fun/netease-news&cacheSeconds=7200)       |
+| 吾爱破解         | 榜单         | 52pojie        | ![https://api.guole.fun/52pojie](https://img.shields.io/website.svg?label=52pojie&url=https://api.guole.fun/52pojie&cacheSeconds=7200)                      |
+| 全球主机交流     | 榜单         | hostloc        | ![https://api.guole.fun/hostloc](https://img.shields.io/website.svg?label=hostloc&url=https://api.guole.fun/hostloc&cacheSeconds=7200)                      |
+| 虎嗅             | 24小时       | huxiu          | ![https://api.guole.fun/huxiu](https://img.shields.io/website.svg?label=huxiu&url=https://api.guole.fun/huxiu&cacheSeconds=7200)                            |
+| 酷安             | 热榜         | coolapk        | ![https://api.guole.fun/coolapk](https://img.shields.io/website.svg?label=coolapk&url=https://api.guole.fun/coolapk&cacheSeconds=7200)                      |
+| 虎扑             | 步行街热帖   | hupu           | ![https://api.guole.fun/hupu](https://img.shields.io/website.svg?label=hupu&url=https://api.guole.fun/hupu&cacheSeconds=7200)                               |
+| 爱范儿           | 快讯         | ifanr          | ![https://api.guole.fun/ifanr](https://img.shields.io/website.svg?label=ifanr&url=https://api.guole.fun/ifanr&cacheSeconds=7200)                            |
+| 英雄联盟         | 更新公告     | lol            | ![https://api.guole.fun/lol](https://img.shields.io/website.svg?label=lol&url=https://api.guole.fun/lol&cacheSeconds=7200)                                  |
+| 米游社           | 最新消息     | miyoushe       | ![https://api.guole.fun/miyoushe](https://img.shields.io/website.svg?label=miyoushe&url=https://api.guole.fun/miyoushe&cacheSeconds=7200)                   |
+| 原神             | 最新消息     | genshin        | ![https://api.guole.fun/genshin](https://img.shields.io/website.svg?label=genshin&url=https://api.guole.fun/genshin&cacheSeconds=7200)                      |
+| 崩坏3            | 最新动态     | honkai         | ![https://api.guole.fun/honkai](https://img.shields.io/website.svg?label=honkai&url=https://api.guole.fun/honkai&cacheSeconds=7200)                         |
+| 崩坏：星穹铁道   | 最新动态     | starrail       | ![https://api.guole.fun/starrail](https://img.shields.io/website.svg?label=starrail&url=https://api.guole.fun/starrail&cacheSeconds=7200)                   |
+| 微信读书         | 飙升榜       | weread         | ![https://api.guole.fun/weread](https://img.shields.io/website.svg?label=weread&url=https://api.guole.fun/weread&cacheSeconds=7200)                         |
+| NGA              | 热帖         | ngabbs         | ![https://api.guole.fun/ngabbs](https://img.shields.io/website.svg?label=ngabbs&url=https://api.guole.fun/ngabbs&cacheSeconds=7200)                         |
+| V2EX             | 主题榜       | v2ex           | ![https://api.guole.fun/v2ex](https://img.shields.io/website.svg?label=v2ex&url=https://api.guole.fun/v2ex&cacheSeconds=7200)                               |
+| HelloGitHub      | Trending     | hellogithub    | ![https://api.guole.fun/hellogithub](https://img.shields.io/website.svg?label=hellogithub&url=https://api.guole.fun/hellogithub&cacheSeconds=7200)          |
+| 中央气象台       | 全国气象预警 | weatheralarm   | ![https://api.guole.fun/weatheralarm](https://img.shields.io/website.svg?label=weatheralarm&url=https://api.guole.fun/weatheralarm&cacheSeconds=7200)       |
+| 中国地震台       | 地震速报     | earthquake     | ![https://api.guole.fun/earthquake](https://img.shields.io/website.svg?label=earthquake&url=https://api.guole.fun/earthquake&cacheSeconds=7200)             |
+| 历史上的今天     | 月-日        | history        | ![https://api.guole.fun/history](https://img.shields.io/website.svg?label=history&url=https://api.guole.fun/history&cacheSeconds=7200)             |
+| Github 提交日历  | 用户名       | github-calendar | ![https://api.guole.fun/GithubCalendar](https://img.shields.io/website.svg?label=GithubCalendar&url=https://api.guole.fun/GithubCalendar&cacheSeconds=7200)             |
+| 哔哔闪念         | 最近哔哔     | bbtalk         | ![https://api.guole.fun/bbtalk](https://img.shields.io/website.svg?label=bbtalk&url=https://api.guole.fun/bbtalk&cacheSeconds=7200)             |
+| 必应        | 每日一图     | bing         | ![https://api.guole.fun/bing](https://img.shields.io/website.svg?label=bing&url=https://api.guole.fun/bing&cacheSeconds=7200)             |
 </details>
 
 ## ⚙️ 使用
 
 本项目支持 `Node.js` 调用，可在安装完成后调用 `serveHotApi` 来开启服务器
+
+> 该方式无法使用部分需要 Puppeteer 环境的接口
 
 ```bash
 pnpm add guole.fun.api
@@ -114,8 +119,9 @@ serveHotApi(3000);
 ```bash
 # 构建
 docker build -t guole.fun.api .
+
 # 运行
-docker run -p 6688:6688 -d guole.fun.api
+docker run --restart always -p 6688:6688 -d guole.fun.api
 # 或使用 Docker Compose
 docker-compose up -d
 ```
@@ -125,13 +131,14 @@ docker-compose up -d
 ```bash
 # 拉取
 docker pull kuole-o/guole.fun.api:latest
+
 # 运行
-docker run -p 6688:6688 -d kuole-o/guole.fun.api:latest
+docker run --restart always -p 6688:6688 -d kuole-o/guole.fun.api:latest
 ```
 
 ### 手动部署
 
-最直接的方式，您可以按照以下步骤将 DailyHotApi 部署在您的电脑、服务器或者其他任何地方
+最直接的方式，您可以按照以下步骤将 `guole.fun.api` 部署在您的电脑、服务器或者其他任何地方
 
 #### 安装
 

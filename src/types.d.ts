@@ -1,23 +1,32 @@
 import type { Context } from "hono";
+import type { ResponseType } from "axios";
 
 // Context
 export type ListContext = Context;
 
 // 榜单数据
-export type ListItem = {
+export interface ListItem {
   id: number | string;
   title: string;
   cover?: string;
   author?: string;
   desc?: string;
-  hot: number | null;
-  timestamp: number | string | null;
-  url: string | undefined;
-  mobileUrl: string | undefined;
-};
+  hot: number | undefined;
+  timestamp: number | undefined;
+  url: string;
+  mobileUrl: string;
+}
+
+// 路由接口数据
+export interface RouterResType {
+  updateTime: string | number;
+  fromCache: boolean;
+  data: ListItem[];
+  message?: string;
+}
 
 // 路由数据
-export type RouterData = {
+export interface RouterData extends RouterResType {
   name: string;
   title: string;
   type: string;
@@ -25,13 +34,10 @@ export type RouterData = {
   params?: Record<string, string | object>;
   total: number;
   link?: string;
-  updateTime: string;
-  fromCache: boolean;
-  data: ListItem[];
-};
+}
 
-// 其他数据
-export type OtherData = {
+// 其他数据 自定义
+export interface OtherData {
   name: string;
   title: string;
   type: string;
@@ -51,10 +57,10 @@ export type OtherData = {
     enddate: string;
     title: string;
   };
-};
+}
 
 // 请求类型
-export type Get = {
+export interface Get {
   url: string;
   headers?: Record<string, string | string[]>;
   params?: Record<string, string | number>;
@@ -62,9 +68,10 @@ export type Get = {
   noCache?: boolean;
   ttl?: number;
   originaInfo?: boolean;
-};
+  responseType?: ResponseType;
+}
 
-export type Post = {
+export interface Post {
   url: string;
   headers?: Record<string, string | string[]>;
   body?: string | object | Buffer | undefined;
@@ -72,17 +79,9 @@ export type Post = {
   noCache?: boolean;
   ttl?: number;
   originaInfo?: boolean;
-};
-
-export type Web = {
-  url: string;
-  timeout?: number;
-  noCache?: boolean;
-  ttl?: number;
-  userAgent?: string;
-};
+}
 
 // 参数类型
-export type Options = {
+export interface Options {
   [key: string]: string | number | undefined;
-};
+}

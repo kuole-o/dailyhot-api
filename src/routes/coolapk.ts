@@ -4,16 +4,14 @@ import { get } from "../utils/getData.js";
 import { genHeaders } from "../utils/getToken/coolapk.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
-  const { fromCache, data, updateTime } = await getList(noCache);
+  const listData = await getList(noCache);
   const routeData: RouterData = {
     name: "coolapk",
     title: "酷安",
     type: "热榜",
     link: "https://www.coolapk.com/",
-    total: data?.length || 0,
-    updateTime,
-    fromCache,
-    data,
+    total: listData.data?.length || 0,
+    ...listData,
   };
   return routeData;
 };
@@ -23,20 +21,19 @@ const getList = async (noCache: boolean) => {
   const result = await get({
     url,
     noCache,
-    headers: await genHeaders(),
+    headers: genHeaders(),
   });
   const list = result.data.data;
   return {
-    fromCache: result.fromCache,
-    updateTime: result.updateTime,
+    ...result,
     data: list.map((v: RouterType["coolapk"]) => ({
       id: v.id,
       title: v.message,
       cover: v.tpic,
       author: v.username,
       desc: v.ttitle,
-      timestamp: null,
-      hot: null,
+      timestamp: undefined,
+      hot: undefined,
       url: v.shareUrl,
       mobileUrl: v.shareUrl,
     })),

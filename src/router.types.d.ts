@@ -328,9 +328,71 @@ export type RouterType = {
     id: number;
     ttitle: string;
     shareUrl: string;
-    username:string;
+    username: string;
     tpic: string;
     message: string;
     replynum: number;
+  };
+  guokr: {
+    id: number;
+    title: string;
+    summary: string;
+    author: {
+      nickname: string;
+    };
+    date_modified: string;
+    small_image: string;
+  };
+  kuaishou: {
+    id: string;
+    name: string;
+    hotValue: string;
+    iconUrl: string;
+    poster: string;
+    photoIds: {
+      json: string[];
+    };
+  };
+  smzdm: {
+    content: string;
+    title: string;
+    article_id: string;
+    nickname: string;
+    jump_link: string;
+    pic_url: string;
+    collection_count: string;
+    time_sort: string;
+  };
+  yystv: {
+    id: string;
+    cover: string;
+    title: string;
+    preface: string;
+    author: string;
+    createtime: string;
+  };
+  dgtle: {
+    id: number;
+    content: string;
+    cover: string;
+    from: string;
+    title: string;
+    membernum: number;
+    created_at: number;
+    type: number;
+  };
+  geekpark: {
+    post: {
+      id: number;
+      nickname: string;
+      title: string;
+      abstract: string;
+      cover_url: string;
+      views: number;
+      published_timestamp: number;
+      authors: {
+        nickname: string;
+      }[];
+    };
   };
 };

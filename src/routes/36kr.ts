@@ -1,36 +1,36 @@
-import type { RouterData, ListContext, Options } from "../types.js";
+import type { RouterData, ListContext, Options, RouterResType } from "../types.js";
 import type { RouterType } from "../router.types.js";
 import { post } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
+const typeMap: Record<string, string> = {
+  hot: "人气榜",
+  video: "视频榜",
+  comment: "热议榜",
+  collect: "收藏榜",
+};
+
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const type = c.req.query("type") || "hot";
-  const { fromCache, data, updateTime } = await getList({ type }, noCache);
+  const listData = await getList({ type }, noCache);
   const routeData: RouterData = {
     name: "36kr",
     title: "36氪",
-    type: "热榜",
+    type: typeMap[type],
     params: {
       type: {
         name: "热榜分类",
-        type: {
-          hot: "人气榜",
-          video: "视频榜",
-          comment: "热议榜",
-          collect: "收藏榜",
-        },
+        type: typeMap,
       },
     },
     link: "https://m.36kr.com/hot-list-m",
-    total: data?.length || 0,
-    updateTime,
-    fromCache,
-    data,
+    total: listData.data?.length || 0,
+    ...listData,
   };
   return routeData;
 };
 
-const getList = async (options: Options, noCache: boolean) => {
+const getList = async (options: Options, noCache: boolean): Promise<RouterResType> => {
   const { type } = options;
   const url = `https://gateway.36kr.com/api/mis/nav/home/nav/rank/${type}`;
   const result = await post({
@@ -57,8 +57,7 @@ const getList = async (options: Options, noCache: boolean) => {
   const list =
     result.data.data[(listType as Record<string, keyof typeof result.data.data>)[type || "hot"]];
   return {
-    fromCache: result.fromCache,
-    updateTime: result.updateTime,
+    ...result,
     data: list.map((v: RouterType["36kr"]) => {
       const item = v.templateMaterial;
       return {
@@ -67,7 +66,7 @@ const getList = async (options: Options, noCache: boolean) => {
         cover: item.widgetImage,
         author: item.authorName,
         timestamp: getTime(v.publishTime),
-        hot: item.statCollect,
+        hot: item.statCollect || undefined,
         url: `https://www.36kr.com/p/${v.itemId}`,
         mobileUrl: `https://m.36kr.com/p/${v.itemId}`,
       };

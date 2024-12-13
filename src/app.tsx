@@ -108,7 +108,7 @@ app.notFound((c) => c.html(headContent + <NotFound />, 404));
 
 // error
 app.onError((err, c) => {
-  logger.error(`出现致命错误：${err}`);
+  logger.error(`❌ [ERROR] ${err?.message}`);
 
   if (err instanceof HttpError) {
     const statusCode = err.statusCode;

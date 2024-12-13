@@ -1,9 +1,10 @@
 import type { RouterData } from "../types.js";
 import { get } from "../utils/getData.js";
-import { parseStringPromise } from "xml2js";
+import { getTime } from "../utils/getTime.js";
+import { parseRSS } from "../utils/parseRSS.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
-  const { fromCache, data, updateTime } = await getList(noCache);
+  const listData = await getList(noCache);
   const routeData: RouterData = {
     name: "nodeseek",
     title: "NodeSeek",
@@ -17,10 +18,8 @@ export const handleRoute = async (_: undefined, noCache: boolean) => {
       },
     },
     link: "https://www.nodeseek.com/",
-    total: data?.length || 0,
-    updateTime,
-    fromCache,
-    data,
+    total: listData.data?.length || 0,
+    ...listData,
   };
   return routeData;
 };
@@ -28,20 +27,18 @@ export const handleRoute = async (_: undefined, noCache: boolean) => {
 const getList = async (noCache: boolean) => {
   const url = `https://rss.nodeseek.com/`;
   const result = await get({ url, noCache });
-  const rssData = await parseStringPromise(result.data);
-  const list = rssData.rss.channel[0].item;
+  const list = await parseRSS(result.data);
   return {
-    fromCache: result.fromCache,
-    updateTime: result.updateTime,
-    data: list.map((v) => ({
-      id: v.guid[0]._,
-      title: v.title[0],
-      desc: v.description ? v.description[0] : "",
-      author: v["dc:creator"] ? v["dc:creator"][0] : "unknown",
-      timestamp: new Date(v.pubDate[0]).getTime(),
-      hot: null, // NodeSeek RSS 中没有类似于hot的字段
-      url: v.link[0],
-      mobileUrl: v.link[0],
+    ...result,
+    data: list.map((v, i) => ({
+      id: v.guid || i,
+      title: v.title || "",
+      desc: v.content?.trim() || "",
+      author: v.author,
+      timestamp: getTime(v.pubDate || 0),
+      hot: undefined,
+      url: v.link || "",
+      mobileUrl: v.link || "",
     })),
   };
 };

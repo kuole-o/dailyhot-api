@@ -12,14 +12,15 @@ export type Config = {
   ALLOWED_HOST: string;
   USE_LOG_FILE: boolean;
   RSS_MODE: boolean;
+  REDIS_HOST: string;
+  REDIS_PORT: number;
+  REDIS_PASSWORD: string;
 };
 
 // 验证并提取环境变量
 const getEnvVariable = (key: string): string | undefined => {
   const value = process.env[key];
-  if (value === undefined) {
-    return null;
-  }
+  if (value === undefined) return undefined;
   return value;
 };
 
@@ -27,9 +28,7 @@ const getEnvVariable = (key: string): string | undefined => {
 const getNumericEnvVariable = (key: string, defaultValue: number): number => {
   const value = getEnvVariable(key) ?? String(defaultValue);
   const parsedValue = parseInt(value, 10);
-  if (isNaN(parsedValue)) {
-    return defaultValue;
-  }
+  if (isNaN(parsedValue)) return defaultValue;
   return parsedValue;
 };
 
@@ -44,9 +43,12 @@ export const config: Config = {
   PORT: getNumericEnvVariable("PORT", 8859),
   DISALLOW_ROBOT: getBooleanEnvVariable("DISALLOW_ROBOT", true),
   CACHE_TTL: getNumericEnvVariable("CACHE_TTL", 3600),
-  REQUEST_TIMEOUT: getNumericEnvVariable("CACHE_TTL", 6000),
+  REQUEST_TIMEOUT: getNumericEnvVariable("REQUEST_TIMEOUT", 6000),
   ALLOWED_DOMAIN: getEnvVariable("ALLOWED_DOMAIN") || "*",
   USE_LOG_FILE: getBooleanEnvVariable("USE_LOG_FILE", true),
   ALLOWED_HOST: getEnvVariable("ALLOWED_HOST") || "guole.fun",
   RSS_MODE: getBooleanEnvVariable("RSS_MODE", false),
+  REDIS_HOST: getEnvVariable("REDIS_HOST") || "127.0.0.1",
+  REDIS_PORT: getNumericEnvVariable("REDIS_PORT", 6379),
+  REDIS_PASSWORD: getEnvVariable("REDIS_PASSWORD") || "",
 };

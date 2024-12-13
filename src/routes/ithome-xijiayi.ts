@@ -4,17 +4,15 @@ import { get } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
-  const { fromCache, data, updateTime } = await getList(noCache);
+  const listData = await getList(noCache);
   const routeData: RouterData = {
     name: "ithome-xijiayi",
     title: "IT之家「喜加一」",
     type: "最新动态",
     description: "最新最全的「喜加一」游戏动态尽在这里！",
     link: "https://www.ithome.com/zt/xijiayi",
-    total: data?.length || 0,
-    updateTime,
-    fromCache,
-    data,
+    total: listData.data?.length || 0,
+    ...listData,
   };
   return routeData;
 };
@@ -38,21 +36,20 @@ const getList = async (noCache: boolean) => {
     const href = dom.find("a").attr("href");
     const time = dom.find("span.time").text().trim();
     const match = time.match(/'([^']+)'/);
-    const dateTime = match ? match[1] : null;
+    const dateTime = match ? match[1] : undefined;
     return {
       id: href ? Number(replaceLink(href, true)) : 100000,
       title: dom.find(".newsbody h2").text().trim(),
       desc: dom.find(".newsbody p").text().trim(),
       cover: dom.find("img").attr("data-original"),
-      timestamp: getTime(dateTime),
+      timestamp: getTime(dateTime || 0),
       hot: Number(dom.find(".comment").text().replace(/\D/g, "")),
-      url: href || undefined,
-      mobileUrl: href ? replaceLink(href) : undefined,
+      url: href || "",
+      mobileUrl: href ? replaceLink(href) : "",
     };
   });
   return {
-    fromCache: result.fromCache,
-    updateTime: result.updateTime,
+    ...result,
     data: listData,
   };
 };

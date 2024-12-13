@@ -64,11 +64,11 @@ const listType = {
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const type = c.req.query("type") || "1";
-  const { fromCache, data, updateTime } = await getList({ type }, noCache);
+  const listData = await getList({ type }, noCache);
   const routeData: RouterData = {
     name: "sina-news",
     title: "新浪新闻",
-    type: listType[type].name,
+    type: listType[type as keyof typeof listType].name,
     params: {
       type: {
         name: "榜单分类",
@@ -76,10 +76,8 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
       },
     },
     link: "https://sinanews.sina.cn/",
-    total: data?.length || 0,
-    updateTime,
-    fromCache,
-    data,
+    total: listData.data?.length || 0,
+    ...listData,
   };
   return routeData;
 };
@@ -106,7 +104,7 @@ const parseData = (data: string) => {
       const jsonData = JSON.parse(jsonString);
       return jsonData;
     } catch (error) {
-      throw new Error("Failed to parse JSON: " + error.message);
+      throw new Error("Failed to parse JSON: " + error);
     }
   } else {
     throw new Error("Invalid JSON format");
@@ -116,19 +114,17 @@ const parseData = (data: string) => {
 const getList = async (options: Options, noCache: boolean) => {
   const { type } = options;
   // 必要数据
-  const typeValue = type as keyof typeof listType; 
-  const { params, www } = listType[typeValue];
+  const { params, www } = listType[type as keyof typeof listType];
   const { year, month, day } = getCurrentDateTime(true);
   const url = `https://top.${www}.sina.com.cn/ws/GetTopDataList.php?top_type=day&top_cat=${params}&top_time=${year + month + day}&top_show_num=50`;
   const result = await get({ url, noCache });
   const list = parseData(result.data).data;
   return {
-    fromCache: result.fromCache,
-    updateTime: result.updateTime,
+    ...result,
     data: list.map((v: RouterType["sina-news"]) => ({
       id: v.id,
       title: v.title,
-      author: v.media || null,
+      author: v.media || undefined,
       hot: parseFloat(v.top_num.replace(/,/g, "")),
       timestamp: getTime(v.create_date + " " + v.create_time),
       url: v.url,
