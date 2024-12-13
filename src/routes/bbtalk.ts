@@ -5,9 +5,9 @@ import { HttpError } from "../utils/errors.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   try {
-    let page: string;
-    let limit: string;
-    let type: string;
+    let page: string | undefined;
+    let limit: string | undefined;
+    let type: string | undefined;
     if (c.req.method == "GET") {
       page = c.req.query("page") ? c.req.query("page") : "1";
       limit = c.req.query("limit") ? c.req.query("limit") : "10";
@@ -22,9 +22,9 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
     }
 
     const { fromCache, data, updateTime } = await getList({
-      page: page.toString(),
-      limit: limit.toString(),
-      type: type.toString()
+      page: page,
+      limit: limit,
+      type: type,
   }, noCache);
 
     const routeData: RouterData = {
@@ -54,8 +54,8 @@ const getList = async ({ page, limit, type }: Options, noCache: boolean) => {
       url,
       noCache,
       headers: {
-        'X-LC-Id': process.env.LEANCLOUD_APPID,
-        'X-LC-Key': process.env.LEANCLOUD_APPKEY,
+        'X-LC-Id': process.env.LEANCLOUD_APPID || '',
+        'X-LC-Key': process.env.LEANCLOUD_APPKEY || '',
         'Content-Type': 'text/html;charset=utf-8'
       },
     });

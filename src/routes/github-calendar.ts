@@ -6,12 +6,12 @@ import logger from "../utils/logger.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   try {
-    const user: string = c.req.query("user");
+    const user: string = c.req.query("user") || '';
 
     if (!user) {
       throw new HttpError(400, '获取 Github 提交日历发生错误，请检查 user 参数是否正确。使用示例：https://api.guole.fun/GithubCalendar?user=xxx');
     }
-  
+
     const { fromCache, data, updateTime } = await getList({ user }, noCache);
 
     const routeData: RouterData = {
@@ -26,7 +26,11 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
     };
     return routeData;
   } catch (error) {
-    logger.info(error.message);
+    if (error instanceof Error) {
+      logger.info(error.message);
+    } else {
+      logger.info("发生了一个未知错误！");
+    }
     throw error;
   }
 };

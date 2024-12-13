@@ -16,8 +16,8 @@ const noCache: boolean = true;
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   let from: string;
   let content: string;
-  const appId: string = c.req.header("X-LC-Id");
-  const appKey: string = c.req.header("X-LC-Key");
+  const appId: string | undefined = c.req.header("X-LC-Id");
+  const appKey: string | undefined = c.req.header("X-LC-Key");
 
   if (typeof appId!=='string' || typeof appKey!=='string') {
     throw new HttpError(500, 'X-LC-Id 和 X-LC-Key 必须是 string 类型');
@@ -71,12 +71,12 @@ const getList = async ({ body, appId, appKey }: Options) => {
 
 const notifyCosFileUpdate = async () => {
   try {
-    const url = process.env.BBtalk_Upload_Url;
+    const url = process.env.BBtalk_Upload_Url || '';
     const upload_response = await get({
       url,
       noCache,
       headers: {
-        "token": process.env.token,
+        "token": process.env.token || '',
       },
     });
     return upload_response;

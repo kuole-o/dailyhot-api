@@ -112,7 +112,7 @@ app.onError((err, c) => {
 
   if (err instanceof HttpError) {
     const statusCode = err.statusCode;
-    const errorMap = {
+    const errorMap: { [key: number]: () => Response | Promise<Response> } = {
       400: () => c.html(<Error error={err?.message} />, 400),
       401: () => c.html(<Error error={err?.message} />, 401),
       402: () => c.html(<Error error={err?.message} />, 402),
