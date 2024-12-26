@@ -2,11 +2,9 @@ import type { OtherData } from "../types.js";
 import type { RouterType } from "../router.types.js";
 import { get } from "../utils/getData.js";
 
-const key = process.env.GAODE_KEY || '';
-console.log("key: ",key)
-
 export const handleRoute = async (_: undefined, noCache: boolean) => {
-  const listData = await getList(noCache);
+  const key = process.env.GAODE_KEY || '';
+  const listData = await getList(noCache, key);
   const routeData: OtherData = {
     name: "gaode",
     title: "天气",
@@ -17,7 +15,7 @@ export const handleRoute = async (_: undefined, noCache: boolean) => {
   return routeData;
 };
 
-const getIp = async (noCache: boolean) => {
+const getIp = async (noCache: boolean, key: string) => {
   const url = `https://restapi.amap.com/v3/ip`;
   const result = await get({
     url,
@@ -42,8 +40,8 @@ const getIp = async (noCache: boolean) => {
   };
 }
 
-const getList = async (noCache: boolean) => {
-  const ip = await getIp(noCache);
+const getList = async (noCache: boolean, key: string) => {
+  const ip = await getIp(noCache, key);
   const url = `https://restapi.amap.com/v3/weather/weatherInfo`;
   const result = await get({
     url,
