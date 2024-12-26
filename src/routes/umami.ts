@@ -3,6 +3,9 @@ import { get } from "../utils/getData.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const token = process.env.UMAMI_TOKEN || c.req.header('Authorization') || '';
+
+  console.log("token: ",token)
+
   const siteId = c.req.query('siteId') || '';
   const startAt = c.req.query('startAt') || '';
   const endAt = c.req.query('endAt') || '';

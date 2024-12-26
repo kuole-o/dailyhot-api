@@ -3,6 +3,7 @@ import type { RouterType } from "../router.types.js";
 import { get } from "../utils/getData.js";
 
 const key = process.env.GAODE_KEY || '';
+console.log("key: ",key)
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
   const listData = await getList(noCache);
