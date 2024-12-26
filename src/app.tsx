@@ -15,45 +15,6 @@ import { HttpError } from './utils/errors.js';
 
 const app = new Hono();
 
-// 鉴权中间件
-app.use(async (c, next) => {
-  try {
-    let originURL: string;
-    const origin = c.req.header('origin');
-    const referer = c.req.header('referer');
-    const host = c.req.header('host');
-
-    if (origin) {
-      originURL = new URL(origin).hostname;
-    } else if (referer) {
-      originURL = new URL(referer).hostname;
-    } else if (host) {
-      originURL = host.split(":")[0];
-    } else {
-      originURL = '';
-    }
-
-    console.log("originURL:", originURL);
-
-    const domain = config.ALLOWED_DOMAIN;
-
-    if (domain === "*" || domain.includes(originURL) || originURL === '' || c.req.path === '/newbbtalk') {
-      await next();
-    } else {
-      return c.json({
-        code: 403,
-        message: "访问未经授权",
-      }, 403);
-    }
-  } catch (error) {
-    logger.error(`鉴权中间件出现错误：${error}`);
-    return c.json({
-      code: 500,
-      message: "内部服务器错误",
-    }, 500);
-  }
-});
-
 // 压缩响应
 app.use(compress());
 
@@ -63,21 +24,43 @@ app.use(prettyJSON());
 // 尾部斜杠重定向
 app.use(trimTrailingSlash());
 
-// CORS
-app.use(
-  "*",
-  cors({
-    // 可写为数组
-    origin: (origin) => {
-      // 是否指定域名
-      const isSame = config.ALLOWED_HOST && origin.endsWith(config.ALLOWED_HOST);
-      return isSame ? origin : config.ALLOWED_DOMAIN;
-    },
-    allowMethods: ["POST", "GET", "OPTIONS"],
-    allowHeaders: ["X-Custom-Header", "Upgrade-Insecure-Requests"],
-    credentials: true,
-  }),
-);
+// 鉴权中间件
+app.use(async (c, next) => {
+  try {
+    let originURL = '';
+    const origin = c.req.header('origin') || '';
+    const referer = c.req.header('referer') || '';
+
+    if (origin) {
+      originURL = new URL(origin).hostname;
+    } else if (referer) {
+      originURL = new URL(referer).hostname;
+    } else {
+      originURL = '';
+    }
+
+    console.log("originURL:", originURL);
+
+    const domain = config.ALLOWED_DOMAIN;
+    const isSame = config.ALLOWED_HOST && origin.endsWith(config.ALLOWED_HOST);
+
+    if (isSame || domain === "*" || domain.includes(originURL) || originURL === '' || c.req.path === '/newbbtalk') {
+      c.res.headers.set('Access-Control-Allow-Origin', '*');
+      await next();
+    }
+
+    return c.json({
+      code: 403,
+      message: "访问未经授权",
+    }, 403);
+  } catch (error) {
+    logger.error(`鉴权中间件出现错误：${error}`);
+    return c.json({
+      code: 500,
+      message: "内部服务器错误",
+    }, 500);
+  }
+});
 
 // 静态资源
 app.use(

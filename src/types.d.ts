@@ -38,16 +38,16 @@ export interface RouterData extends RouterResType {
 
 // 其他数据 自定义
 export interface OtherData {
-  name: string;
-  title: string;
-  type: string;
+  name?: string;
+  title?: string;
+  type?: string;
   description?: string;
   params?: Record<string, string | object>;
-  total: number;
+  total?: number;
   link?: string;
-  updateTime: string;
-  fromCache: boolean;
-  data: {
+  updateTime?: string;
+  fromCache?: boolean;
+  data?: {
     url: string;
     urlbase: string;
     copyright: string;

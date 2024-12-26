@@ -89,11 +89,13 @@ export type RouterType = {
     num: number;
     onboard_time: number;
     icon_desc: string;
-    is_boom: string;
-    is_hot: string;
-    is_fei: string;
-    is_new: string;
-    is_warm: string;
+    icon_desc_color: string;
+    small_icon_desc: string;
+    label_name: string;
+    icon_width: number;
+    icon_height: number;
+    topic_ad: boolean;
+    is_ad: boolean;
   };
   zhihu: {
     target: {
@@ -394,5 +396,20 @@ export type RouterType = {
         nickname: string;
       }[];
     };
+  };
+  gaode: {
+    infocode: string;
+    province: string;
+    city: string;
+    rectangle: string;
+    weather: string;
+    temperature: string;
+    winddirection: string;
+    windpower: string;
+    humidity: string;
+    reporttime: string;
+    temperature_float: string;
+    humidity_float: string;
+    adcode: string;
   };
 };
