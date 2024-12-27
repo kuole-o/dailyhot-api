@@ -74,7 +74,6 @@ app.use("*", cors({
     return null;
   },
   allowMethods: ["POST", "GET", "OPTIONS"],
-  allowHeaders: ["X-Custom-Header", "Upgrade-Insecure-Requests"],
   credentials: true,
 }));
 
