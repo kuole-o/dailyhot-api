@@ -1,6 +1,6 @@
 import type { OtherData, ListContext, Options } from "../types.js";
 import { HonoRequest } from 'hono';
-import { ipAddress, geolocation, json } from '@vercel/edge';
+// import { ipAddress, geolocation, json } from '@vercel/edge';
 
 interface ExtendedHonoRequest extends HonoRequest {
   ip: string;
@@ -86,20 +86,20 @@ const getFlag = (countryCode: string): string | undefined => {
   }
 }
 
-const middleware = (req: ExtendedHonoRequest ): Response => {
-  const ip = ipAddress(req);
-  const { pathname } = new URL(req.url);
-  console.log("pathname: ", pathname);
+// const middleware = (req: ExtendedHonoRequest ): Response => {
+//   const ip = ipAddress(req);
+//   const { pathname } = new URL(req.url);
+//   console.log("pathname: ", pathname);
 
-  const geo = geolocation(req);
-  console.log(geo);
+//   const geo = geolocation(req);
+//   console.log(geo);
 
-  if (ip && geo) {
-    return json({
-      ip,
-      ...geo
-    });
-  } else {
-    return json({});
-  }
-}
+//   if (ip && geo) {
+//     return json({
+//       ip,
+//       ...geo
+//     });
+//   } else {
+//     return json({});
+//   }
+// }
