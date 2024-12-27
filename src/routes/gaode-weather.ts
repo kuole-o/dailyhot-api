@@ -54,8 +54,7 @@ const getIp = async (noCache: boolean, key: string, ip: string | undefined) => {
   const result = await get({
     url,
     params: params,
-    noCache,
-    ttl: 60
+    noCache
   });
   const list = result.data;
   return {
@@ -82,8 +81,7 @@ const getList = async (noCache: boolean, key: string, ip: string | undefined, ci
         key: key,
         city: city,
       },
-      noCache,
-      ttl: 60
+      noCache
     });
   } else {
     ipInfo = await getIp(noCache, key, ip);
@@ -94,8 +92,7 @@ const getList = async (noCache: boolean, key: string, ip: string | undefined, ci
         key: key,
         city: ipInfo.data.city && ipInfo.data.city.length > 0 ? ipInfo.data.city : '北京',
       },
-      noCache,
-      ttl: 60
+      noCache
     });
   }
   console.log("result.data: ", result.data)

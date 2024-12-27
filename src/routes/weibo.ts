@@ -19,7 +19,7 @@ export const handleRoute = async (_: undefined, noCache: boolean) => {
 
 const getList = async (noCache: boolean) => {
   const url = `https://weibo.com/ajax/side/hotSearch`;
-  const result = await get({ url, noCache, ttl: 60 });
+  const result = await get({ url, noCache });
   const list = result.data.data.realtime;
   return {
     ...result,

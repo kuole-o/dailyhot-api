@@ -48,7 +48,7 @@ const getList = async (noCache: boolean, token: string, siteId: string, startAt:
       type: type,
     },
     noCache,
-    ttl: 1000
+    ttl: 10000
   });
   const list = result.data;
 
