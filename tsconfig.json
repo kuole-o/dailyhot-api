@@ -6,7 +6,7 @@
     "moduleResolution": "Bundler",
     "declaration": true,
     "declarationMap": true,
-    "types": ["node"],
+    "types": ["node", "@vercel/edge"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "outDir": "./dist"
