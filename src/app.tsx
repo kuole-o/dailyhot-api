@@ -62,7 +62,7 @@ app.use(trimTrailingSlash());
 //   }
 // });
 
-app.use(cors({
+app.use("*", cors({
   origin: (origin, c) => {
     const domain = config.ALLOWED_DOMAIN;
     const isSame = config.ALLOWED_HOST && origin?.endsWith(config.ALLOWED_HOST);
