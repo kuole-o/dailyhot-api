@@ -48,14 +48,23 @@ export interface OtherData {
   updateTime?: string;
   fromCache?: boolean;
   data?: {
-    url: string;
-    urlbase: string;
-    copyright: string;
-    copyrightlink: string;
-    startdate: string;
-    fullstartdate: string;
-    enddate: string;
-    title: string;
+    url?: string;
+    urlbase?: string;
+    copyright?: string;
+    copyrightlink?: string;
+    startdate?: string;
+    fullstartdate?: string;
+    enddate?: string;
+    title?: string;
+    ip?: string;
+    flag?: string;
+    country?: string;
+    countryRegion?: string;
+    city?: string;
+    region?: string;
+    latitude?: string;
+    longitude?: string;
+    asOrganization?: string;
   };
 }
 

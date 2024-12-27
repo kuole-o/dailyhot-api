@@ -1,14 +1,32 @@
 import type { OtherData, ListContext, Options } from "../types.js";
 import type { RouterType } from "../router.types.js";
 import { get } from "../utils/getData.js";
+import { HonoRequest } from 'hono';
 
-export const handleRoute = async (c: ListContext, noCache: boolean) => {
+interface ExtendedHonoRequest extends HonoRequest {
+  ip: string;
+}
+
+interface IpInfo {
+  data: {
+    status?: string;
+    info?: string;
+    infocode?: string;
+    province?: string;
+    city?: string;
+    adcode?: string;
+    rectangle?: string;
+  }
+}
+
+export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: boolean) => {
   const key = process.env.GAODE_KEY || '';
-  const ip = c.req.header('cf-connecting-ipv6') || c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || c.req.header('x-real-ip');
+  const ip = c.req.header('cf-connecting-ipv6') || c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || c.req.ip || c.req.query('ip');
+  const city = c.req.query('city') || '';
 
   console.log("请求ip: ", ip)
 
-  const listData = await getList(noCache, key, ip);
+  const listData = await getList(noCache, key, ip, city);
   const routeData: OtherData = {
     name: "gaode",
     title: "天气",
@@ -53,20 +71,34 @@ const getIp = async (noCache: boolean, key: string, ip: string | undefined) => {
   };
 }
 
-const getList = async (noCache: boolean, key: string, ip: string | undefined) => {
-  const ipInfo = await getIp(noCache, key, ip);
-  console.log("ipInfo: ", ipInfo)
+const getList = async (noCache: boolean, key: string, ip: string | undefined, city: string | undefined) => {
+  let result, ipInfo: IpInfo | undefined;
   const url = `https://restapi.amap.com/v3/weather/weatherInfo`;
-  const result = await get({
-    url,
-    params: {
-      key: key,
-      city: ipInfo.data.city,
-    },
-    noCache,
-    ttl: 60
-  });
-  console.log("result: ", result)
+
+  if (city && !ip) {
+    result = await get({
+      url,
+      params: {
+        key: key,
+        city: city,
+      },
+      noCache,
+      ttl: 60
+    });
+  } else {
+    ipInfo = await getIp(noCache, key, ip);
+    console.log("ipInfo: ", ipInfo)
+    result = await get({
+      url,
+      params: {
+        key: key,
+        city: ipInfo.data.city || '',
+      },
+      noCache,
+      ttl: 60
+    });
+  }
+  console.log("result.data: ", result.data)
 
   if (!result.data || !result.data.lives) {
     return {
@@ -82,7 +114,7 @@ const getList = async (noCache: boolean, key: string, ip: string | undefined) =>
         province: v.province,
         city: v.city,
         adcode: v.adcode,
-        rectangle: ipInfo.data.rectangle,
+        rectangle: ipInfo?.data.rectangle || '',
         weather: v.weather,
         temperature: v.temperature,
         winddirection: v.winddirection,

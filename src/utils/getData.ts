@@ -48,10 +48,19 @@ export const get = async (options: Get) => {
   } = options;
   logger.info(`🌐 [GET] ${url}`);
   try {
+    // 构造包含请求参数的缓存键，确保缓存内容与请求内容相符
+    const cacheKey = params && Object.keys(params).length > 0
+      ? `${url}?${new URLSearchParams(
+        Object.entries(params).reduce((acc, [key, value]) => {
+          acc[key] = String(value);
+          return acc;
+        }, {} as Record<string, string>)
+      ).toString()}`
+      : url;
     // 检查缓存
-    if (noCache) await delCache(url);
+    if (noCache) await delCache(cacheKey);
     else {
-      const cachedData = await getCache(url);
+      const cachedData = await getCache(cacheKey);
       if (cachedData) {
         logger.info("💾 [CHCHE] The request is cached");
         return {
@@ -67,7 +76,7 @@ export const get = async (options: Get) => {
     // 存储新获取的数据到缓存
     const updateTime = new Date().toISOString();
     const data = originaInfo ? response : responseData;
-    await setCache(url, { data, updateTime }, ttl);
+    await setCache(cacheKey, { data, updateTime }, ttl);
     // 返回数据
     logger.info(`✅ [${response?.status}] request was successful`);
     return { fromCache: false, updateTime, data };
@@ -82,10 +91,19 @@ export const post = async (options: Post) => {
   const { url, headers, body, noCache, ttl = config.CACHE_TTL, originaInfo = false } = options;
   logger.info(`🌐 [POST] ${url}`);
   try {
+    // 构造包含请求参数的缓存键，确保缓存内容与请求内容相符
+    const cacheKey = body && Object.keys(body).length > 0
+      ? `${url}?${new URLSearchParams(
+        Object.entries(body).reduce((acc, [key, value]) => {
+          acc[key] = String(value);
+          return acc;
+        }, {} as Record<string, string>)
+      ).toString()}`
+      : url;
     // 检查缓存
-    if (noCache) await delCache(url);
+    if (noCache) await delCache(cacheKey);
     else {
-      const cachedData = await getCache(url);
+      const cachedData = await getCache(cacheKey);
       if (cachedData) {
         logger.info("💾 [CHCHE] The request is cached");
         return { fromCache: true, updateTime: cachedData.updateTime, data: cachedData.data };
@@ -98,7 +116,7 @@ export const post = async (options: Post) => {
     const updateTime = new Date().toISOString();
     const data = originaInfo ? response : responseData;
     if (!noCache) {
-      await setCache(url, { data, updateTime }, ttl);
+      await setCache(cacheKey, { data, updateTime }, ttl);
     }
     // 返回数据
     logger.info(`✅ [${response?.status}] request was successful`);
