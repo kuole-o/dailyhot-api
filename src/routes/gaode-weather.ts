@@ -20,8 +20,8 @@ interface IpInfo {
 }
 
 export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: boolean) => {
-  const key = process.env.GAODE_KEY || '';
-  const ip = c.req.header('cf-connecting-ipv6') || c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || c.req.ip || c.req.query('ip');
+  const key = process.env.GAODE_KEY || c.req.query('key') || '';
+  const ip = c.req.query('ip') || '';
   const city = c.req.query('city') || '';
 
   console.log("请求ip: ", ip)
@@ -92,7 +92,7 @@ const getList = async (noCache: boolean, key: string, ip: string | undefined, ci
       url,
       params: {
         key: key,
-        city: ipInfo.data.city || '',
+        city: ipInfo.data.city && ipInfo.data.city.length > 0 ? ipInfo.data.city : '北京',
       },
       noCache,
       ttl: 60

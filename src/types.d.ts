@@ -47,6 +47,12 @@ export interface OtherData {
   link?: string;
   updateTime?: string;
   fromCache?: boolean;
+  count?: {
+    os: number;
+    browser: number;
+    country: number;
+    stats: number;
+  };
   data?: {
     url?: string;
     urlbase?: string;

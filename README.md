@@ -83,7 +83,9 @@
 | Github 提交日历  | 用户名       | github-calendar    | ![https://api.guole.fun/GithubCalendar](https://img.shields.io/website.svg?label=GithubCalendar&url=https://api.guole.fun/GithubCalendar&cacheSeconds=7200)                                               |
 | 哔哔闪念         | 最近哔哔     | bbtalk            | ![https://api.guole.fun/bbtalk](https://img.shields.io/website.svg?label=bbtalk&url=https://api.guole.fun/bbtalk&cacheSeconds=7200)                                                                       |
 | 必应             | 每日一图     | bing              | ![https://api.guole.fun/bing](https://img.shields.io/website.svg?label=bing&url=https://api.guole.fun/bing&cacheSeconds=7200)                                                                             |
-
+| 高德天气             | 高德天气信息     | gaode-weather              | ![https://api.guole.fun/gaode-weather](https://img.shields.io/website.svg?label=gaode-weather&url=https://api.guole.fun/gaode-weather&cacheSeconds=7200)                                                                             |
+| IP             | 利用 vercel 返回 IP 信息     | ip              | ![https://api.guole.fun/ip](https://img.shields.io/website.svg?label=ip&url=https://api.guole.fun/ip&cacheSeconds=7200)                                                                             |
+| umami             | 查询 umami 网站统计数据     | umami              | ![https://api.guole.fun/umami](https://img.shields.io/website.svg?label=umami&url=https://api.guole.fun/umami&cacheSeconds=7200)                                                                             |
 </details>
 
 ## ⚙️ 使用

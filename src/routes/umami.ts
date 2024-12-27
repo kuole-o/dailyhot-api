@@ -20,7 +20,12 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
     name: "Umami",
     title: "网站统计",
     description: "查询 Umami 网站统计数据",
-    total: listData.data?.length || 0,
+    count: {
+      os: listData.data.os?.length || 0,
+      browser: listData.data.browser?.length || 0,
+      country: listData.data.country?.length || 0,
+      stats: Object.keys(listData.data.stats).length || 0,
+    },
     ...listData,
   };
   return routeData;
