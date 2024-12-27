@@ -1,10 +1,14 @@
-import type { OtherData } from "../types.js";
+import type { OtherData, ListContext, Options } from "../types.js";
 import type { RouterType } from "../router.types.js";
 import { get } from "../utils/getData.js";
 
-export const handleRoute = async (_: undefined, noCache: boolean) => {
+export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const key = process.env.GAODE_KEY || '';
-  const listData = await getList(noCache, key);
+  const ip = c.req.header('cf-connecting-ipv6') || c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || c.req.header('x-real-ip');
+
+  console.log("请求ip: ", ip)
+
+  const listData = await getList(noCache, key, ip);
   const routeData: OtherData = {
     name: "gaode",
     title: "天气",
@@ -15,43 +19,54 @@ export const handleRoute = async (_: undefined, noCache: boolean) => {
   return routeData;
 };
 
-const getIp = async (noCache: boolean, key: string) => {
+const getIp = async (noCache: boolean, key: string, ip: string | undefined) => {
   const url = `https://restapi.amap.com/v3/ip`;
+  let params;
+  if (ip) {
+    params = {
+      key: key,
+      ip: ip,
+    }
+  } else {
+    params = {
+      key: key,
+    }
+  }
+
   const result = await get({
     url,
-    params: {
-      key: key,
-    },
+    params: params,
     noCache,
     ttl: 60
   });
-
   const list = result.data;
   return {
     ...result,
     data:
-      {
-        infocode: list.infocode,
-        province: list.province,
-        city: list.city,
-        rectangle: list.rectangle,
-        adcode: list.adcode,
-      },
+    {
+      infocode: list.infocode,
+      province: list.province,
+      city: list.city,
+      rectangle: list.rectangle,
+      adcode: list.adcode,
+    },
   };
 }
 
-const getList = async (noCache: boolean, key: string) => {
-  const ip = await getIp(noCache, key);
+const getList = async (noCache: boolean, key: string, ip: string | undefined) => {
+  const ipInfo = await getIp(noCache, key, ip);
+  console.log("ipInfo: ", ipInfo)
   const url = `https://restapi.amap.com/v3/weather/weatherInfo`;
   const result = await get({
     url,
     params: {
       key: key,
-      city: ip.data.city,
+      city: ipInfo.data.city,
     },
     noCache,
     ttl: 60
   });
+  console.log("result: ", result)
 
   if (!result.data || !result.data.lives) {
     return {
@@ -67,7 +82,7 @@ const getList = async (noCache: boolean, key: string) => {
         province: v.province,
         city: v.city,
         adcode: v.adcode,
-        rectangle: ip.data.rectangle,
+        rectangle: ipInfo.data.rectangle,
         weather: v.weather,
         temperature: v.temperature,
         winddirection: v.winddirection,

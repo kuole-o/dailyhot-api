@@ -1,10 +1,10 @@
-import type { OtherData, ListContext, Options  } from "../types.js";
+import type { OtherData, ListContext, Options } from "../types.js";
 import { get } from "../utils/getData.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const token = process.env.UMAMI_TOKEN || c.req.header('Authorization') || '';
 
-  console.log("token: ",token)
+  console.log("token: ", token)
 
   const siteId = c.req.query('siteId') || '';
   const startAt = c.req.query('startAt') || '';
@@ -15,7 +15,7 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const limit = c.req.query('limit') || '10';
   const type = c.req.query('type') || '';
 
-  const listData = await getList(noCache, token, siteId, startAt, endAt, unit, timezone, compare, limit, type );
+  const listData = await getList(noCache, token, siteId, startAt, endAt, unit, timezone, compare, limit, type);
   const routeData: OtherData = {
     name: "Umami",
     title: "网站统计",
@@ -26,7 +26,7 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
   return routeData;
 };
 
-const getList = async (noCache: boolean, token: string, siteId: string, startAt: string, endAt: string, unit: string, timezone: string, compare: string, limit: string, type: string ) => {
+const getList = async (noCache: boolean, token: string, siteId: string, startAt: string, endAt: string, unit: string, timezone: string, compare: string, limit: string, type: string) => {
   const url = `https://umami.guole.fun/api/websites/${siteId}/getWebsiteMetrics`;
   const result = await get({
     url,
