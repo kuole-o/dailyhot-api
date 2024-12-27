@@ -57,16 +57,16 @@ export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: bool
     ...geo,
   };
 
-  const middlewareResponse = middleware(c.req);
-  const middlewareData = await middlewareResponse.json();
+  // const middlewareResponse = middleware(c.req);
+  // const middlewareData = await middlewareResponse.json();
 
-  if (!geo.country || middlewareResponse || middlewareData) {
-    console.log("middlewareResponse: ", middlewareResponse);
-    routeData = {
-      ...routeData,
-      ...middlewareData,
-    };
-  }
+  // if (!geo.country || middlewareResponse || middlewareData) {
+  //   console.log("middlewareResponse: ", middlewareResponse);
+  //   routeData = {
+  //     ...routeData,
+  //     ...middlewareData,
+  //   };
+  // }
 
   return routeData;
 };
