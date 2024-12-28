@@ -107,11 +107,11 @@ const Home: FC = () => {
             let terminalText, type, speed;
             let path = window.location.pathname;
             if (path === "/") {
-              terminalText = \`Hello World!\\n服务已正常运行...\\nVersion: \${version_git.version}\\n\\n\${times}\\n\`;
+              terminalText = \`Hello World!\\n服务已正常运行...\\nVersion: \${version.version}\\n\\n\${times}\\n\`;
               type = 1;
               speed = 30;
             } else {
-              terminalText = \`出错了！\\n请检查您的调用路径与调用方法...\\nVersion: \${version_git.version}\\n\\n\${times}\\n\`;
+              terminalText = \`出错了！\\n请检查您的调用路径与调用方法...\\nVersion: \${version.version}\\n\\n\${times}\\n\`;
               type = 2;
               speed = 20;
             }
