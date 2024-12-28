@@ -34,7 +34,8 @@ export const getNumericEnvVariable = (key: string, defaultValue: number): number
 
 // 将环境变量转换为布尔值
 const getBooleanEnvVariable = (key: string, defaultValue: boolean): boolean => {
-  const value = getEnvVariable(key) ?? String(defaultValue);
+  const value = getEnvVariable(key);
+  if (value === undefined) return defaultValue;
   return value.toLowerCase() === "true";
 };
 
