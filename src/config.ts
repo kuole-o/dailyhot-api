@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export type Config = {
-  PORT?: number;
+  PORT: number;
   DISALLOW_ROBOT: boolean;
   CACHE_TTL: number;
   REQUEST_TIMEOUT: number;
@@ -25,7 +25,7 @@ const getEnvVariable = (key: string): string | undefined => {
 };
 
 // 将环境变量转换为数值
-export const getNumericEnvVariable = (key: string, defaultValue: number): number => {
+const getNumericEnvVariable = (key: string, defaultValue: number): number => {
   const value = getEnvVariable(key) ?? String(defaultValue);
   const parsedValue = parseInt(value, 10);
   if (isNaN(parsedValue)) return defaultValue;
@@ -40,6 +40,7 @@ const getBooleanEnvVariable = (key: string, defaultValue: boolean): boolean => {
 };
 
 // 分步骤创建配置对象
+const PORT = getNumericEnvVariable("PORT", 8859);
 const DISALLOW_ROBOT = getBooleanEnvVariable("DISALLOW_ROBOT", true);
 const CACHE_TTL = getNumericEnvVariable("CACHE_TTL", 3600);
 const REQUEST_TIMEOUT = getNumericEnvVariable("REQUEST_TIMEOUT", 6000);
@@ -53,6 +54,7 @@ const REDIS_PASSWORD = getEnvVariable("REDIS_PASSWORD") || "";
 
 // 创建配置对象
 export const config: Config = {
+  PORT,
   DISALLOW_ROBOT,
   CACHE_TTL,
   REQUEST_TIMEOUT,

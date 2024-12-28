@@ -10,9 +10,7 @@
     "types": ["node"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
-    "outDir": "./dist",
-    "typeRoots": ["node_modules/@types", "node_modules"]
+    "outDir": "./dist"
   },
-  "include": ["src/**/*.ts", "node_modules/@vercel/node"],
   "exclude": ["node_modules", "*.test.*", "./dist/**/*"]
 }

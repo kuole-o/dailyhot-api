@@ -1,10 +1,10 @@
 import { serve } from "@hono/node-server";
-import { getNumericEnvVariable, config } from "./config.js";
+import { config } from "./config.js";
 import logger from "./utils/logger.js";
 import app from "./app.js";
 
 // 启动服务器
-const serveHotApi: (port?: number) => ReturnType<typeof serve> | undefined = (port?: number) => {
+const serveHotApi: (port?: number) => void = (port: number = config.PORT) => {
   try {
     const apiServer = serve({
       fetch: app.fetch,
@@ -19,8 +19,7 @@ const serveHotApi: (port?: number) => ReturnType<typeof serve> | undefined = (po
 };
 
 if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "docker") {
-  const port = getNumericEnvVariable("PORT", 8859);
-  serveHotApi(port);
+  serveHotApi(config.PORT);
 }
 
 export default serveHotApi;
