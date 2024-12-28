@@ -1,6 +1,10 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import app from "../app.js";
 
+export const config = {
+  runtime: 'nodejs',
+};
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // 构造 Request 对象给 Hono
