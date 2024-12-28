@@ -12,6 +12,7 @@ import NotFound from "./views/NotFound.js";
 import Home from "./views/Home.js";
 import Error from "./views/Error.js";
 import { HttpError } from './utils/errors.js';
+import { next } from "@vercel/edge";
 
 const app = new Hono();
 
@@ -76,6 +77,15 @@ app.use("*", cors({
   allowMethods: ["POST", "GET", "OPTIONS"],
   credentials: true,
 }));
+
+// 全局配置响应头
+app.use(
+  "/*",
+  async (c, next) => {
+    c.header('Content-Type', 'application/json; charset=UTF-8');
+    await next();
+  },
+);
 
 // 静态资源
 app.use(
