@@ -4,7 +4,7 @@ import Layout from "./Layout.js";
 
 const Error: FC = (props) => {
   return (
-    <Layout title="Error | API Collection" icon="/error.png">
+    <Layout title="Error | API Collection" icon="//api.guole.fun/error.png">
       <main className="error">
         <div className="img">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 36 36">
