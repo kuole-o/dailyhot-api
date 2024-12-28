@@ -4,7 +4,7 @@ import logger from "./utils/logger.js";
 import app from "./app.js";
 
 // 启动服务器
-export const serveHotApi: (port?: number) => void = (port: number = config.PORT) => {
+const serveHotApi: (port?: number) => void = (port: number = config.PORT) => {
   try {
     const apiServer = serve({
       fetch: app.fetch,
@@ -22,4 +22,4 @@ if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "docker")
   serveHotApi(config.PORT);
 }
 
-export default app;
+export default serveHotApi;
