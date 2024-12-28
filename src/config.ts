@@ -39,16 +39,28 @@ const getBooleanEnvVariable = (key: string, defaultValue: boolean): boolean => {
   return value.toLowerCase() === "true";
 };
 
+// 分步骤创建配置对象
+const DISALLOW_ROBOT = getBooleanEnvVariable("DISALLOW_ROBOT", true);
+const CACHE_TTL = getNumericEnvVariable("CACHE_TTL", 3600);
+const REQUEST_TIMEOUT = getNumericEnvVariable("REQUEST_TIMEOUT", 6000);
+const ALLOWED_DOMAIN = getEnvVariable("ALLOWED_DOMAIN") || "*";
+const USE_LOG_FILE = getBooleanEnvVariable("USE_LOG_FILE", true);
+const ALLOWED_HOST = getEnvVariable("ALLOWED_HOST") || "guole.fun";
+const RSS_MODE = getBooleanEnvVariable("RSS_MODE", false);
+const REDIS_HOST = getEnvVariable("REDIS_HOST") || "127.0.0.1";
+const REDIS_PORT = getNumericEnvVariable("REDIS_PORT", 6379);
+const REDIS_PASSWORD = getEnvVariable("REDIS_PASSWORD") || "";
+
 // 创建配置对象
 export const config: Config = {
-  DISALLOW_ROBOT: getBooleanEnvVariable("DISALLOW_ROBOT", true),
-  CACHE_TTL: getNumericEnvVariable("CACHE_TTL", 3600),
-  REQUEST_TIMEOUT: getNumericEnvVariable("REQUEST_TIMEOUT", 6000),
-  ALLOWED_DOMAIN: getEnvVariable("ALLOWED_DOMAIN") || "*",
-  USE_LOG_FILE: getBooleanEnvVariable("USE_LOG_FILE", true),
-  ALLOWED_HOST: getEnvVariable("ALLOWED_HOST") || "guole.fun",
-  RSS_MODE: getBooleanEnvVariable("RSS_MODE", false),
-  REDIS_HOST: getEnvVariable("REDIS_HOST") || "127.0.0.1",
-  REDIS_PORT: getNumericEnvVariable("REDIS_PORT", 6379),
-  REDIS_PASSWORD: getEnvVariable("REDIS_PASSWORD") || "",
+  DISALLOW_ROBOT,
+  CACHE_TTL,
+  REQUEST_TIMEOUT,
+  ALLOWED_DOMAIN,
+  USE_LOG_FILE,
+  ALLOWED_HOST,
+  RSS_MODE,
+  REDIS_HOST,
+  REDIS_PORT,
+  REDIS_PASSWORD,
 };
