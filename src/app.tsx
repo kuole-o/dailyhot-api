@@ -68,23 +68,16 @@ app.use("*", cors({
     const isSame = config.ALLOWED_HOST && origin?.endsWith(config.ALLOWED_HOST);
     if (isSame || domain === "*" || (origin && domain.includes(new URL(origin).hostname)) || origin === '' || c.req.path === '/newbbtalk') {
       c.res.headers.set('Access-Control-Allow-Origin', origin);
+      c.res.headers.set("Content-Type", "application/json;charset=utf-8");
       return origin;
     }
     c.res.headers.set('Access-Control-Allow-Origin', '');
+    c.res.headers.set("Content-Type", "application/json;charset=utf-8");
     return null;
   },
   allowMethods: ["POST", "GET", "OPTIONS"],
   credentials: true,
 }));
-
-// 全局配置响应头
-app.use(
-  "/*",
-  async (c, next) => {
-    c.header('Content-Type', 'application/json; charset=UTF-8');
-    await next();
-  },
-);
 
 // 静态资源
 app.use(

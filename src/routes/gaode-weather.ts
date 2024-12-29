@@ -23,10 +23,17 @@ export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: bool
   const key = process.env.GAODE_KEY || c.req.query('key') || '';
   const ip = c.req.query('ip') || '';
   const city = c.req.query('city') || '';
+  let listData;
 
   console.log("请求ip: ", ip)
 
-  const listData = await getList(noCache, key, ip, city);
+  if (!ip && !city) {
+    listData = await getList(true, key, ip, city);
+  } else {
+    listData = await getList(noCache, key, ip, city);
+  }
+
+  
   const routeData: OtherData = {
     name: "gaode",
     title: "天气",

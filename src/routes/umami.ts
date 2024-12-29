@@ -9,11 +9,11 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const siteId = c.req.query('siteId') || '';
   const startAt = c.req.query('startAt') || '';
   const endAt = c.req.query('endAt') || '';
-  const unit = c.req.query('unit') || '';
-  const timezone = c.req.query('timezone') || '';
-  const compare = c.req.query('compare') || '';
+  const unit = c.req.query('unit') || 'hour';
+  const timezone = c.req.query('timezone') || 'Asia%2FShanghai';
+  const compare = c.req.query('compare') || 'false';
   const limit = c.req.query('limit') || '10';
-  const type = c.req.query('type') || '';
+  const type = c.req.query('type') || 'os';
 
   const listData = await getList(noCache, token, siteId, startAt, endAt, unit, timezone, compare, limit, type);
   const routeData: OtherData = {
