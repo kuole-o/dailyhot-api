@@ -43,7 +43,7 @@ const getBooleanEnvVariable = (key: string, defaultValue: boolean): boolean => {
 const PORT = getNumericEnvVariable("PORT", 8859);
 const DISALLOW_ROBOT = getBooleanEnvVariable("DISALLOW_ROBOT", true);
 const CACHE_TTL = getNumericEnvVariable("CACHE_TTL", 3600);
-const REQUEST_TIMEOUT = getNumericEnvVariable("REQUEST_TIMEOUT", 6000);
+const REQUEST_TIMEOUT = getNumericEnvVariable("REQUEST_TIMEOUT", 10000);
 const ALLOWED_DOMAIN = getEnvVariable("ALLOWED_DOMAIN") || "*";
 const USE_LOG_FILE = Boolean(process.env.USE_LOG_FILE) || getBooleanEnvVariable("USE_LOG_FILE", true);
 const ALLOWED_HOST = getEnvVariable("ALLOWED_HOST") || "guole.fun";

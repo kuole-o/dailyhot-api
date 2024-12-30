@@ -16,8 +16,8 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const limit = c.req.query('limit') || '10';
   const type = c.req.query('type') || 'os';
 
-  if (!siteId || !startAt || !endAt || !token) {
-    throw new HttpError(400, '获取 Umami 数据发生错误，请检查参数 siteId / startAt / endAt / Authorization 是否正确。');
+  if (!siteId || !startAt || !endAt) {
+    throw new HttpError(400, '获取 Umami 数据发生错误，请检查参数 siteId / startAt / endAt 是否正确。');
   }
 
   const listData = await getList(noCache, token, siteId, startAt, endAt, unit, timezone, compare, limit, type);
