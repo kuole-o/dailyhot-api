@@ -21,7 +21,7 @@ interface IpInfo {
 
 export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: boolean) => {
   const key = process.env.GAODE_KEY || c.req.query('key') || '';
-  const ip = c.req.query('ip') || '';
+  const ip = c.req.query('ip') || c.req.header('cf-connecting-ipv6') || c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || c.req.ip;
   const city = c.req.query('city') || '';
   let listData;
 
