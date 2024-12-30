@@ -12,7 +12,6 @@ import NotFound from "./views/NotFound.js";
 import Home from "./views/Home.js";
 import Error from "./views/Error.js";
 import { HttpError } from './utils/errors.js';
-import { next } from "@vercel/edge";
 
 const app = new Hono();
 
