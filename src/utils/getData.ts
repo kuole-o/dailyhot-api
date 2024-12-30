@@ -82,6 +82,7 @@ export const get = async (options: Get) => {
     return { fromCache: false, updateTime, data };
   } catch (error) {
     logger.error("❌ [ERROR] request failed");
+    logger.error(error);
     throw error;
   }
 };

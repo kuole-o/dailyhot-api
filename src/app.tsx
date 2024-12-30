@@ -12,6 +12,7 @@ import NotFound from "./views/NotFound.js";
 import Home from "./views/Home.js";
 import Error from "./views/Error.js";
 import { HttpError } from './utils/errors.js';
+import { next } from "@vercel/edge";
 
 const app = new Hono();
 
@@ -24,55 +25,15 @@ app.use(prettyJSON());
 // 尾部斜杠重定向
 app.use(trimTrailingSlash());
 
-// 鉴权中间件
-// app.use(async (c, next) => {
-//   try {
-//     let originURL = '';
-//     const origin = c.req.header('origin') || '';
-//     const referer = c.req.header('referer') || '';
-
-//     if (origin) {
-//       originURL = new URL(origin).hostname;
-//     } else if (referer) {
-//       originURL = new URL(referer).hostname;
-//     } else {
-//       originURL = '';
-//     }
-
-//     console.log("originURL:", originURL);
-
-//     const domain = config.ALLOWED_DOMAIN;
-//     const isSame = config.ALLOWED_HOST && origin.endsWith(config.ALLOWED_HOST);
-
-//     if (isSame || domain === "*" || domain.includes(originURL) || originURL === '' || c.req.path === '/newbbtalk') {
-//       c.res.headers.set('Access-Control-Allow-Origin', '*');
-//       await next();
-//     }
-
-//     return c.json({
-//       code: 403,
-//       message: "访问未经授权",
-//     }, 403);
-//   } catch (error) {
-//     logger.error(`鉴权中间件出现错误：${error}`);
-//     return c.json({
-//       code: 500,
-//       message: "内部服务器错误",
-//     }, 500);
-//   }
-// });
-
 app.use("*", cors({
   origin: (origin, c) => {
     const domain = config.ALLOWED_DOMAIN;
     const isSame = config.ALLOWED_HOST && origin?.endsWith(config.ALLOWED_HOST);
     if (isSame || domain === "*" || (origin && domain.includes(new URL(origin).hostname)) || origin === '' || c.req.path === '/newbbtalk') {
       c.res.headers.set('Access-Control-Allow-Origin', origin);
-      c.res.headers.set("Content-Type", "application/json;charset=utf-8");
       return origin;
     }
     c.res.headers.set('Access-Control-Allow-Origin', '');
-    c.res.headers.set("Content-Type", "application/json;charset=utf-8");
     return null;
   },
   allowMethods: ["POST", "GET", "OPTIONS"],

@@ -1,5 +1,6 @@
 import type { OtherData, ListContext, Options } from "../types.js";
 import { get } from "../utils/getData.js";
+import { HttpError } from "../utils/errors.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const token = process.env.UMAMI_TOKEN || c.req.header('Authorization') || '';
@@ -14,6 +15,10 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const compare = c.req.query('compare') || 'false';
   const limit = c.req.query('limit') || '10';
   const type = c.req.query('type') || 'os';
+
+  if (!siteId || !startAt || !endAt || !token) {
+    throw new HttpError(400, '获取 Umami 数据发生错误，请检查参数 siteId / startAt / endAt / Authorization 是否正确。');
+  }
 
   const listData = await getList(noCache, token, siteId, startAt, endAt, unit, timezone, compare, limit, type);
   const routeData: OtherData = {
@@ -47,8 +52,7 @@ const getList = async (noCache: boolean, token: string, siteId: string, startAt:
       limit: limit,
       type: type,
     },
-    noCache,
-    ttl: 10000
+    noCache
   });
   const list = result.data;
 

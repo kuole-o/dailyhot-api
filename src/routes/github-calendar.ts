@@ -1,7 +1,7 @@
 import type { ListItem, RouterData, ListContext, Options } from "../types.js";
 import { HttpError } from "../utils/errors.js";
 import { get } from "../utils/getData.js";
-import { load } from 'cheerio';
+import * as cheerio from 'cheerio';
 import logger from "../utils/logger.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
@@ -40,21 +40,65 @@ const getList = async ({ user }: Options, noCache: boolean) => {
     const url = `https://github.com/${user}`;
     const result = await get({
       url,
-      noCache,
       headers: {
         "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/605.1.15",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Connection": "keep-alive",
       },
+      noCache
     });
     const data = result.data;
-    const $ = load(data);
+
+    logger.info(result);
+
+    logger.info(data);
+
+    const $ = cheerio.load(data);
     const contributions: { date: string; count: number }[] = [];
-    $('.js-calendar-graph-svg rect').each((i, el) => {
-      const date = $(el).attr('data-date');
-      const count = parseInt($(el).attr('data-count') || '0', 10);
-      if (date) {
-        contributions.push({ date, count });
+
+    // 提取提交次数数据
+    const contributionCounts: { [key: string]: number } = {};
+    const tooltips = $('.js-calendar-graph.ContributionCalendar tool-tip');
+    logger.info("tooltips: ",tooltips.length);
+    tooltips.each((i, el) => {
+      const id = $(el).attr('id');
+      const text = $(el).text();
+
+      logger.info("id: ",id);
+      logger.info("text: ",text);
+
+      const match = text.match(/^(\d+) contribution/);
+      if (id && match) {
+        contributionCounts[id] = parseInt(match[1], 10);
       }
     });
+
+    // 提取日期数据
+    const dateMap: { [key: string]: string } = {};
+    const days = $('.js-calendar-graph.ContributionCalendar td.ContributionCalendar-day');
+    logger.info("days: ",days.length);
+    days.each((i, el) => {
+      const id = $(el).attr('aria-labelledby');
+      const date = $(el).attr('data-date');
+
+      logger.info("id: ",id);
+      logger.info("date: ",date);
+
+      if (id && date) {
+        dateMap[id] = date;
+      }
+    });
+
+    logger.info("contributionCounts: ",contributionCounts);
+    logger.info("dateMap: ",dateMap);
+
+    // 关联数据
+    for (const id in contributionCounts) {
+      if (dateMap[id]) {
+        contributions.push({ date: dateMap[id], count: contributionCounts[id] });
+      }
+    }
 
     const totalContributions = contributions.reduce((acc, curr) => acc + curr.count, 0);
     const contributionsSplit = listSplit(contributions, 7);
