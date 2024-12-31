@@ -10,12 +10,13 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
     let page: number;
     let limit: number;
     let type: string | undefined;
+
     if (c.req.method == 'GET') {
       page = c.req.query('page') ? Number(c.req.query('page')) : 1;
       limit = c.req.query('limit') ? Number(c.req.query('limit')) : 10;
       type = c.req.query('type') ? c.req.query('type') : '';
     } else if (c.req.method == 'POST') {
-      const body = await c.req.parseBody();
+      const body = await c.req.json();
       limit = body.limit ? Number(body.limit) : 10;
       page = body.page ? Number(body.page) : 1;
       type = body.type ? String(body.type) : '';
@@ -23,7 +24,10 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
       throw new HttpError(405, 'Method Not Allowed');
     }
 
-    const { fromCache, data, updateTime } = await getList(page, limit, type, noCache);
+    const id: string = c.req.header("X-LC-Id") || process.env.LEANCLOUD_APPID || '';
+    const key: string = c.req.header("X-LC-Key") || process.env.LEANCLOUD_APPKEY || '';
+
+    const { fromCache, data, updateTime } = await getList(id, key, page, limit, type, noCache);
 
     const routeData: RouterData = {
       name: 'BBtalk',
@@ -41,15 +45,15 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
   }
 };
 
-const getList = async (page: number, limit: number, type: string | undefined, noCache: boolean) => {
+const getList = async (id: string, key: string, page: number, limit: number, type: string | undefined, noCache: boolean) => {
   try {
     const url = `https://leancloud.guole.fun/1.1/classes/content?limit=${limit}&skip=${(page - 1) * limit}&order=-createdAt&count=1`;
     const result = await get({
       url,
       headers: {
-        'X-LC-Id': process.env.LEANCLOUD_APPID || '',
-        'X-LC-Key': process.env.LEANCLOUD_APPKEY || '',
-        'Content-Type': 'text/html;charset=utf-8'
+        'X-LC-Id': id,
+        'X-LC-Key': key,
+        'Content-Type': 'application/json;charset=utf-8'
       },
       noCache,
       ttl

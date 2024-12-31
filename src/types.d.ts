@@ -72,6 +72,8 @@ export interface OtherData {
     longitude?: string;
     asOrganization?: string;
   };
+  code?: string;
+  msg?: string;
 }
 
 // 请求类型
