@@ -3,13 +3,12 @@ import { createLogger, format, transports } from "winston";
 import path from "path";
 import chalk from "chalk";
 
-// 初始化 transports 数组
-let transportOptions: (typeof transports.File | typeof transports.Console)[] = [];
+let pathOption: (typeof transports.File)[] = [];
 
 // 日志输出目录
 if ((process.env.NODE_ENV === "development" || process.env.NODE_ENV === "docker") && config.USE_LOG_FILE) {
   try {
-    transportOptions.push(
+    pathOption = [
       new transports.File({
         filename: path.resolve("logs/error.log"),
         level: "error",
@@ -20,11 +19,11 @@ if ((process.env.NODE_ENV === "development" || process.env.NODE_ENV === "docker"
         filename: path.resolve("logs/logger.log"),
         maxsize: 1024 * 1024,
         maxFiles: 1,
-      })
-    );
+      }),
+    ];
   } catch (error) {
     console.error("Failed to initialize log files. Logging to a file will be skipped.", error);
-    // 不添加文件传输
+    pathOption = [];
   }
 }
 
@@ -50,7 +49,7 @@ const consoleFormat = format.printf(({ level, message, timestamp, stack }) => {
   return logMessage;
 });
 
-// 创建 logger
+// logger
 const logger = createLogger({
   // 最低的日志级别
   level: "info",
@@ -63,15 +62,15 @@ const logger = createLogger({
     format.splat(),
     format.json(),
   ),
-  transports: transportOptions,
+  transports: pathOption,
 });
 
-// 始终添加 Console transport
+// 控制台输出
 try {
   logger.add(
     new transports.Console({
       format: format.combine(format.colorize(), consoleFormat),
-    })
+    }),
   );
 } catch (error) {
   console.error("Failed to add console transport. Console logging will be skipped.", error);

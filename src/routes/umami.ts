@@ -2,6 +2,8 @@ import type { OtherData, ListContext, Options } from "../types.js";
 import { get } from "../utils/getData.js";
 import { HttpError } from "../utils/errors.js";
 
+const ttl = 60*60*1000;
+
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const token = process.env.UMAMI_TOKEN || c.req.header('Authorization') || '';
 
@@ -52,7 +54,8 @@ const getList = async (noCache: boolean, token: string, siteId: string, startAt:
       limit: limit,
       type: type,
     },
-    noCache
+    noCache,
+    ttl
   });
   const list = result.data;
 

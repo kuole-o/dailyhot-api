@@ -33,7 +33,7 @@ export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: bool
     listData = await getList(noCache, key, ip, city);
   }
 
-  
+
   const routeData: OtherData = {
     name: "gaode",
     title: "天气",
