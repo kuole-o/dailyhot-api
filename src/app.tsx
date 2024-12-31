@@ -43,10 +43,9 @@ app.use("*", cors({
 app.use(
   "/public/*",
   serveStatic({
-    root: "./node_modules/guole.fun.api"
+    root: "./node_modules/guole.fun.api/public"
   }),
 );
-
 
 app.use(
   "/*",
