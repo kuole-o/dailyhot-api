@@ -41,13 +41,6 @@ app.use("*", cors({
 
 // 静态资源
 app.use(
-  "/public/*",
-  serveStatic({
-    root: "./node_modules/guole.fun.api/public"
-  }),
-);
-
-app.use(
   "/*",
   serveStatic({
     root: "./public",
