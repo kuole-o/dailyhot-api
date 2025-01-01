@@ -22,8 +22,4 @@ if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "docker")
   serveHotApi(config.PORT);
 }
 
-export const createServer = () => {
-  return serve({ fetch: app.fetch });
-};
-
-export default createServer;
+export default serveHotApi;
