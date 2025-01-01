@@ -1,31 +1,35 @@
 #!/bin/bash
+
 echo -e "\033[0;32mDeploying updates to api.guole.fun...\033[0m"
 
-cd d:/src/api
+# 检测系统类型
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+  # Windows 环境路径
+  PROJECT_DIR="d:/src/api"
+else
+  # macOS 或其他 UNIX 环境路径
+  PROJECT_DIR="/Users/guole/Documents/src/api"
+fi
 
-# # 定义目标目录
-# TARGET_DIR="public"
-# # 拷贝当前目录下的 package.json 到目标目录
-# cp package.json "$TARGET_DIR/package.json"
-# # 检查拷贝是否成功
-# if [ $? -eq 0 ]; then
-#   echo "已成功将 package.json 拷贝到 $TARGET_DIR/"
-# else
-#   echo "拷贝 package.json 失败"
-#   exit 1
-# fi
+# 切换到项目目录
+cd "$PROJECT_DIR" || { echo "项目路径不存在: $PROJECT_DIR"; exit 1; }
 
+# 移动 package.json（如需要）
+# rm -f public/package.json
+# cp node_modules/guole.fun.api/package.json public
+
+# 提交更改
 git add .
-msg="🏖️ API更新于 `date`"
-if [ $# -eq 1 ]
-  then msg="$1"
+msg="🏖️ API更新于 $(date)"
+if [ $# -eq 1 ]; then
+  msg="$1"
 fi
 git commit -m "$msg"
 
-# Push source and build repos.
+# 推送代码
 git push github main
 
-#./deplay.bat
-
-# push执行完成，不自动退出
-exec /bin/bash
+# 继续执行（保留 Bash 环境）
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
+  exec /bin/bash
+fi
