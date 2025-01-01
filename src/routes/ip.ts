@@ -1,8 +1,21 @@
 import type { OtherData, ListContext, Options } from "../types.js";
 import { HonoRequest } from 'hono';
 import { ipAddress, geolocation } from '@vercel/functions';
-import { HttpError } from "../utils/errors.js";
-import logger from "../utils/logger.js";
+
+const decodeObject = (obj: Record<string, any>): Record<string, any> => {
+  const result: Record<string, any> = {};
+  for (const key in obj) {
+    if (typeof obj[key] === 'string') {
+      result[key] = decodeURIComponent(obj[key]);
+    } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+      result[key] = decodeObject(obj[key]); // 递归解码嵌套对象
+    } else {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+};
+
 
 interface ExtendedHonoRequest extends HonoRequest {
   ip: string;
@@ -77,8 +90,10 @@ export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: bool
 
   console.log("geo: ", data);
 
+  const decodedData = decodeObject(data);
+
   let routeData: OtherData = {
-    data,
+    data: decodedData,
   };
 
   return routeData;
