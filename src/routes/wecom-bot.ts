@@ -3,14 +3,19 @@ import { post } from '../utils/getData.js';
 import { HttpError } from "../utils/errors.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
+  console.log("请求方式： ", c.req.method)
   if (c.req.method !== 'POST') {
     throw new HttpError(405, 'Method Not Allowed');
   }
 
   const body = await c.req.json();
+  console.log("body: ",body)
 
-  let key = body.key ? body.key : '';
-  let content: string = body?.content ? body?.content : '';
+  const key = c.req.header("X-API-Token") || body.key || c.req.query("key") || '';
+  const content: string = body?.content ? body?.content : '';
+
+  console.log("key: ",key)
+  console.log("content: ",content)
 
   if (!key && !content) {
     throw new HttpError(400, '缺少必要参数：token / content');
