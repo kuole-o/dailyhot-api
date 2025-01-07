@@ -4,9 +4,6 @@ import { HttpError } from "../utils/errors.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   console.log("请求方式： ", c.req.method)
-  if (c.req.method !== 'POST') {
-    throw new HttpError(405, 'Method Not Allowed');
-  }
 
   const body = await c.req.json();
   console.log("body: ",body)
