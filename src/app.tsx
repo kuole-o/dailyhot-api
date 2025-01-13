@@ -27,15 +27,14 @@ app.use(prettyJSON());
 app.use(trimTrailingSlash());
 
 // 解析 ALLOWED_DOMAIN
-const allowedDomains = JSON.parse(config.ALLOWED_DOMAIN);
+const allowedDomains = config.ALLOWED_DOMAIN === "*" ? "*" : JSON.parse(config.ALLOWED_DOMAIN);
 
 app.use("*", cors({
   origin: (origin, c) => {
-    const domain = allowedDomains;
     const isSame = config.ALLOWED_HOST && origin?.endsWith(config.ALLOWED_HOST);
-    if (isSame || domain === "*" || (origin && domain.includes(new URL(origin).hostname)) || origin === '' || c.req.path === '/newbbtalk') {
-      c.res.headers.set('Access-Control-Allow-Origin', origin);
-      return origin;
+    if (isSame || allowedDomains === "*" || (origin && allowedDomains.includes(new URL(origin).hostname)) || origin === '' || c.req.path === '/newbbtalk') {
+      c.res.headers.set('Access-Control-Allow-Origin', origin || '*');
+      return origin || '*';
     }
     c.res.headers.set('Access-Control-Allow-Origin', '');
     return null;
