@@ -12,6 +12,8 @@ import NotFound from "./views/NotFound.js";
 import Home from "./views/Home.js";
 import Error from "./views/Error.js";
 import { HttpError } from './utils/errors.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = new Hono();
 
@@ -24,9 +26,12 @@ app.use(prettyJSON());
 // 尾部斜杠重定向
 app.use(trimTrailingSlash());
 
+// 解析 ALLOWED_DOMAIN
+const allowedDomains = JSON.parse(config.ALLOWED_DOMAIN);
+
 app.use("*", cors({
   origin: (origin, c) => {
-    const domain = config.ALLOWED_DOMAIN;
+    const domain = allowedDomains;
     const isSame = config.ALLOWED_HOST && origin?.endsWith(config.ALLOWED_HOST);
     if (isSame || domain === "*" || (origin && domain.includes(new URL(origin).hostname)) || origin === '' || c.req.path === '/newbbtalk') {
       c.res.headers.set('Access-Control-Allow-Origin', origin);
