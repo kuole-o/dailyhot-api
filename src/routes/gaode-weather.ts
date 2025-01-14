@@ -74,8 +74,8 @@ const getList = async (noCache: boolean, key: string, ip: string | undefined, cl
   let result, cache, ipInfo: IpInfo | undefined;
   const url = `https://restapi.amap.com/v3/weather/weatherInfo`;
 
-  if (!ip && !city && !clientIp) {
-    cache = true;
+  if (!ip && !city) {
+    cache = false;
   } else {
     cache = noCache;
   }
