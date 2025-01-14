@@ -20,20 +20,17 @@ interface IpInfo {
 }
 
 export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: boolean) => {
-  const key = process.env.GAODE_KEY || c.req.query('key') || '';
-  const ip = c.req.query('ip') || c.req.header('cf-connecting-ipv6') || c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || c.req.ip;
-  const city = c.req.query('city') || '';
+  const key = c.req.query('key') || process.env.GAODE_KEY || '';
+  const ip = c.req.query('ip');
+  const clientIp = c.req.header('cf-connecting-ipv6') || c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || c.req.ip;
+  const city = c.req.query('city');
   let listData;
 
-  console.log("请求ip: ", ip)
-  console.log("请求city: ", city)
+  console.log("vercel解析ip: ", clientIp)
+  console.log("用户传入ip: ", ip)
+  console.log("用户传入city: ", city)
 
-  if (!ip && !city) {
-    listData = await getList(true, key, ip, city);
-  } else {
-    listData = await getList(noCache, key, ip, city);
-  }
-
+  listData = await getList(noCache, key, ip, clientIp, city);
 
   const routeData: OtherData = {
     name: "gaode",
@@ -47,24 +44,19 @@ export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: bool
 
 const getIp = async (noCache: boolean, key: string, ip: string | undefined) => {
   const url = `https://restapi.amap.com/v3/ip`;
-  let params;
-  if (ip) {
-    params = {
-      key: key,
-      ip: ip,
-    }
-  } else {
-    params = {
-      key: key,
-    }
-  }
+  const params = {
+    key: key,
+    ip: ip ? Number(ip) : '',
+  };
 
   const result = await get({
     url,
     params: params,
-    noCache
+    noCache: noCache
   });
+
   const list = result.data;
+
   return {
     ...result,
     data:
@@ -78,9 +70,15 @@ const getIp = async (noCache: boolean, key: string, ip: string | undefined) => {
   };
 }
 
-const getList = async (noCache: boolean, key: string, ip: string | undefined, city: string | undefined) => {
-  let result, ipInfo: IpInfo | undefined;
+const getList = async (noCache: boolean, key: string, ip: string | undefined, clientIp: string | undefined, city: string | undefined) => {
+  let result, cache, ipInfo: IpInfo | undefined;
   const url = `https://restapi.amap.com/v3/weather/weatherInfo`;
+
+  if (!ip && !city && !clientIp) {
+    cache = true;
+  } else {
+    cache = noCache;
+  }
 
   if (city) {
     result = await get({
@@ -89,18 +87,24 @@ const getList = async (noCache: boolean, key: string, ip: string | undefined, ci
         key: key,
         city: city,
       },
-      noCache
+      noCache: cache
     });
   } else {
-    ipInfo = await getIp(noCache, key, ip);
-    console.log("ipInfo: ", ipInfo)
+    ipInfo = await getIp(cache, key, ip);
+    console.log("入参 ip 查询信息: ", ipInfo)
+    if (!ipInfo.data.city || ipInfo.data.city.length < 1) {
+      console.log("高德解析 IP 失败，使用 clientIp 查询城市信息")
+      ipInfo = await getIp(cache, key, clientIp);
+      console.log("clientIp 查询信息: ", ipInfo)
+    }
+
     result = await get({
       url,
       params: {
         key: key,
         city: ipInfo.data.city && ipInfo.data.city.length > 0 ? ipInfo.data.city : '北京',
       },
-      noCache
+      noCache: cache
     });
   }
   console.log("result.data: ", result.data)
