@@ -26,6 +26,7 @@ export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: bool
   let listData;
 
   console.log("请求ip: ", ip)
+  console.log("请求city: ", city)
 
   if (!ip && !city) {
     listData = await getList(true, key, ip, city);
@@ -81,7 +82,7 @@ const getList = async (noCache: boolean, key: string, ip: string | undefined, ci
   let result, ipInfo: IpInfo | undefined;
   const url = `https://restapi.amap.com/v3/weather/weatherInfo`;
 
-  if (city && !ip) {
+  if (city) {
     result = await get({
       url,
       params: {
