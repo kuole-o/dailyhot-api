@@ -42,17 +42,24 @@ export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: bool
   return routeData;
 };
 
-const getIp = async (noCache: boolean, key: string, ip: string | undefined) => {
+const getIp = async (cache: boolean, key: string, ip: string | undefined) => {
   const url = `https://restapi.amap.com/v3/ip`;
-  const params = {
-    key: key,
-    ip: ip ? Number(ip) : '',
-  };
+  let params;
+  if (ip && ip.length > 0) {
+    params = {
+      key: key,
+      ip: ip,
+    };
+  } else {
+    params = {
+      key: key,
+    };
+  }
 
   const result = await get({
     url,
     params: params,
-    noCache: noCache
+    noCache: cache
   });
 
   const list = result.data;
