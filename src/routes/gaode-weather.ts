@@ -97,13 +97,8 @@ const getList = async (noCache: boolean, key: string, ip: string | undefined, cl
       noCache: cache
     });
   } else {
-    ipInfo = await getIp(cache, key, ip);
-    console.log("入参 ip 查询信息: ", ipInfo)
-    if (!ipInfo.data.city || ipInfo.data.city.length < 1) {
-      console.log("高德解析 IP 失败，使用 clientIp 查询城市信息")
-      ipInfo = await getIp(cache, key, clientIp);
-      console.log("clientIp 查询信息: ", ipInfo)
-    }
+    ipInfo = await getIp(cache, key, ip ? ip : clientIp);
+    console.log("ipInfo: ", ipInfo)
 
     result = await get({
       url,
