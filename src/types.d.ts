@@ -74,6 +74,13 @@ export interface OtherData {
   };
   code?: string;
   msg?: string;
+  token?: string;
+  user?: {
+    id: string;
+    username: string;
+    createdAt: string;
+    isAdmin: boolean;
+  }
 }
 
 // 请求类型

@@ -72,6 +72,7 @@ export const get = async (options: Get) => {
     }
     // 缓存不存在时请求接口
     const response = await request.get(url, { headers, params, responseType });
+    console.log(response)
     const responseData = response?.data || response;
     // 存储新获取的数据到缓存
     const updateTime = new Date().toISOString();
