@@ -88,6 +88,7 @@ export type RouterType = {
     flag_desc: string;
     num: number;
     onboard_time: number;
+    stime: number;
     icon_desc: string;
     icon_desc_color: string;
     small_icon_desc: string;

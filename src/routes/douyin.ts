@@ -44,6 +44,7 @@ const getList = async (noCache: boolean) => {
     },
   });
   const list = result.data.data.word_list;
+  //console.log(result.data.data)
   return {
     ...result,
     data: list.map((v: RouterType["douyin"]) => ({
