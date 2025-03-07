@@ -128,3 +128,14 @@ export const post = async (options: Post) => {
     throw error;
   }
 };
+
+export const cleanPostContent = (postContent: string, maxWords: number = 500): string => {
+  const text = postContent.replace(/<[^>]*>/g, ''); // 去除 HTML 标签
+  const cleanedText = text.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim(); // 去除换行符和多余空格
+  const words = cleanedText.split(' '); // 按空格分割成单词
+
+  if (words.length <= maxWords) {
+      return cleanedText;
+  }
+  return words.slice(0, maxWords).join(' ') + '...';
+}

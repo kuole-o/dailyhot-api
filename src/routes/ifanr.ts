@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
@@ -35,14 +35,3 @@ const getList = async (noCache: boolean) => {
     })),
   };
 };
-
-const cleanPostContent = (postContent: string, maxWords: number = 500): string => {
-  const text = postContent.replace(/<[^>]*>/g, ''); // 去除 HTML 标签
-  const cleanedText = text.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim(); // 去除换行符和多余空格
-  const words = cleanedText.split(' '); // 按空格分割成单词
-
-  if (words.length <= maxWords) {
-      return cleanedText;
-  }
-  return words.slice(0, maxWords).join(' ') + '...';
-}
