@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
@@ -25,7 +25,7 @@ const getList = async (noCache: boolean) => {
     data: list.map((v: RouterType["qq-news"]) => ({
       id: v.id,
       title: v.title,
-      desc: v.abstract,
+      desc: cleanPostContent(v.abstract),
       cover: v.miniProShareImage,
       author: v.source,
       hot: v.hotEvent.hotScore,

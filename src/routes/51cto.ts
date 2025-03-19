@@ -1,7 +1,7 @@
 import type { RouterData, RouterResType } from "../types.js";
 import type { RouterType } from "../router.types.js";
 import { getToken, sign } from "../utils/getToken/51cto.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
@@ -44,7 +44,7 @@ const getList = async (noCache: boolean): Promise<RouterResType> => {
       id: v.source_id,
       title: v.title,
       cover: v.cover,
-      desc: v.abstract,
+      desc: cleanPostContent(v.abstract),
       timestamp: getTime(v.pubdate),
       hot: undefined,
       url: v.url,

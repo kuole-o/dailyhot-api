@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { genHeaders } from "../utils/getToken/coolapk.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
@@ -28,10 +28,10 @@ const getList = async (noCache: boolean) => {
     ...result,
     data: list.map((v: RouterType["coolapk"]) => ({
       id: v.id,
-      title: v.message,
+      title: v.title,
       cover: v.tpic,
       author: v.username,
-      desc: v.ttitle,
+      desc: cleanPostContent(v.message),
       timestamp: undefined,
       hot: undefined,
       url: v.shareUrl,

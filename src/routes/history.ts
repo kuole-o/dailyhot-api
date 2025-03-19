@@ -1,7 +1,7 @@
 import type { RouterData, ListContext, Options } from "../types.js";
 import type { RouterType } from "../router.types.js";
 import { load } from "cheerio";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getCurrentDateTime } from "../utils/getTime.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
@@ -42,7 +42,7 @@ const getList = async (options: Options, noCache: boolean) => {
       id: index,
       title: load(v.title).text().trim(),
       cover: v.cover ? v.pic_share : undefined,
-      desc: load(v.desc).text().trim(),
+      desc: cleanPostContent(load(v.desc).text()),
       year: v.year,
       timestamp: undefined,
       hot: undefined,

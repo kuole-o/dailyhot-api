@@ -1,6 +1,6 @@
 import type { RouterData, ListContext, Options } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
@@ -33,7 +33,7 @@ const getList = async (options: Options, noCache: boolean) => {
     data: list.map((v: RouterType["sspai"]) => ({
       id: v.id,
       title: v.title,
-      desc: v.summary,
+      desc: cleanPostContent(v.summary),
       cover: v.banner,
       author: v.author.nickname,
       timestamp: getTime(v.released_time),

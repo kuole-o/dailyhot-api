@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
@@ -26,7 +26,7 @@ const getList = async (noCache: boolean) => {
     data: list.map((v: RouterType["tieba"]) => ({
       id: v.topic_id,
       title: v.topic_name,
-      desc: v.topic_desc,
+      desc: cleanPostContent(v.topic_desc),
       cover: v.topic_pic,
       hot: v.discuss_num,
       timestamp: getTime(v.create_time),

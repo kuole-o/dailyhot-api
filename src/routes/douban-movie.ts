@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import { load } from "cheerio";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
   const listData = await getList(noCache);
@@ -48,7 +48,7 @@ const getList = async (noCache: boolean) => {
       id: getNumbers(url),
       title: `【${score}】${dom.find("a").attr("title")}`,
       cover: dom.find("img").attr("src"),
-      desc: dom.find("p.pl").text(),
+      desc: cleanPostContent(dom.find("p.pl").text()),
       timestamp: undefined,
       hot: getNumbers(dom.find("span.pl").text()),
       url: url || `https://movie.douban.com/subject/${getNumbers(url)}/`,

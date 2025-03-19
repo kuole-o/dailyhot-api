@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import { load } from "cheerio";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
@@ -40,7 +40,7 @@ const getList = async (noCache: boolean) => {
       id: getNumbers(url),
       title: dom.find("h3 a").text().trim(),
       cover: dom.find(".pic-wrap img").attr("src"),
-      desc: dom.find(".block p").text().trim(),
+      desc: cleanPostContent(dom.find(".block p").text()),
       timestamp: getTime(dom.find("span.pubtime").text().trim()),
       hot: 0,
       url: url || `https://www.douban.com/group/topic/${getNumbers(url)}`,

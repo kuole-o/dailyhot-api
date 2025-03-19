@@ -1,6 +1,6 @@
 import type { RouterData, ListContext, Options, RouterResType } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 const typeMap: Record<string, string> = {
@@ -66,7 +66,7 @@ const getList = async (options: Options, noCache: boolean): Promise<RouterResTyp
     data: list.map((v: RouterType["acfun"]) => ({
       id: v.dougaId,
       title: v.contentTitle,
-      desc: v.contentDesc,
+      desc: cleanPostContent(v.contentDesc),
       cover: v.coverUrl,
       author: v.userName,
       timestamp: getTime(v.contributeTime),

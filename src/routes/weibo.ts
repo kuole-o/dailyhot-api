@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
@@ -33,7 +33,7 @@ const getList = async (noCache: boolean) => {
       return {
         id: v.mid,
         title: v.word,
-        desc: v.note || v.word_scheme || v.flag_desc || key,
+        desc: cleanPostContent(v.note || v.word_scheme || v.flag_desc || key),
         hot: v.num,
         text: getText(v),
         icon_desc: v.icon_desc || v.label_name || v.small_icon_desc || v.flag_desc,

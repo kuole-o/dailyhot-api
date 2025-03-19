@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
@@ -33,7 +33,7 @@ const getList = async (noCache: boolean) => {
     data: list.map((v: RouterType["guokr"]) => ({
       id: v.id,
       title: v.title,
-      desc: v.summary,
+      desc: cleanPostContent(v.summary),
       cover: v.small_image,
       author: v.author?.nickname,
       hot: undefined,

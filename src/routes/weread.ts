@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import getWereadID from "../utils/getToken/weread.js";
 import { getTime } from "../utils/getTime.js";
 
@@ -36,7 +36,7 @@ const getList = async (noCache: boolean) => {
         id: data.bookId,
         title: data.title,
         author: data.author,
-        desc: data.intro,
+        desc: cleanPostContent(data.intro),
         cover: data.cover.replace("s_", "t9_"),
         timestamp: getTime(data.publishTime),
         hot: v.readingCount,

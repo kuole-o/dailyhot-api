@@ -329,7 +329,7 @@ export type RouterType = {
   };
   coolapk: {
     id: number;
-    ttitle: string;
+    title: string;
     shareUrl: string;
     username: string;
     tpic: string;

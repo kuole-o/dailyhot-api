@@ -1,5 +1,5 @@
 import type { RouterData, ListContext, Options, RouterResType } from "../types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 import { parseRSS } from "../utils/parseRSS.js";
 import iconv from "iconv-lite";
@@ -52,7 +52,7 @@ const getList = async (options: Options, noCache: boolean): Promise<RouterResTyp
     data: list.map((v, i) => ({
       id: v.guid || i,
       title: v.title || "",
-      desc: v.content?.trim() || "",
+      desc: cleanPostContent(v.content || ""),
       author: v.author,
       timestamp: getTime(v.pubDate || 0),
       hot: undefined,

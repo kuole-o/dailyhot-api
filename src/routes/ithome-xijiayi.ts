@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import { load } from "cheerio";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
@@ -40,7 +40,7 @@ const getList = async (noCache: boolean) => {
     return {
       id: href ? Number(replaceLink(href, true)) : 100000,
       title: dom.find(".newsbody h2").text().trim(),
-      desc: dom.find(".newsbody p").text().trim(),
+      desc: cleanPostContent(dom.find(".newsbody p").text()),
       cover: dom.find("img").attr("data-original"),
       timestamp: getTime(dateTime || 0),
       hot: Number(dom.find(".comment").text().replace(/\D/g, "")),

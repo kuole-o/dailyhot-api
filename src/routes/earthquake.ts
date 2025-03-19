@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 const mappings: Record<string, string> = {
@@ -45,7 +45,7 @@ const getList = async (noCache: boolean) => {
       return {
         id: NEW_DID,
         title: `${LOCATION_C}发生${M}级地震`,
-        desc: contentBuilder.join("\n"),
+        desc: cleanPostContent(contentBuilder.join("\n")),
         timestamp: getTime(v["O_TIME" as keyof typeof v]),
         hot: undefined,
         url: `https://news.ceic.ac.cn/${NEW_DID}.html`,

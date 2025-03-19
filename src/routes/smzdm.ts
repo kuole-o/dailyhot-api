@@ -1,6 +1,6 @@
 import type { ListContext, Options, RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 const typeMap: Record<string, string> = {
@@ -41,7 +41,7 @@ const getList = async (options: Options, noCache: boolean) => {
     data: list.map((v: RouterType["smzdm"]) => ({
       id: v.article_id,
       title: v.title,
-      desc: v.content,
+      desc: cleanPostContent(v.content),
       cover: v.pic_url,
       author: v.nickname,
       hot: Number(v.collection_count),

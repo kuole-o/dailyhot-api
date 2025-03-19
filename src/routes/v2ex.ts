@@ -1,6 +1,6 @@
 import type { RouterData, ListContext, Options } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const type = c.req.query("type") || "hot";
@@ -35,7 +35,7 @@ const getList = async (options: Options, noCache: boolean) => {
     data: list.map((v: RouterType["v2ex"]) => ({
       id: v.id,
       title: v.title,
-      desc: v.content,
+      desc: cleanPostContent(v.content),
       author: v.member.username,
       timestamp: undefined,
       hot: v.replies,

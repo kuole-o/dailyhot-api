@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
@@ -26,8 +26,8 @@ const getList = async (noCache: boolean) => {
     ...result,
     data: list.map((v: RouterType["dgtle"]) => ({
       id: v.id,
-      title: v.title || v.content,
-      desc: v.content,
+      title: v.title,
+      desc: cleanPostContent(v.content),
       cover: v.cover,
       author: v.from,
       hot: v.membernum,

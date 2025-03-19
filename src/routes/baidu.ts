@@ -1,6 +1,6 @@
 import type { RouterData, ListContext, Options, RouterResType } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 
 const typeMap: Record<string, string> = {
   realtime: "热搜",
@@ -51,7 +51,7 @@ const getList = async (options: Options, noCache: boolean): Promise<RouterResTyp
     data: jsonObject.map((v: RouterType["baidu"]) => ({
       id: v.index,
       title: v.word,
-      desc: v.desc,
+      desc: cleanPostContent(v.desc),
       cover: v.img,
       author: v.show?.length ? v.show : "",
       timestamp: 0,

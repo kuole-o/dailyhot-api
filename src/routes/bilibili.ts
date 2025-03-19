@@ -1,6 +1,6 @@
 import type { RouterData, ListContext, Options, RouterResType } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import getBiliWbi from "../utils/getToken/bilibili.js";
 import { getTime } from "../utils/getTime.js";
 
@@ -63,7 +63,7 @@ const getList = async (options: Options, noCache: boolean): Promise<RouterResTyp
       data: list.map((v: RouterType["bilibili"]) => ({
         id: v.bvid,
         title: v.title,
-        desc: v.desc || "该视频暂无简介",
+        desc: cleanPostContent(v.desc || "该视频暂无简介"),
         cover: v.pic?.replace(/http:/, "https:"),
         author: v.owner?.name,
         timestamp: getTime(v.pubdate),
@@ -91,7 +91,7 @@ const getList = async (options: Options, noCache: boolean): Promise<RouterResTyp
       data: list.map((v: RouterType["bilibili"]) => ({
         id: v.bvid,
         title: v.title,
-        desc: v.desc || "该视频暂无简介",
+        desc: cleanPostContent(v.desc || "该视频暂无简介"),
         cover: v.pic?.replace(/http:/, "https:"),
         author: v.author,
         timestamp: undefined,

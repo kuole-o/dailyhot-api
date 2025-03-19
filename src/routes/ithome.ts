@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import { load } from "cheerio";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {

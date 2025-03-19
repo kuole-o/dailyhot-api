@@ -1,6 +1,6 @@
 import type { RouterData } from "../types.js";
 import { load } from "cheerio";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
   const listData = await getList(noCache);
@@ -41,7 +41,7 @@ const getList = async (noCache: boolean) => {
       id: getID(href),
       title: dom.find("a.title").text()?.trim(),
       cover: dom.find("img").attr("src"),
-      desc: dom.find("p.abstract").text()?.trim(),
+      desc: cleanPostContent(dom.find("p.abstract").text()),
       author: dom.find("a.nickname").text()?.trim(),
       hot: undefined,
       timestamp: undefined,

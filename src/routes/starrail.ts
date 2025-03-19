@@ -1,6 +1,6 @@
 import type { RouterData, ListContext, Options } from "../types.js";
 import type { RouterType } from "../router.types.js";
-import { get } from "../utils/getData.js";
+import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
@@ -39,7 +39,7 @@ const getList = async (options: Options, noCache: boolean) => {
       return {
         id: data.post_id,
         title: data.subject,
-        desc: data.content,
+        desc: cleanPostContent(data.content),
         cover: data.cover || data?.images?.[0],
         author: v.user?.nickname || undefined,
         timestamp: getTime(data.created_at),
