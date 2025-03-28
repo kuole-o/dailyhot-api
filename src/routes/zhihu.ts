@@ -20,10 +20,12 @@ const getList = async (noCache: boolean) => {
   const url = `https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=50&desktop=true`;
   const result = await get({ url, noCache });
   const list = result.data.data;
+  //console.log(list)
   return {
     ...result,
     data: list.map((v: RouterType["zhihu"]) => {
       const data = v.target;
+      const url_id = data.url.split("https://api.zhihu.com/questions/")[1];
       return {
         id: data.id,
         title: data.title,
@@ -31,8 +33,8 @@ const getList = async (noCache: boolean) => {
         cover: v.children[0].thumbnail,
         timestamp: getTime(data.created),
         hot: parseFloat(v.detail_text.split(" ")[0]) * 10000,
-        url: `https://www.zhihu.com/question/${data.id}`,
-        mobileUrl: `https://www.zhihu.com/question/${data.id}`,
+        url: `https://www.zhihu.com/question/${url_id}`,
+        mobileUrl: `https://www.zhihu.com/question/${url_id}`,
       };
     }),
   };

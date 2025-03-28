@@ -101,6 +101,7 @@ export type RouterType = {
   zhihu: {
     target: {
       id: number;
+      url: string;
       title: string;
       excerpt: string;
       created: number;
