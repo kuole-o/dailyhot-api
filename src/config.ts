@@ -15,6 +15,7 @@ export type Config = {
   REDIS_HOST: string;
   REDIS_PORT: number;
   REDIS_PASSWORD: string;
+  ZHIHU_COOKIE: string;
 };
 
 // 验证并提取环境变量
@@ -51,6 +52,7 @@ const RSS_MODE = getBooleanEnvVariable("RSS_MODE", false);
 const REDIS_HOST = getEnvVariable("REDIS_HOST") || "127.0.0.1";
 const REDIS_PORT = getNumericEnvVariable("REDIS_PORT", 6379);
 const REDIS_PASSWORD = getEnvVariable("REDIS_PASSWORD") || "";
+const ZHIHU_COOKIE = getEnvVariable("ZHIHU_COOKIE") || "";
 
 // 创建配置对象
 export const config: Config = {
@@ -65,4 +67,5 @@ export const config: Config = {
   REDIS_HOST,
   REDIS_PORT,
   REDIS_PASSWORD,
+  ZHIHU_COOKIE,
 };

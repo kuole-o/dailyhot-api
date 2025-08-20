@@ -82,14 +82,17 @@ export type RouterType = {
   };
   weibo: {
     mid: string;
+    itemid: string;
+    desc: string;
+    scheme: string;
     word: string;
     word_scheme: string;
     note: string;
     flag_desc: string;
-    num: number;
+    desc_extr: number;
     onboard_time: number;
     stime: number;
-    icon_desc: string;
+    icon: string;
     icon_desc_color: string;
     small_icon_desc: string;
     label_name: string;
@@ -105,6 +108,7 @@ export type RouterType = {
       title: string;
       excerpt: string;
       created: number;
+      url: string;
     };
     children: [
       {
@@ -413,5 +417,65 @@ export type RouterType = {
     temperature_float: string;
     humidity_float: string;
     adcode: string;
+  };
+    linuxdo: {
+    id: string;
+    title: string;
+    url: string;
+    author: string;
+    desc: string;
+    timestamp: string;
+  };
+  hackernews: {
+    id: string;
+    title: string;
+    hot: number | undefined;
+    timestamp: number | undefined;
+    url: string;
+    mobileUrl: string;
+  };
+  github: {
+    id: string;
+    title: string;
+    desc?: string;
+    hot: number | undefined;
+    timestamp: number | undefined;
+    url: string;
+    mobileUrl: string;
+  };
+  producthunt: {
+    id: string;
+    title: string;
+    hot: number | undefined;
+    timestamp: number | undefined;
+    url: string;
+    mobileUrl: string;
+  };
+  newsmth: {
+    firstArticleId: string;
+    subject: string;
+    article: {
+      topicId: string;
+      postTime: number;
+      subject: string;
+      body: string;
+      account: {
+        name: string;
+      };
+    };
+    board: {
+      title: string;
+      name: string;
+    };
+  };
+  gameres: {
+    id: string;
+    title: string;
+    hot: number | undefined;
+    desc: string;
+    cover: string;
+    timestamp: number | undefined;
+    url: string;
+    mobileUrl: string;
   };
 };

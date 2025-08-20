@@ -1,7 +1,6 @@
 import type { RouterData, ListItem } from "../types.ts";
 import { Feed } from "feed";
 import logger from "./logger.js";
-
 // 生成 RSS
 const getRSS = (data: RouterData) => {
   try {
@@ -30,6 +29,25 @@ const getRSS = (data: RouterData) => {
             name: item.author,
           },
         ],
+        extensions: [
+          {
+            name: "media:content",
+            objects: {
+              _attributes: {
+                "xmlns:media": "http://search.yahoo.com/mrss/",
+                url: item.cover,
+              },
+              "media:thumbnail": {
+                _attributes: {
+                  url: item.cover,
+                },
+              },
+              "media:description": item.desc ? {
+                _cdata: item.desc
+              } : "",
+            }
+          }
+        ]
       });
     });
     const rssData = feed.rss2();
@@ -39,5 +57,4 @@ const getRSS = (data: RouterData) => {
     throw error;
   }
 };
-
 export default getRSS;
