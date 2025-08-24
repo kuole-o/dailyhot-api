@@ -41,7 +41,7 @@ const getBooleanEnvVariable = (key: string, defaultValue: boolean): boolean => {
 };
 
 // 分步骤创建配置对象
-const PORT = getNumericEnvVariable("PORT", 8859);
+const PORT = getNumericEnvVariable("PORT", 6688);
 const DISALLOW_ROBOT = getBooleanEnvVariable("DISALLOW_ROBOT", true);
 const CACHE_TTL = getNumericEnvVariable("CACHE_TTL", 3600);
 const REQUEST_TIMEOUT = getNumericEnvVariable("REQUEST_TIMEOUT", 10000);
