@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  DailyhotApi:
+  api:
     build:
       context: .
       target: runner
@@ -11,5 +11,5 @@ services:
       - "./logs:/app/logs"
     environment:
       - PORT=6688
-    user: "114514"
+    user: "114514:114514"
     restart: always
