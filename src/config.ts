@@ -54,7 +54,7 @@ const REDIS_HOST = getEnvVariable("REDIS_HOST") || "127.0.0.1";
 const REDIS_PORT = getNumericEnvVariable("REDIS_PORT", 6379);
 const REDIS_PASSWORD = getEnvVariable("REDIS_PASSWORD") || "";
 const ZHIHU_COOKIE = getEnvVariable("ZHIHU_COOKIE") || "";
-const VERSION = getEnvVariable("app_version") || "";
+const VERSION = getEnvVariable("APP_VERSION") || "";
 
 // 创建配置对象
 export const config: Config = {
