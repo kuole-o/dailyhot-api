@@ -1,6 +1,7 @@
 import type { FC } from "hono/jsx";
 import { html } from "hono/html";
 import Layout from "./Layout.js";
+import { config } from "../config.js";
 
 const Home: FC = () => {
   return (
@@ -97,7 +98,7 @@ const Home: FC = () => {
             }
           }
           document.addEventListener('DOMContentLoaded', async () => {
-            const version = await getApiVersion('//api.guole.fun/package.json');
+            const version = "${config.VERSION}";
             const version_git = await getApiVersion('//raw.githubusercontent.com/kuole-o/api/refs/heads/main/package.json');
             const version_vercel = await getApiVersion('//raw.githubusercontent.com/kuole-o/api-vercel/refs/heads/main/package.json');
             // 模拟终端效果
@@ -107,11 +108,11 @@ const Home: FC = () => {
             let terminalText, type, speed;
             let path = window.location.pathname;
             if (path === "/") {
-              terminalText = \`Hello World!\\n服务已正常运行...\\nVersion: \${version.version}\\n\\n\${times}\\n\`;
+              terminalText = \`Hello World!\\n服务已正常运行...\\nVersion: \${version}\\n\\n\${times}\\n\`;
               type = 1;
               speed = 30;
             } else {
-              terminalText = \`出错了！\\n请检查您的调用路径与调用方法...\\nVersion: \${version.version}\\n\\n\${times}\\n\`;
+              terminalText = \`出错了！\\n请检查您的调用路径与调用方法...\\nVersion: \${version}\\n\\n\${times}\\n\`;
               type = 2;
               speed = 20;
             }
@@ -127,9 +128,8 @@ const Home: FC = () => {
               printChar();
             };
             printTerminalText();
-            console.log('当前 API 本地版本号:', version.version || version_git.version);
-            console.log('当前 API 远程仓库版本:', version_git.version);
-            console.log('当前 API 部署依赖版本:', version_vercel.dependencies["guole.fun.api"]);
+            console.log('API 部署代码版本号:', version || '');
+            console.log('API 远程仓库版本:', version_git.version);
           });
         </script>
       `}

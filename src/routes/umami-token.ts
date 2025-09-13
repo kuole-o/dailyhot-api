@@ -4,7 +4,7 @@ import { HttpError } from "../utils/errors.js";
 
 const ttl = 60*60*1000;
 const name = process.env.UMAMI_USER_NAME || '';
-const password = process.env.UMAMI_PASSWORD || '';
+const password = process.env.UMAMI_USER_PASSWORD || '';
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   if (!name || !password) {
