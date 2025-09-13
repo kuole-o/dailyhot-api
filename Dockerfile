@@ -42,9 +42,14 @@ RUN echo "vm.overcommit_memory = 1" >> /etc/sysctl.conf
 RUN addgroup --system --gid 114514 nodejs
 RUN adduser --system --uid 114514 hono
 
-# 创建日志目录
-RUN mkdir -p /app/logs && chown -R hono:nodejs /app/logs
-RUN ln -s /app/logs /logs
+# 创建日志目录并设置权限
+RUN mkdir -p /app/logs && \
+    chown -R hono:nodejs /app/logs && \
+    chmod -R 755 /app/logs
+
+# 创建符号链接
+RUN ln -sf /app/logs /logs && \
+    chown -h hono:nodejs /logs
 
 # 复制文件
 COPY --from=builder --chown=hono:nodejs /app/node_modules /app/node_modules
@@ -52,6 +57,9 @@ COPY --from=builder --chown=hono:nodejs /app/dist /app/dist
 COPY --from=builder /app/public /app/public
 COPY --from=builder /app/.env /app/.env
 COPY --from=builder /app/package.json /app/package.json
+
+# 设置工作目录
+WORKDIR /app
 
 # 环境变量
 ENV LANG=en_US.UTF-8 \
