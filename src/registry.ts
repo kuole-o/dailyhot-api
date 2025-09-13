@@ -106,7 +106,7 @@ for (let index = 0; index < allRoutePath.length; index++) {
     // 是否输出 RSS
     const rssEnabled = body.rss && body.rss || false;
 
-    console.log("body: ", body)
+    // console.log("body: ", body)
 
     // 获取路由路径
     const { handleRoute } = await import(`./routes/${router}.js`);
