@@ -3,6 +3,11 @@ import { createLogger, format, transports } from "winston";
 import path from "path";
 import chalk from "chalk";
 
+console.log("DEBUG: NODE_ENV =", process.env.NODE_ENV);
+console.log("DEBUG: USE_LOG_FILE =", config.USE_LOG_FILE);
+console.log("DEBUG: Current working directory =", process.cwd());
+console.log("DEBUG: Resolved log path =", path.resolve("logs/error.log"));
+
 let pathOption: (typeof transports.File)[] = [];
 
 // 日志输出目录
