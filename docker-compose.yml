@@ -1,7 +1,15 @@
 version: "3.8"
 
+networks:
+  app-network:
+    external: true
+
 services:
   api:
+    image: guolee/dailyhot-api:latest
+    container_name: api
+    user: "114514:114514"
+    restart: always
     build:
       context: .
       target: runner
@@ -9,7 +17,22 @@ services:
       - "37291:6688"
     volumes:
       - "./logs:/app/logs"
+    networks:
+      - app-network
     environment:
+      - NODE_ENV=docker
       - PORT=6688
-    user: "114514"
-    restart: always
+      - LANG=en_US.UTF-8
+      - LANGUAGE=en_US.UTF-8
+      - LC_ALL=en_US.UTF-8
+      - USE_LOG_FILE=true
+      - REDIS_HOST=redis
+      - REDIS_PORT=16319
+      - REDIS_PASSWORD=
+      - ALLOWED_DOMAIN=["www.guole.fun", "blog.guole.fun", "hot.guole.fun", "api.guole.fun", "guole.fun", "kuole-o.github.io", "127.0.0.1"]
+      - GAODE_KEY=
+      - UMAMI_USER_NAME=
+      - UMAMI_USER_PASSWORD=
+      - UMAMI_TOKEN=
+      - LEANCLOUD_APPID=
+      - LEANCLOUD_APPKEY=
