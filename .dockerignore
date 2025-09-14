@@ -35,3 +35,4 @@ vercel.json
 .git/index
 .git/info
 .git/hooks
+*.tar

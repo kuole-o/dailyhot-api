@@ -1,7 +1,15 @@
 import type { FC } from "hono/jsx";
 import { css, Style } from "hono/css";
 
-const Layout: FC = (props) => {
+interface LayoutProps {
+  title: string;
+  icon: string;
+  description: string;
+  keywords: string;
+  children?: any;
+}
+
+const Layout: FC<LayoutProps> = (props) => {
   const globalClass = css`
     :-hono-global {
       * {
@@ -331,8 +339,9 @@ const Layout: FC = (props) => {
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <meta charSet="utf-8" />
         <title>{props.title}</title>
-        <link rel="icon" href={props.icon} />
-        <meta name="description" content="自用 API 接口集合" />
+        <link rel="icon" href={props.icon} type="image/x-icon"/>
+        <meta name="description" content={props.description} />
+        <meta name="keywords" content={props.keywords} />
         <Style>{globalClass}</Style>
       </head>
       <body>
@@ -340,9 +349,10 @@ const Layout: FC = (props) => {
         <footer>
           <div className="social">
             <a
-              href="https://github.com/kuole-o/api"
+              href="https://github.com/kuole-o/dailyhot-api"
               className="link"
               target="_blank"
+              title="本站源码"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -356,7 +366,7 @@ const Layout: FC = (props) => {
                 />
               </svg>
             </a>
-            <a href="https://guole.fun/" className="link" target="_blank">
+            <a href="https://guole.fun/" className="link" target="_blank" title="站长主页">
               <svg
                 className="btn-icon"
                 xmlns="http://www.w3.org/2000/svg"
@@ -370,7 +380,7 @@ const Layout: FC = (props) => {
                 />
               </svg>
             </a>
-            <a href="mailto:guole.fun@qq.com" className="link">
+            <a href="mailto:guole.fun@qq.com" className="link" title="联系站长">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="32"

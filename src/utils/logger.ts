@@ -19,11 +19,13 @@ if ((process.env.NODE_ENV === "development" || process.env.NODE_ENV === "docker"
         level: "error",
         maxsize: 1024 * 1024,
         maxFiles: 1,
+        options: { encoding: 'utf8' },
       }),
       new transports.File({
         filename: path.resolve("logs/logger.log"),
         maxsize: 1024 * 1024,
         maxFiles: 1,
+        options: { encoding: 'utf8' },
       }),
     ];
   } catch (error) {

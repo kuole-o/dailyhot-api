@@ -80,14 +80,14 @@ for (let index = 0; index < allRoutePath.length; index++) {
     if (rssEnabled || config.RSS_MODE) {
       const rss = getRSS(listData);
       if (typeof rss === "string") {
-        c.header("Content-Type", "application/xml; charset=utf-8");
+        c.header("Content-Type", "application/xml;charset=utf-8");
         return c.body(rss);
       } else {
         return c.json({ code: 500, message: "RSS generation failed" }, 500);
       }
     }
     const response = c.json({ code: 200, ...listData });
-    c.header("Content-Type", "application/json;charset=utf-8");
+    response.headers.set("Content-Type", "application/json;charset=utf-8");
 
     return response;
   });
@@ -121,14 +121,14 @@ for (let index = 0; index < allRoutePath.length; index++) {
       if (rssEnabled || config.RSS_MODE) {
         const rss = getRSS(listData);
         if (typeof rss === "string") {
-          c.header("Content-Type", "application/xml; charset=utf-8");
+          c.header("Content-Type", "application/xml;charset=utf-8");
           return c.body(rss);
         } else {
           return c.json({ code: 500, message: "RSS generation failed" }, 500);
         }
       }
       const response = c.json({ code: 200, ...listData });
-      c.header("Content-Type", "application/json;charset=utf-8");
+      response.headers.set("Content-Type", "application/json;charset=utf-8");
 
       return response;
     } catch (error) {
@@ -160,7 +160,7 @@ app.get("/all", (c) => {
     },
     200,
   );
-  c.header("Content-Type", "application/json;charset=utf-8");
+  response.headers.set("Content-Type", "application/json;charset=utf-8");
   return response;
 });
 

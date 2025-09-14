@@ -43,12 +43,15 @@ app.use("*", cors({
   credentials: true,
 }));
 
+const rootPath = process.env.NODE_ENV === 'docker' ? "/app/" : `${process.cwd()}/`;
+console.log('Root Path:', rootPath);
+
 // 静态资源
 app.use(
   "/*",
   serveStatic({
-    root: "./public",
-    rewriteRequestPath: (path) => (path === "/favicon.ico" ? "/favicon.png" : path),
+    root: `${rootPath}public`,
+    // rewriteRequestPath: (path) => (path === "/favicon.ico" ? "/favicon.png" : path),
   }),
 );
 

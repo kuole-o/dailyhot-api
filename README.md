@@ -4,7 +4,7 @@
 <br />
 <img src="https://img.shields.io/github/last-commit/imsyy/DailyHotApi" alt="last commit"/>
  <img src="https://img.shields.io/github/languages/code-size/imsyy/DailyHotApi" alt="code size"/>
- <img src="https://img.shields.io/docker/image-size/imsyy/guole.fun.api" alt="docker-image-size"/>
+ <img src="https://img.shields.io/docker/image-size/imsyy/dailyhot-api" alt="docker-image-size"/>
 <img src="https://github.com/imsyy/DailyHotApi/actions/workflows/docker.yml/badge.svg" alt="Publish Docker image"/>
 <img src="https://github.com/imsyy/DailyHotApi/actions/workflows/npm.yml/badge.svg" alt="Publish npm package"/>
 </div>
@@ -95,11 +95,11 @@
 > 该方式无法使用部分需要 Puppeteer 环境的接口
 
 ```bash
-pnpm add guole.fun.api
+pnpm add dailyhot-api
 ```
 
 ```js
-import serveHotApi from "guole.fun.api";
+import serveHotApi from "dailyhot-api";
 
 /**
  * 启动服务器
@@ -121,27 +121,33 @@ serveHotApi(3000);
 
 ```bash
 # 构建
-docker build -t guole.fun.api .
+docker build -t dailyhot-api .
 
 # 运行
-docker run --restart always -p 6688:6688 -d guole.fun.api
+docker run --restart always -p 37291:6688 -d dailyhot-api
 # 或使用 Docker Compose
 docker-compose up -d
+
+# 开发-构建镜像
+docker build -t dailyhot-api:local-test .
+
+# 开发-导出镜像
+docker save -o dailyhot-api.tar dailyhot-api:local-test
 ```
 
 #### 在线部署
 
 ```bash
 # 拉取
-docker pull kuole-o/guole.fun.api:latest
+docker pull kuole-o/dailyhot-api:latest
 
 # 运行
-docker run --restart always -p 6688:6688 -d kuole-o/guole.fun.api:latest
+docker run --restart always -p 37291:6688 -d kuole-o/dailyhot-api:latest
 ```
 
 ### 手动部署
 
-最直接的方式，您可以按照以下步骤将 `guole.fun.api` 部署在您的电脑、服务器或者其他任何地方
+最直接的方式，您可以按照以下步骤将 `dailyhot-api` 部署在您的电脑、服务器或者其他任何地方
 
 #### 安装
 
