@@ -9,112 +9,74 @@ interface CacheData {
   data: unknown;
 }
 
-// init NodeCache
-const cache = new NodeCache({
+// init NodeCache (作为降级缓存)
+const nodeCache = new NodeCache({
   stdTTL: config.CACHE_TTL,
   checkperiod: 600,
   useClones: false,
   maxKeys: 100,
 });
 
-// Redis 连接状态
-let isRedisAvailable: boolean = false;
-let redisConnectionAttempts: number = 0;
+// Redis 客户端和状态标志
+let redis: Redis;
+let useRedis: boolean = false; // 明确标志是否使用Redis
+
 const MAX_REDIS_CONNECTION_ATTEMPTS = 5;
+let redisConnectionAttempts: number = 0;
 
-// init Redis client
-const redis = new Redis({
-  host: config.REDIS_HOST,
-  port: config.REDIS_PORT,
-  password: config.REDIS_PASSWORD,
-  maxRetriesPerRequest: 3,
-  retryStrategy: (times) => {
-    // 限制重试次数
-    if (times >= MAX_REDIS_CONNECTION_ATTEMPTS) {
-      logger.warn(`📦 [Redis] Maximum connection attempts (${MAX_REDIS_CONNECTION_ATTEMPTS}) reached. Giving up.`);
-      return null; // 停止重试
-    }
-    const delay = Math.min(times * 100, 3000);
-    logger.info(`📦 [Redis] Retrying connection in ${delay}ms (attempt ${times + 1}/${MAX_REDIS_CONNECTION_ATTEMPTS})`);
-    return delay;
-  },
-  // 移除 lazyConnect，让连接立即建立
-  lazyConnect: false,
-  // 添加连接超时
-  connectTimeout: 5000,
-  // 添加命令超时
-  commandTimeout: 3000,
-});
-
-// Redis 事件监听
-redis.on("error", (err: Error) => {
-  if (err.message.includes("ECONNREFUSED")) {
-    redisConnectionAttempts++;
-    logger.error(`📦 [Redis] Connection refused: ${err.message}`);
-  } else {
-    logger.error(`📦 [Redis] Error: ${err.message}`);
-  }
-});
-
-redis.on("close", () => {
-  isRedisAvailable = false;
-  logger.info("📦 [Redis] Connection closed.");
-});
-
-redis.on("reconnecting", (time: number) => {
-  logger.info(`📦 [Redis] Reconnecting in ${time}ms...`);
-});
-
-redis.on("ready", () => {
-  isRedisAvailable = true;
-  redisConnectionAttempts = 0; // 重置尝试次数
-  logger.info("📦 [Redis] Connected successfully.");
-});
-
-redis.on("end", () => {
-  isRedisAvailable = false;
-  logger.info("📦 [Redis] Connection ended.");
-});
-
-// 初始化 Redis 连接
-const initRedisConnection = async () => {
-  try {
-    // 如果已经连接或正在连接，不需要做任何事
-    if (redis.status === "ready" || redis.status === "connecting") {
-      logger.info(`📦 [Redis] Status: ${redis.status}`);
-      return;
-    }
-    
-    // 尝试连接
-    await redis.connect();
-    isRedisAvailable = true;
-    logger.info("📦 [Redis] Connected successfully during initialization.");
-  } catch (error) {
-    isRedisAvailable = false;
-    if (error instanceof Error) {
-      // 忽略"已经连接"的错误，只记录其他错误
-      if (!error.message.includes("already connecting/connected")) {
-        logger.error(
-          `📦 [Redis] Initial connection failed: ${error.message}`,
-        );
+// 初始化Redis连接
+const initRedis = () => {
+  redis = new Redis({
+    host: config.REDIS_HOST,
+    port: config.REDIS_PORT,
+    password: config.REDIS_PASSWORD,
+    maxRetriesPerRequest: 3,
+    retryStrategy: (times) => {
+      if (times >= MAX_REDIS_CONNECTION_ATTEMPTS) {
+        logger.warn(`📦 [Redis] Maximum connection attempts (${MAX_REDIS_CONNECTION_ATTEMPTS}) reached. Falling back to NodeCache.`);
+        useRedis = false; // 达到最大尝试次数，降级
+        return null;
       }
-    }
-  }
+      const delay = Math.min(times * 100, 3000);
+      logger.info(`📦 [Redis] Retrying connection in ${delay}ms (attempt ${times + 1}/${MAX_REDIS_CONNECTION_ATTEMPTS})`);
+      return delay;
+    },
+    connectTimeout: 5000,
+    commandTimeout: 3000,
+  });
+
+  redis.on("error", (err: Error) => {
+    useRedis = false; // 发生错误，触发降级
+    logger.error(`📦 [Redis] Error: ${err.message}. Falling back to NodeCache.`);
+  });
+
+  redis.on("close", () => {
+    useRedis = false;
+    logger.info("📦 [Redis] Connection closed. Using NodeCache.");
+  });
+
+  redis.on("ready", () => {
+    useRedis = true;
+    redisConnectionAttempts = 0;
+    logger.info("📦 [Redis] Connected successfully. Using Redis.");
+  });
+
+  redis.on("end", () => {
+    useRedis = false;
+    logger.info("📦 [Redis] Connection ended. Using NodeCache.");
+  });
 };
 
-// 立即尝试连接 Redis
-initRedisConnection().catch(() => {
-  // 初始化连接失败，但应用可以继续运行
-  logger.warn("📦 [Redis] Initial connection failed, but application will continue with NodeCache only.");
+// 立即初始化Redis
+initRedis();
+
+// NodeCache 事件监听（可选）
+nodeCache.on("expired", (key) => {
+  logger.debug(`⏳ [NodeCache] Key "${key}" has expired.`);
 });
 
-// NodeCache 事件监听
-cache.on("expired", (key) => {
-  logger.info(`⏳ [NodeCache] Key "${key}" has expired.`);
-});
-
-cache.on("del", (key) => {
-  logger.info(`🗑️ [NodeCache] Key "${key}" has been deleted.`);
+nodeCache.on("del", (key) => {
+  logger.debug(`🗑️ [NodeCache] Key "${key}" has been deleted.`);
 });
 
 /**
@@ -123,8 +85,8 @@ cache.on("del", (key) => {
  * @returns 缓存数据
  */
 export const getCache = async (key: string): Promise<CacheData | undefined> => {
-  // 如果 Redis 可用且未达到最大尝试次数，尝试从 Redis 获取
-  if (isRedisAvailable && redisConnectionAttempts < MAX_REDIS_CONNECTION_ATTEMPTS) {
+  // 1. 优先尝试从 Redis 获取
+  if (useRedis) {
     try {
       const redisResult = await redis.get(key);
       if (redisResult) {
@@ -132,27 +94,20 @@ export const getCache = async (key: string): Promise<CacheData | undefined> => {
         return parse(redisResult) as CacheData;
       } else {
         logger.info(`💾 [Redis] Cache miss for key: ${key}`);
+        // Redis中不存在，也返回undefined，不再检查NodeCache
+        return undefined;
       }
     } catch (error) {
-      if (error instanceof Error) {
-        logger.error(
-          `📦 [Redis] Get error: ${error.message}`,
-        );
-        // 只在特定错误类型下标记为不可用
-        if (error.message.includes("ECONNREFUSED") || error.message.includes("Connection is closed")) {
-          isRedisAvailable = false;
-        }
-      } else {
-        logger.error(`📦 [Redis] Get error: Unknown error`);
-      }
+      useRedis = false; // 获取失败，触发降级
+      logger.error(`📦 [Redis] Get error, falling back to NodeCache for key: ${key}.`, error);
+      // 降级逻辑：继续尝试从 NodeCache 获取
     }
   }
-  
-  // 回退到 NodeCache
-  const nodeCacheResult = cache.get(key);
+
+  // 2. Redis不可用或失败，降级到 NodeCache
+  const nodeCacheResult = nodeCache.get(key);
   if (nodeCacheResult) {
     logger.info(`💾 [NodeCache] Cache hit for key: ${key}`);
-    // 类型断言，因为我们知道存入的是 CacheData 类型
     return nodeCacheResult as CacheData;
   } else {
     logger.info(`💾 [NodeCache] Cache miss for key: ${key}`);
@@ -172,36 +127,31 @@ export const setCache = async (
   value: CacheData,
   ttl: number = config.CACHE_TTL,
 ): Promise<boolean> => {
-  let redisSuccess = false;
-  
-  // 尝试写入 Redis（如果可用且未达到最大尝试次数）
-  if (isRedisAvailable && redisConnectionAttempts < MAX_REDIS_CONNECTION_ATTEMPTS && !Buffer.isBuffer(value?.data)) {
+  let success = false;
+
+  // 1. 优先尝试写入 Redis
+  if (useRedis && !Buffer.isBuffer(value?.data)) {
     try {
       await redis.set(key, stringify(value), "EX", ttl);
-      redisSuccess = true;
       logger.info(`💾 [Redis] Cache set for key: ${key}`);
+      success = true;
+      // Redis写入成功，不需要再写入NodeCache，避免冗余
+      return success;
     } catch (error) {
-      if (error instanceof Error) {
-        logger.error(
-          `📦 [Redis] Set error: ${error.message}`,
-        );
-        // 只在特定错误类型下标记为不可用
-        if (error.message.includes("ECONNREFUSED") || error.message.includes("Connection is closed")) {
-          isRedisAvailable = false;
-        }
-      } else {
-        logger.error(`📦 [Redis] Set error: Unknown error`);
-      }
+      useRedis = false; // 写入失败，触发降级
+      logger.error(`📦 [Redis] Set error, falling back to NodeCache for key: ${key}.`, error);
+      // 降级逻辑：继续尝试写入 NodeCache
     }
   }
-  
-  // 总是写入 NodeCache
-  const nodeCacheSuccess = cache.set(key, value, ttl);
-  if (nodeCacheSuccess) {
+
+  // 2. Redis不可用或失败，降级到 NodeCache
+  success = nodeCache.set(key, value, ttl);
+  if (success) {
     logger.info(`💾 [NodeCache] Cache set for key: ${key}`);
+  } else {
+    logger.error(`💾 [NodeCache] Failed to set cache for key: ${key}`);
   }
-  
-  return redisSuccess || nodeCacheSuccess;
+  return success;
 };
 
 /**
@@ -210,34 +160,28 @@ export const setCache = async (
  * @returns 是否删除成功
  */
 export const delCache = async (key: string): Promise<boolean> => {
-  let redisSuccess = false;
-  
-  // 尝试从 Redis 删除（如果可用且未达到最大尝试次数）
-  if (isRedisAvailable && redisConnectionAttempts < MAX_REDIS_CONNECTION_ATTEMPTS) {
+  let success = false;
+
+  // 1. 优先尝试从 Redis 删除
+  if (useRedis) {
     try {
       await redis.del(key);
-      redisSuccess = true;
-      logger.info(`🗑️ [Redis] ${key} has been deleted from Redis`);
+      logger.info(`🗑️ [Redis] ${key} has been deleted`);
+      success = true;
+      // Redis删除成功，不需要再删除NodeCache（因为可能不存在）
+      return success;
     } catch (error) {
-      if (error instanceof Error) {
-        logger.error(
-          `📦 [Redis] Del error: ${error.message}`,
-        );
-        // 只在特定错误类型下标记为不可用
-        if (error.message.includes("ECONNREFUSED") || error.message.includes("Connection is closed")) {
-          isRedisAvailable = false;
-        }
-      } else {
-        logger.error(`📦 [Redis] Del error: Unknown error`);
-      }
+      useRedis = false; // 删除失败，触发降级
+      logger.error(`📦 [Redis] Del error, falling back to NodeCache for key: ${key}.`, error);
+      // 降级逻辑：继续尝试从 NodeCache 删除
     }
   }
-  
-  // 总是从 NodeCache 删除
-  const nodeCacheSuccess = cache.del(key) > 0;
-  if (nodeCacheSuccess) {
-    logger.info(`🗑️ [NodeCache] ${key} has been deleted from NodeCache`);
+
+  // 2. Redis不可用或失败，降级到 NodeCache
+  const deletedCount = nodeCache.del(key);
+  success = deletedCount > 0;
+  if (success) {
+    logger.info(`🗑️ [NodeCache] ${key} has been deleted`);
   }
-  
-  return redisSuccess || nodeCacheSuccess;
+  return success;
 };

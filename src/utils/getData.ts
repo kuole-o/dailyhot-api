@@ -62,7 +62,7 @@ export const get = async (options: Get) => {
     else {
       const cachedData = await getCache(cacheKey);
       if (cachedData) {
-        logger.info("💾 [CHCHE] The request is cached");
+        // logger.info("💾 [CHCHE] The request is cached");
         return {
           fromCache: true,
           updateTime: cachedData.updateTime,
@@ -107,7 +107,7 @@ export const post = async (options: Post) => {
     else {
       const cachedData = await getCache(cacheKey);
       if (cachedData) {
-        logger.info("💾 [CHCHE] The request is cached");
+        // logger.info("💾 [CHCHE] The request is cached");
         return { fromCache: true, updateTime: cachedData.updateTime, data: cachedData.data };
       }
     }

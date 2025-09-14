@@ -15,6 +15,8 @@ RUN rm -rf /var/cache/apk/*
 FROM base AS builder
 
 RUN npm install -g pnpm
+
+# 设置工作目录
 WORKDIR /app
 
 COPY package*json tsconfig.json pnpm-lock.yaml .env.example ./
@@ -45,7 +47,7 @@ RUN adduser --system --uid 114514 hono
 # 创建日志目录并设置权限
 RUN mkdir -p /app/logs && \
     chown -R hono:nodejs /app/logs && \
-    chmod -R 755 /app/logs
+    chmod -R 775 /app/logs
 
 # 创建符号链接
 RUN ln -sf /app/logs /logs && \
@@ -54,24 +56,24 @@ RUN ln -sf /app/logs /logs && \
 # 复制文件
 COPY --from=builder --chown=hono:nodejs /app/node_modules /app/node_modules
 COPY --from=builder --chown=hono:nodejs /app/dist /app/dist
-COPY --from=builder /app/public /app/public
-COPY --from=builder /app/.env /app/.env
-COPY --from=builder /app/package.json /app/package.json
-
-# 设置工作目录
-WORKDIR /app
+COPY --from=builder --chown=hono:nodejs /app/public /app/public
+COPY --from=builder --chown=hono:nodejs /app/.env /app/.env
+COPY --from=builder --chown=hono:nodejs /app/package.json /app/package.json
 
 # 环境变量
 ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8 \
-    USE_LOG_FILE=true \
     GAODE_KEY='' \
     UMAMI_USER_NAME='admin' \
     UMAMI_USER_PASSWORD='password' \
     UMAMI_TOKEN='' \
     LEANCLOUD_APPID='' \
     LEANCLOUD_APPKEY='' \
+    REDIS_HOST='' \
+    REDIS_PORT='' \
+    REDIS_PASSWORD='' \
+    USE_LOG_FILE=true \
     APP_VERSION=${APP_VERSION}
 
 # 切换用户
