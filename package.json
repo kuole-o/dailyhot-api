@@ -1,6 +1,6 @@
 {
   "name": "guole.fun.api",
-  "version": "2.0.7.1",
+  "version": "2.0.7.2",
   "description": "自用 API 集合",
   "keywords": [
     "API",
@@ -51,6 +51,7 @@
     "node-fetch": "^3.3.2",
     "rss-parser": "^3.13.0",
     "user-agents": "^1.1.614",
+    "webdav": "^5.8.0",
     "winston": "^3.17.0"
   },
   "devDependencies": {

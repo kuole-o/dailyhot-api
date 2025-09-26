@@ -71,8 +71,12 @@ export interface OtherData {
     latitude?: string;
     longitude?: string;
     asOrganization?: string;
+    newCertId?: string;
+    oldCertId?: string;
+    updatedDomains?: string[];
+    error?: string;
   };
-  code?: string;
+  code?: string | number;
   msg?: string;
   token?: string;
   user?: {
@@ -81,6 +85,7 @@ export interface OtherData {
     createdAt: string;
     isAdmin: boolean;
   }
+  updateTime?: string;
 }
 
 // 请求类型

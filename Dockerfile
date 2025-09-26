@@ -74,7 +74,17 @@ ENV LANG=en_US.UTF-8 \
     REDIS_PORT='' \
     REDIS_PASSWORD='' \
     USE_LOG_FILE=true \
-    APP_VERSION=${APP_VERSION}
+    APP_VERSION=${APP_VERSION} \
+    QINIU_ACCESS_KEY='七牛云AccessKey' \
+    QINIU_SECRET_KEY='七牛云SecretKey' \
+    WEBDAV_SERVER='WebDAV服务器地址' \
+    WEBDAV_USERNAME='WebDAV用户名' \
+    WEBDAV_PASSWORD='WebDAV密码' \
+    WEBDAV_CERT_PATH='WebDAV证书路径' \
+    CERT_FILE_NAME='证书文件名' \
+    KEY_FILE_NAME='私钥文件名' \
+    DATA_DIR='旧证书id存储路径' \
+    SSL_SECRET_KEY='证书更新接口的鉴权token'
 
 # 切换用户
 USER hono

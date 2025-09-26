@@ -36,3 +36,13 @@ services:
       - UMAMI_TOKEN=
       - LEANCLOUD_APPID=
       - LEANCLOUD_APPKEY=
+      - QINIU_ACCESS_KEY=
+      - QINIU_SECRET_KEY=
+      - WEBDAV_SERVER=
+      - WEBDAV_USERNAME=
+      - WEBDAV_PASSWORD=
+      - WEBDAV_CERT_PATH=/
+      - CERT_FILE_NAME=guole.fun.pem
+      - KEY_FILE_NAME=guole.fun.key
+      - DATA_DIR=./data
+      - SSL_SECRET_KEY=123

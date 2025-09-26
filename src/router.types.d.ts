@@ -294,7 +294,7 @@ export type RouterType = {
     totalContributions: number;
     contributionsSplit: string;
   };
-    history: {
+  history: {
     year: string;
     title: string;
     link: string;
@@ -418,7 +418,7 @@ export type RouterType = {
     humidity_float: string;
     adcode: string;
   };
-    linuxdo: {
+  linuxdo: {
     id: string;
     title: string;
     url: string;
