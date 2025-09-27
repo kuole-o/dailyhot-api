@@ -26,6 +26,7 @@ services:
       - LANGUAGE=en_US.UTF-8
       - LC_ALL=en_US.UTF-8
       - USE_LOG_FILE=true
+      - LOG_LEVEL=info
       - REDIS_HOST=redis
       - REDIS_PORT=16319
       - REDIS_PASSWORD=

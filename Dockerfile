@@ -74,6 +74,7 @@ ENV LANG=en_US.UTF-8 \
     REDIS_PORT='' \
     REDIS_PASSWORD='' \
     USE_LOG_FILE=true \
+    LOG_LEVEL=info \
     APP_VERSION=${APP_VERSION} \
     QINIU_ACCESS_KEY='七牛云AccessKey' \
     QINIU_SECRET_KEY='七牛云SecretKey' \
