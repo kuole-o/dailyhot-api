@@ -75,6 +75,11 @@ export interface OtherData {
     oldCertId?: string;
     updatedDomains?: string[];
     error?: string;
+    success?: boolean;
+    uploadedFiles?: string[];
+    totalCount?: number;
+    pageCount?: number;
+    overwrite?: boolean;
   };
   code?: string | number;
   msg?: string;

@@ -26,6 +26,14 @@ export type Config = {
   CERT_FILE_NAME: string;
   KEY_FILE_NAME: string;
   SSL_SECRET_KEY: string;
+  LEANCLOUD_APP_ID: string;
+  LEANCLOUD_APP_KEY: string;
+  LEANCLOUD_MASTER_KEY: string;
+  LEANCLOUD_SERVER_URL: string;
+  BBTALK_PAGE_SIZE: string;
+  QINIU_BUCKET: string;
+  BBTALK_JSON_PATH: string;
+  BBTALK_TOKEN: string;
 };
 
 // 验证并提取环境变量
@@ -73,6 +81,14 @@ const WEBDAV_CERT_PATH = getEnvVariable("WEBDAV_CERT_PATH") || "/";
 const CERT_FILE_NAME = getEnvVariable("CERT_FILE_NAME") || "guole.fun.pem";
 const KEY_FILE_NAME = getEnvVariable("KEY_FILE_NAME") || "guole.fun.key";
 const SSL_SECRET_KEY = getEnvVariable("SSL_SECRET_KEY") || "";
+const LEANCLOUD_APP_ID = getEnvVariable("LEANCLOUD_APP_ID") || "";
+const LEANCLOUD_APP_KEY = getEnvVariable("LEANCLOUD_APP_KEY") || "";
+const LEANCLOUD_MASTER_KEY = getEnvVariable("LEANCLOUD_MASTER_KEY") || "";
+const LEANCLOUD_SERVER_URL = getEnvVariable("LEANCLOUD_SERVER_URL") || "https://leancloud.guole.fun";
+const BBTALK_PAGE_SIZE = getEnvVariable("BBTALK_PAGE_SIZE") || "12";
+const QINIU_BUCKET = getEnvVariable("QINIU_BUCKET") || "";
+const BBTALK_JSON_PATH = getEnvVariable("BBTALK_JSON_PATH") || "bbtalk";
+const BBTALK_TOKEN = getEnvVariable("BBTALK_TOKEN") || "";
 
 // 创建配置对象
 export const config: Config = {
@@ -98,6 +114,14 @@ export const config: Config = {
   CERT_FILE_NAME,
   KEY_FILE_NAME,
   SSL_SECRET_KEY,
+  LEANCLOUD_APP_ID,
+  LEANCLOUD_APP_KEY,
+  LEANCLOUD_MASTER_KEY,
+  LEANCLOUD_SERVER_URL,
+  BBTALK_PAGE_SIZE,
+  QINIU_BUCKET,
+  BBTALK_JSON_PATH,
+  BBTALK_TOKEN,
 };
 
 // 导出 SSL 配置接口和获取函数（可选）
