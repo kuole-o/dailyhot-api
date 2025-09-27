@@ -3,10 +3,23 @@ import { createLogger, format, transports } from "winston";
 import path from "path";
 import chalk from "chalk";
 
-console.log("DEBUG: NODE_ENV =", process.env.NODE_ENV);
-console.log("DEBUG: USE_LOG_FILE =", config.USE_LOG_FILE);
-console.log("DEBUG: Current working directory =", process.cwd());
-console.log("DEBUG: Resolved log path =", path.resolve("logs/error.log"));
+console.log("INFO: NODE_ENV =", process.env.NODE_ENV);
+console.log("INFO: USE_LOG_FILE =", config.USE_LOG_FILE);
+console.log("INFO: Current working directory =", process.cwd());
+console.log("INFO: Resolved log path =", path.resolve("logs/error.log"));
+
+// 根据环境动态设置日志级别
+const getLogLevel = () => {
+  if (process.env.LOG_LEVEL) {
+    return process.env.LOG_LEVEL; // 优先使用环境变量的日志级别
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    return 'debug'; // 开发环境显示所有日志
+  }
+  return 'info'; // 其他环境只显示 info 及以上级别
+};
+
 
 let pathOption: (typeof transports.File)[] = [];
 
@@ -59,7 +72,7 @@ const consoleFormat = format.printf(({ level, message, timestamp, stack }) => {
 // logger
 const logger = createLogger({
   // 最低的日志级别
-  level: "info",
+  level: getLogLevel(),
   // 定义日志的格式
   format: format.combine(
     format.timestamp({
@@ -77,6 +90,7 @@ try {
   logger.add(
     new transports.Console({
       format: format.combine(format.colorize(), consoleFormat),
+      level: getLogLevel(), // 控制台日志级别
     }),
   );
 } catch (error) {

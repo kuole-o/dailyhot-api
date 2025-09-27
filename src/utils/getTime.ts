@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import logger from "../utils/logger.js";
 
 interface CurrentDateTime {
   year: string;
@@ -144,7 +145,7 @@ export const getTime = (timeInput: string | number): number | undefined => {
       return num * 1000;
     }
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 };
 

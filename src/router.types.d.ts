@@ -1,3 +1,5 @@
+import { Data } from "node-cache";
+
 export type RouterType = {
   "36kr": {
     itemId: number;
@@ -281,14 +283,6 @@ export type RouterType = {
     hotRankScore: string;
     period: string;
     productId: string;
-  };
-  BBtalk: {
-    createdAt: string;
-    content: string;
-    from: string;
-    MsgType: string;
-    other: string;
-    objectId: string;
   };
   GithubCalendar: {
     totalContributions: number;

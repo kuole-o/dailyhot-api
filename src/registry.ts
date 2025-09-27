@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import getRSS from "./utils/getRSS.js";
 import path from "path";
 import fs from "fs";
+import logger from "./utils/logger.js";
 
 const app = new Hono();
 
@@ -48,7 +49,7 @@ const findTsFiles = (dirPath: string, allFiles: string[] = [], basePath: string 
 if (fs.existsSync(routersDirPath) && fs.statSync(routersDirPath).isDirectory()) {
   allRoutePath = findTsFiles(routersDirPath);
 } else {
-  console.error(`📂 The directory ${routersDirPath} does not exist or is not a directory`);
+  logger.error(`📂 The directory ${routersDirPath} does not exist or is not a directory`);
 }
 
 // 注册全部路由
@@ -106,7 +107,7 @@ for (let index = 0; index < allRoutePath.length; index++) {
     // 是否输出 RSS
     const rssEnabled = body.rss && body.rss || false;
 
-    // console.log("body: ", body)
+    logger.debug(`body: ${JSON.stringify(body)}`);
 
     // 获取路由路径
     const { handleRoute } = await import(`./routes/${router}.js`);

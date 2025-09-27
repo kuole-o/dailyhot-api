@@ -36,63 +36,6 @@ export interface RouterData extends RouterResType {
   link?: string;
 }
 
-// 其他数据 自定义
-export interface OtherData {
-  name?: string;
-  title?: string;
-  type?: string;
-  description?: string;
-  params?: Record<string, string | object>;
-  total?: number;
-  link?: string;
-  updateTime?: string;
-  fromCache?: boolean;
-  count?: {
-    os: number;
-    browser: number;
-    country: number;
-    stats: number;
-  };
-  data?: {
-    url?: string;
-    urlbase?: string;
-    copyright?: string;
-    copyrightlink?: string;
-    startdate?: string;
-    fullstartdate?: string;
-    enddate?: string;
-    title?: string;
-    ip?: string;
-    flag?: string;
-    country?: string;
-    countryRegion?: string;
-    city?: string;
-    region?: string;
-    latitude?: string;
-    longitude?: string;
-    asOrganization?: string;
-    newCertId?: string;
-    oldCertId?: string;
-    updatedDomains?: string[];
-    error?: string;
-    success?: boolean;
-    uploadedFiles?: string[];
-    totalCount?: number;
-    pageCount?: number;
-    overwrite?: boolean;
-  };
-  code?: string | number;
-  msg?: string;
-  token?: string;
-  user?: {
-    id: string;
-    username: string;
-    createdAt: string;
-    isAdmin: boolean;
-  }
-  updateTime?: string;
-}
-
 // 请求类型
 export interface Get {
   url: string;
@@ -118,4 +61,20 @@ export interface Post {
 // 参数类型
 export interface Options {
   [key: string]: string | number | undefined;
+}
+
+// 其他数据 自定义
+export interface OtherData {
+  name?: string;
+  title?: string;
+  type?: string;
+  description?: string;
+  count?: Record<string, number>;
+  total?: number;
+  link?: string;
+  updateTime?: string;
+  fromCache?: boolean;
+  code?: string | number;
+  msg?: string;
+  data?: {};
 }

@@ -2,6 +2,7 @@ import type { RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
 import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
+import logger from "../utils/logger.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
   const listData = await getList(noCache);
@@ -21,7 +22,9 @@ const getList = async (noCache: boolean) => {
   const url = "https://sso.ifanr.com/api/v5/wp/buzz/?limit=20&offset=0";
   const result = await get({ url, noCache });
   const list = result.data.objects;
-  //console.log(list)
+
+  logger.debug(`爱范儿源数据: ${JSON.stringify(list)}`);
+  
   return {
     ...result,
     data: list.map((v: RouterType["ifanr"]) => ({

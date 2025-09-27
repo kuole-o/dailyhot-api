@@ -1,13 +1,14 @@
 import type { OtherData, ListContext, Options } from "../types.js";
 import { get } from "../utils/getData.js";
 import { HttpError } from "../utils/errors.js";
+import logger from "../utils/logger.js";
 
 const ttl = 60*60*1000;
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const token = process.env.UMAMI_TOKEN || c.req.header('Authorization') || '';
 
-  console.log("token: ", token)
+  logger.debug(`token: ${token}`);
 
   const siteId = c.req.query('siteId') || '';
   const startAt = c.req.query('startAt') || '';

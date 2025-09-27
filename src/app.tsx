@@ -44,7 +44,8 @@ app.use("*", cors({
 }));
 
 const rootPath = process.env.NODE_ENV === 'docker' ? "/app/" : `${process.cwd()}/`;
-console.log('Root Path:', rootPath);
+
+logger.debug(`Root Path: ${rootPath}`);
 
 // 静态资源
 app.use(

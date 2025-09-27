@@ -2,6 +2,7 @@ import type { RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
 import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
+import logger from "../utils/logger.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
   const listData = await getList(noCache);
@@ -34,7 +35,9 @@ const getList = async (noCache: boolean) => {
     },
   });
   const list = result.data.data.cards?.[0]?.card_group;
-  //console.log(list)
+
+  logger.debug(`微博热搜源数据: ${JSON.stringify(list)}`);
+  
   return {
     ...result,
     data: list

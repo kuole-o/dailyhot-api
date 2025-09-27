@@ -2,6 +2,7 @@ import type { ListContext } from "../types.js";
 import { HttpError } from "../utils/errors.js";
 import { LeanCloudClient } from "../utils/leancloud-client.js";
 import { BBTalkUploader } from "./upload-bbtalk-json.js";
+import logger from "../utils/logger.js";
 
 type Response = {
   code: number;
@@ -94,9 +95,9 @@ const triggerBBTalkJsonUpdate = async (): Promise<void> => {
       overwrite: true    // 覆盖已存在的文件
     });
 
-    console.log('BBTalk JSON 文件更新成功');
+    logger.debug('BBTalk JSON 文件更新成功');
   } catch (error) {
-    console.error('触发 BBTalk JSON 更新失败:', error);
+    logger.error('触发 BBTalk JSON 更新失败:', error);
     // 这里不抛出错误，因为主要内容创建已经成功，JSON 更新是辅助操作
     // 可以记录日志但不影响主流程
   }

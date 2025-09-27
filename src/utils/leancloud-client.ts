@@ -12,6 +12,8 @@ export interface BBTalkContent {
     createdAt: Date;
     updatedAt: Date;
     objectId: string;
+    url: string;
+    mobileUrl: string;
 }
 
 export interface CreateContentData {
@@ -346,6 +348,8 @@ export class LeanCloudClient {
             createdAt: result.get('createdAt') || new Date(),
             updatedAt: result.get('updatedAt') || new Date(),
             objectId: objectId || 'unknown-id',
+            url: `https://blog.guole.fun/bb#${objectId}`,
+            mobileUrl: `https://blog.guole.fun/bb#${objectId}`
         };
 
         // 特殊处理 music 类型的 other 字段

@@ -1,6 +1,6 @@
-import type { OtherData, ListContext, Options } from "../types.js";
 import { HonoRequest } from 'hono';
 import { ipAddress, geolocation } from '@vercel/functions';
+import logger from "../utils/logger.js";
 
 const decodeObject = (obj: Record<string, any>): Record<string, any> => {
   const result: Record<string, any> = {};
@@ -15,7 +15,6 @@ const decodeObject = (obj: Record<string, any>): Record<string, any> => {
   }
   return result;
 };
-
 
 interface ExtendedHonoRequest extends HonoRequest {
   ip: string;
@@ -54,6 +53,10 @@ interface GeoInfo {
   asOrganization?: string;
 }
 
+interface ipItem {
+  data: GeoInfo;
+}
+
 export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: boolean) => {
 
   let vercel_ip = '';
@@ -62,16 +65,16 @@ export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: bool
   try {
     vercel_ip = ipAddress(c.req) || '';
   } catch (error) {
-    console.error('Error getting IP address:', error);
+    logger.error('Error getting IP address:', error);
   }
 
   try {
     vercel_geo = geolocation(c.req) || {};
   } catch (error) {
-    console.error('Error getting geolocation:', error);
+    logger.error('Error getting geolocation:', error);
   }
 
-  const ip = c.req.header('cf-connecting-ipv6') || c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || c.req.ip || vercel_ip || '未知IP';
+  const ip = c.req.header('x-real-ip') || c.req.header('cf-connecting-ipv6') || c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || c.req.ip || vercel_ip || '未知IP';
   const vercelGeo = c.req.raw.geo || vercel_geo;
   const country = c.req.cf?.country || c.req.header('cf-ipcountry')
   const colo = c.req.header('cf-ray')?.split('-')[1];
@@ -88,11 +91,11 @@ export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: bool
     asOrganization: c.req.cf?.asOrganization || c.req.header('x-asn') || c.req.raw.geo?.timezone,
   }
 
-  console.log("geo: ", data);
+  logger.debug(`geo: ${JSON.stringify(data)}`);
 
   const decodedData = decodeObject(data);
 
-  let routeData: OtherData = {
+  let routeData: ipItem = {
     data: decodedData,
   };
 

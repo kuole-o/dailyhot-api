@@ -3,6 +3,7 @@ import type { RouterType } from "../router.types.js";
 import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 import { config } from "../config.js"
+import logger from "../utils/logger.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
   const listData = await getList(noCache);
@@ -29,7 +30,9 @@ const getList = async (noCache: boolean) => {
       })
     });
   const list = result.data.data;
-  //console.log(list)
+
+  logger.debug(`知乎热榜源数据: ${JSON.stringify(list)}`);
+  
   return {
     ...result,
     data: list.map((v: RouterType["zhihu"]) => {

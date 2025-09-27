@@ -1,6 +1,6 @@
-import type { RouterData, ListContext } from '../types.js';
+import type { OtherData, ListContext } from '../types.js';
 import { HttpError } from '../utils/errors.js';
-import { createDefaultClient } from '../utils/leancloud-client.js';
+import { createDefaultClient, type BBTalkContent } from '../utils/leancloud-client.js';
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   try {
@@ -38,33 +38,27 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
     // 格式化返回数据
     let data;
     if (type && type === 'all') {
-      data = results.map((item, index) => ({
-        id: item.objectId || index.toString(),
-        title: item.content.substring(0, 50) + (item.content.length > 50 ? '...' : ''), // 截取内容作为标题
-        cover: undefined,
-        author: item.from,
-        desc: item.content,
-        hot: undefined,
-        timestamp: item.createdAt.getTime(),
+      data = results.map((item: BBTalkContent) => ({
+        createdAt: item.createdAt,
+        content: item.content,
+        from: item.from,
+        MsgType: item.MsgType,
+        other: item.other,
+        objectId: item.objectId,
         url: `https://blog.guole.fun/bb#${item.objectId}`,
         mobileUrl: `https://blog.guole.fun/bb#${item.objectId}`
       }));
     } else {
-      data = results.map((item, index) => ({
-        id: item.objectId || index.toString(),
-        title: item.content.substring(0, 50) + (item.content.length > 50 ? '...' : ''),
-        cover: undefined,
-        author: undefined,
-        desc: item.content,
-        hot: undefined,
-        timestamp: item.createdAt.getTime(),
-        url: `https://blog.guole.fun/bb#${item.objectId}`,
-        mobileUrl: `https://blog.guole.fun/bb#${item.objectId}`
+      data = results.map((item: BBTalkContent) => ({
+        createdAt: item.createdAt,
+        content: item.content,
+        from: item.from,
+        MsgType: item.MsgType
       }));
     }
 
     // 构建响应数据
-    const routeData: RouterData = {
+    const routeData: OtherData = {
       name: 'BBtalk',
       title: '哔哔闪念',
       type: '最新动态',

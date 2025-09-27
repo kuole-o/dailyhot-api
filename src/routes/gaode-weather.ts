@@ -1,7 +1,8 @@
-import type { OtherData, ListContext, Options } from "../types.js";
+import type { OtherData } from "../types.js";
 import type { RouterType } from "../router.types.js";
 import { get } from "../utils/getData.js";
 import { HonoRequest } from 'hono';
+import logger from "../utils/logger.js";
 
 interface ExtendedHonoRequest extends HonoRequest {
   ip: string;
@@ -26,10 +27,10 @@ export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: bool
   const city = c.req.query('city');
   let listData;
 
-  console.log("vercel解析ip: ", clientIp)
-  console.log("用户传入ip: ", ip)
-  console.log("用户传入city: ", city)
-
+  logger.debug(`vercel解析ip: ${clientIp}`);
+  logger.debug(`用户传入ip: ${ip}`);
+  logger.debug(`用户传入city: ${city}`);
+  
   listData = await getList(noCache, key, ip, clientIp, city);
 
   const routeData: OtherData = {
@@ -98,7 +99,7 @@ const getList = async (noCache: boolean, key: string, ip: string | undefined, cl
     });
   } else {
     ipInfo = await getIp(cache, key, ip ? ip : clientIp);
-    console.log("ipInfo: ", ipInfo)
+    logger.debug(`ipInfo: ${ipInfo}`);
 
     result = await get({
       url,
@@ -109,7 +110,8 @@ const getList = async (noCache: boolean, key: string, ip: string | undefined, cl
       noCache: cache
     });
   }
-  console.log("result.data: ", result.data)
+
+  logger.debug(`天气接口返回: ${result.data.lives}`);
 
   if (!result.data || !result.data.lives) {
     return {

@@ -27,10 +27,9 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
       total: total,
       updateTime,
       fromCache,
-      data: data as OtherData,
+      data: data,
     };
 
-    logger.info("Route data: ", routeData);
     return routeData;
   } catch (error) {
     logger.info(error instanceof Error ? error.message : "发生了一个未知错误！");
@@ -61,6 +60,8 @@ const getList = async (user: string, limit: number, year: number, noCache: boole
       data = result.data;
     }
 
+    logger.debug(`result.data: ${JSON.stringify(result.data)}`);
+
     const $ = cheerio.load(data);
     const contributions: { date: string; level: number; count: number }[] = [];
 
@@ -87,7 +88,6 @@ const getList = async (user: string, limit: number, year: number, noCache: boole
       data: contributionsSplit,
     };
   } catch (error) {
-    logger.info("Error in getList: ", error);
     throw error;
   }
 };

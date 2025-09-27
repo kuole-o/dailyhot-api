@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import crypto from "crypto";
+import logger from "../logger.js";
 
 /**
  * 获取微信读书的书籍 ID
@@ -60,7 +61,7 @@ const getWereadID = (bookId: string) => {
     strSub += finalStr.substring(0, 3);
     return strSub;
   } catch (error) {
-    console.error("处理微信读书 ID 时出现错误：" + error);
+    logger.error("处理微信读书 ID 时出现错误：" + error);
     return undefined;
   }
 };

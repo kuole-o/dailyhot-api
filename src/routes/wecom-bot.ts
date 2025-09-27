@@ -1,18 +1,19 @@
 import type { OtherData, ListContext, Options } from "../types.js";
 import { post } from '../utils/getData.js';
 import { HttpError } from "../utils/errors.js";
+import logger from "../utils/logger.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
-  console.log("请求方式： ", c.req.method)
+  logger.debug(`请求方式： ${c.req.method}`);
 
   const body = await c.req.json();
-  console.log("body: ",body)
+  logger.debug(`body: ${JSON.stringify(body)}`);
 
   const key = c.req.header("X-API-Token") || body.key || c.req.query("key") || '';
   const content: string = body?.content ? body?.content : '';
 
-  console.log("key: ",key)
-  console.log("content: ",content)
+  logger.debug(`key: ${key}`);
+  logger.debug(`content: ${content}`);
 
   if (!key && !content) {
     throw new HttpError(400, '缺少必要参数：token / content');

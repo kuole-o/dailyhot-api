@@ -2,6 +2,7 @@ import type { RouterData } from "../types.js";
 import type { RouterType } from "../router.types.js";
 import { get } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
+import logger from "../utils/logger.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
   const listData = await getList(noCache);
@@ -27,7 +28,7 @@ const getDyCookies = async () => {
     const cookieData = matchResult[1];
     return cookieData;
   } catch (error) {
-    console.error("获取抖音 Cookie 出错" + error);
+    logger.error("获取抖音 Cookie 出错" + error);
     return undefined;
   }
 };
@@ -44,7 +45,9 @@ const getList = async (noCache: boolean) => {
     },
   });
   const list = result.data.data.word_list;
-  //console.log(result.data.data)
+  
+  logger.debug(`抖音热榜源数据: ${JSON.stringify(list)}`);
+
   return {
     ...result,
     data: list.map((v: RouterType["douyin"]) => ({

@@ -1,6 +1,7 @@
-import type { OtherData, ListContext, Options } from "../types.js";
-import type { RouterType } from "../router.types.js";
+import type { OtherData } from "../types.js";
+import type { ListContext } from "../types.js";
 import { get } from "../utils/getData.js";
+import logger from "../utils/logger.js";
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   const format = c.req.query("format");
@@ -44,7 +45,8 @@ const getList = async (noCache: boolean) => {
   }
 
   const firstImage = images[0];
-  console.log(firstImage);
+
+  logger.debug(`Bing 图片源数据: ${firstImage.url}`);
 
   return {
     fromCache: result.fromCache,
