@@ -1,9 +1,6 @@
-import type { RouterData, ListContext, Options } from '../types.js';
-import type { RouterType } from '../router.types.js';
-import { get } from '../utils/getData.js';
+import type { RouterData, ListContext } from '../types.js';
 import { HttpError } from '../utils/errors.js';
-
-const ttl = 3 * 60 * 1000;
+import { createDefaultClient } from '../utils/leancloud-client.js';
 
 export const handleRoute = async (c: ListContext, noCache: boolean) => {
   try {
@@ -11,6 +8,7 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
     let limit: number;
     let type: string | undefined;
 
+    // 解析请求参数
     if (c.req.method == 'GET') {
       page = c.req.query('page') ? Number(c.req.query('page')) : 1;
       limit = c.req.query('limit') ? Number(c.req.query('limit')) : 10;
@@ -24,66 +22,63 @@ export const handleRoute = async (c: ListContext, noCache: boolean) => {
       throw new HttpError(405, 'Method Not Allowed');
     }
 
-    const id: string = c.req.header("X-LC-Id") || process.env.LEANCLOUD_APPID || '';
-    const key: string = c.req.header("X-LC-Key") || process.env.LEANCLOUD_APPKEY || '';
+    // 使用环境变量创建 LeanCloud 客户端
+    const client = createDefaultClient();
 
-    const { fromCache, data, updateTime } = await getList(id, key, page, limit, type, noCache);
+    // 查询数据（LeanCloudClient 内部处理缓存）
+    const { results, totalCount, fromCache } = await client.queryContentPublic({
+      page,
+      limit,
+      descending: true,
+      useCache: !noCache, // 根据 noCache 参数决定是否使用缓存
+      cacheKey: `bbtalk:page${page}:limit${limit}:type${type || 'default'}`,
+      ttl: 3 * 60 * 1000 // 3分钟缓存
+    });
 
+    // 格式化返回数据
+    let data;
+    if (type && type === 'all') {
+      data = results.map((item, index) => ({
+        id: item.objectId || index.toString(),
+        title: item.content.substring(0, 50) + (item.content.length > 50 ? '...' : ''), // 截取内容作为标题
+        cover: undefined,
+        author: item.from,
+        desc: item.content,
+        hot: undefined,
+        timestamp: item.createdAt.getTime(),
+        url: `https://blog.guole.fun/bb#${item.objectId}`,
+        mobileUrl: `https://blog.guole.fun/bb#${item.objectId}`
+      }));
+    } else {
+      data = results.map((item, index) => ({
+        id: item.objectId || index.toString(),
+        title: item.content.substring(0, 50) + (item.content.length > 50 ? '...' : ''),
+        cover: undefined,
+        author: undefined,
+        desc: item.content,
+        hot: undefined,
+        timestamp: item.createdAt.getTime(),
+        url: `https://blog.guole.fun/bb#${item.objectId}`,
+        mobileUrl: `https://blog.guole.fun/bb#${item.objectId}`
+      }));
+    }
+
+    // 构建响应数据
     const routeData: RouterData = {
       name: 'BBtalk',
       title: '哔哔闪念',
       type: '最新动态',
       link: 'https://blog.guole.fun/bb',
-      total: data?.length || 0,
-      updateTime,
+      total: data.length,
+      updateTime: new Date().toISOString(),
       fromCache,
       data,
     };
+
     return routeData;
   } catch (error) {
-    throw error;
-  }
-};
-
-const getList = async (id: string, key: string, page: number, limit: number, type: string | undefined, noCache: boolean) => {
-  try {
-    const url = `https://leancloud.guole.fun/1.1/classes/content?limit=${limit}&skip=${(page - 1) * limit}&order=-createdAt&count=1`;
-    const result = await get({
-      url,
-      headers: {
-        'X-LC-Id': id,
-        'X-LC-Key': key,
-        'Content-Type': 'application/json;charset=utf-8'
-      },
-      noCache,
-      ttl
-    });
-    const data = result.data;
-
-    if (type && type === 'all') {
-      return {
-        fromCache: result.fromCache,
-        updateTime: result.updateTime,
-        data: data.results.map((item: RouterType['BBtalk']) => ({
-          time: item.createdAt,
-          content: item.content,
-          from: item.from,
-          MsgType: item.MsgType,
-          other: item.other,
-          objectId: item.objectId,
-        })),
-      };
-    } else {
-      return {
-        fromCache: result.fromCache,
-        updateTime: result.updateTime,
-        data: data.results.map((item: RouterType['BBtalk']) => ({
-          time: item.createdAt,
-          content: item.content,
-        })),
-      }
-    };
-  } catch (error) {
-    throw error;
+    // 统一错误处理
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new HttpError(500, `获取 BBTalk 数据失败: ${errorMessage}`);
   }
 };

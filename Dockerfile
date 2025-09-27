@@ -77,6 +77,7 @@ ENV LANG=en_US.UTF-8 \
     APP_VERSION=${APP_VERSION} \
     QINIU_ACCESS_KEY='七牛云AccessKey' \
     QINIU_SECRET_KEY='七牛云SecretKey' \
+    QINIU_BUCKET='七牛云存储桶名称' \
     WEBDAV_SERVER='WebDAV服务器地址' \
     WEBDAV_USERNAME='WebDAV用户名' \
     WEBDAV_PASSWORD='WebDAV密码' \
@@ -84,7 +85,15 @@ ENV LANG=en_US.UTF-8 \
     CERT_FILE_NAME='证书文件名' \
     KEY_FILE_NAME='私钥文件名' \
     DATA_DIR='旧证书id存储路径' \
-    SSL_SECRET_KEY='证书更新接口的鉴权token'
+    SSL_SECRET_KEY='证书更新接口的鉴权token' \
+    BBTALK_TOKEN='自定义授权秘钥' \
+    BBTALK_PAGE_SIZE=10 \
+    BBTALK_JSON_PATH='存储桶上传目标路径' \
+    LEANCLOUD_APP_ID='LeanCloud应用ID' \
+    LEANCLOUD_APP_KEY='LeanCloud应用Key' \
+    LEANCLOUD_MASTER_KEY='LeanCloud主密钥' \
+    LEANCLOUD_SERVER_URL='自定义leancloud服务地址'
+
 
 # 切换用户
 USER hono

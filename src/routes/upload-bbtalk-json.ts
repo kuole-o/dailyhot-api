@@ -3,7 +3,7 @@ import type { OtherData, ListContext } from "../types.js";
 import { HttpError } from "../utils/errors.js";
 import logger from "../utils/logger.js";
 import { config } from "../config.js";
-import { LeanCloudClient } from "../utils/leancloud-client.js";
+import { LeanCloudClient, createDefaultClient } from "../utils/leancloud-client.js";
 import { QiniuStorageManager } from "../utils/qiniu-storage.js";
 
 interface UploadBBTalkOptions {
@@ -20,21 +20,22 @@ class BBTalkUploader {
     private defaultBucket: string;
     private defaultCosPath: string;
     private leancloudClient: LeanCloudClient | null = null;
-    private qiniuStorage: QiniuStorageManager | null = null;    
+    private qiniuStorage: QiniuStorageManager | null = null;
 
     constructor() {
         this.defaultPageSize = parseInt(config.BBTALK_PAGE_SIZE || '12');
         this.defaultBucket = config.QINIU_BUCKET || '';
-        this.defaultCosPath = config.BBTALK_JSON_PATH || 'bbtalk';
+        this.defaultCosPath = config.BBTALK_JSON_PATH || '';
     }
 
-    // 延迟初始化服务
+    // 延迟初始化服务 - 在鉴权通过后才创建
     private async initializeServices(): Promise<void> {
         if (!this.leancloudClient) {
             logger.info('初始化 LeanCloud 客户端...');
-            this.leancloudClient = new LeanCloudClient();
+            // 使用环境变量创建客户端
+            this.leancloudClient = createDefaultClient();
         }
-        
+
         if (!this.qiniuStorage) {
             logger.info('初始化七牛云存储服务...');
             this.qiniuStorage = new QiniuStorageManager();
@@ -72,6 +73,65 @@ class BBTalkUploader {
         throw lastError!;
     }
 
+    // 查询内容数据 - 支持递归获取所有数据
+    async queryContent(pageNum: number = 1, pageSize: number = 12, isRecursive: boolean = false): Promise<{
+        results: BBTalkContent[];
+        totalCount: number;
+        hasMore: boolean;
+    }> {
+        // 确保服务已初始化
+        await this.initializeServices();
+
+        if (isRecursive) {
+            // 递归获取所有数据
+            logger.info('开始递归查询所有数据...');
+            const allResults: BBTalkContent[] = [];
+            let currentPage = 1;
+            let hasMore = true;
+            let totalCount = 0;
+
+            while (hasMore) {
+                const { results, totalCount: pageTotalCount, hasMore: pageHasMore } =
+                    await this.leancloudClient!.queryContentPublic({
+                        page: currentPage,
+                        limit: 1000, // 每次查询1000条
+                        useCache: false, // 递归查询不使用缓存
+                        descending: true
+                    });
+
+                allResults.push(...results);
+                totalCount = pageTotalCount;
+                hasMore = pageHasMore && results.length === 1000;
+                currentPage++;
+
+                logger.info(`递归查询进度: ${allResults.length}/${totalCount}`);
+
+                // 防止无限循环
+                if (currentPage > 100) {
+                    logger.warn('递归查询超过100页，强制停止');
+                    break;
+                }
+            }
+
+            return {
+                results: allResults,
+                totalCount: allResults.length,
+                hasMore: false
+            };
+        } else {
+            // 普通分页查询
+            const { results, totalCount, hasMore } =
+                await this.leancloudClient!.queryContentPublic({
+                    page: pageNum,
+                    limit: pageSize,
+                    useCache: false, // 上传操作不使用缓存
+                    descending: true
+                });
+
+            return { results, totalCount, hasMore };
+        }
+    }
+
     // 上传分页数据到七牛云
     async uploadBBTalkData(options: UploadBBTalkOptions = {}): Promise<{
         success: boolean;
@@ -103,9 +163,10 @@ class BBTalkUploader {
         try {
             // 延迟初始化服务（在验证通过后进行）
             await this.initializeServices();
+
             // 查询 LeanCloud 数据
             const { results, totalCount } = await this.withRetry(
-                () => this.leancloudClient!.queryContent(pageNum, pageSize, isRecursive),
+                () => this.queryContent(pageNum, pageSize, isRecursive),
                 '查询 LeanCloud 数据',
                 3,
                 1000
@@ -125,7 +186,7 @@ class BBTalkUploader {
                     const endIndex = Math.min(i * pageSize, results.length);
                     const pageResults = results.slice(startIndex, endIndex);
 
-                    await this.uploadPageData(bucket, cosPath, i, pageResults, totalCount);
+                    await this.uploadPageData(bucket, cosPath, i, pageResults, totalCount, overwrite);
                     uploadedFiles.push(`bbtalk_page${i}.json`);
                 }
             } else {
@@ -134,7 +195,7 @@ class BBTalkUploader {
                 const endIndex = Math.min(pageNum * pageSize, results.length);
                 const pageResults = results.slice(startIndex, endIndex);
 
-                await this.uploadPageData(bucket, cosPath, pageNum, pageResults, totalCount);
+                await this.uploadPageData(bucket, cosPath, pageNum, pageResults, totalCount, overwrite);
                 uploadedFiles.push(`bbtalk_page${pageNum}.json`);
             }
 
@@ -142,7 +203,7 @@ class BBTalkUploader {
 
             return {
                 success: true,
-                message: 'BBTalk 最新数据分页 JSON 上传成功！',
+                message: `BBTalk 最新数据分页 JSON ${overwrite ? '覆盖' : '上传'}成功！`,
                 uploadedFiles,
                 totalCount,
                 pageCount
@@ -196,18 +257,22 @@ class BBTalkUploader {
 const bbTalkUploader = new BBTalkUploader();
 
 export const handleRoute = async (c: ListContext, noCache: boolean): Promise<OtherData> => {
-    // 鉴权验证
+    // 第一步：立即进行鉴权验证（在服务初始化之前）
     const authHeader = c.req.header('Authorization');
     const queryToken = c.req.query('token');
     const token = authHeader?.replace('Bearer ', '') || queryToken || '';
 
     logger.info(`Received token: ${token}`);
+    logger.info(`Expected token: ${config.BBTALK_TOKEN}`);
 
     if (!token || token !== config.BBTALK_TOKEN) {
+        logger.error('❌ [ERROR] 访问未经授权 - Token 验证失败');
         throw new HttpError(401, '访问未经授权');
     }
 
-    // 获取参数
+    logger.info('✅ Token 验证通过，开始处理请求...');
+
+    // 第二步：获取参数（在验证通过后进行）
     const pageNum = parseInt(c.req.query('pageNum') || '1');
     const pageSize = parseInt(c.req.query('pageSize') || config.BBTALK_PAGE_SIZE || '12');
     const isRecursive = c.req.query('isRecursive') === 'true';
@@ -215,17 +280,13 @@ export const handleRoute = async (c: ListContext, noCache: boolean): Promise<Oth
     const cosPath = c.req.query('cosPath') || config.BBTALK_JSON_PATH;
     const overwrite = c.req.query('overwrite') !== 'false';
 
-    // 验证必要配置
-    if (!config.LEANCLOUD_APP_ID || !config.LEANCLOUD_APP_KEY) {
-        throw new HttpError(400, 'LeanCloud 配置不完整');
-    }
-
+    // 第三步：验证必要配置（在验证通过后进行）
     if (!bucket) {
         throw new HttpError(400, '七牛云存储桶配置缺失');
     }
 
     try {
-        // 执行上传
+        // 第四步：执行上传（服务会在此时延迟初始化）
         const result = await bbTalkUploader.uploadBBTalkData({
             pageNum,
             pageSize,
@@ -239,7 +300,7 @@ export const handleRoute = async (c: ListContext, noCache: boolean): Promise<Oth
         const routeData: OtherData = {
             name: "BBTalk数据上传",
             title: "BBTalk数据上传到七牛云",
-            description: "将LeanCloud的BBTalk数据生成JSON分页文件上传到七牛云存储桶",
+            description: `将LeanCloud的BBTalk数据生成JSON分页文件${overwrite ? '覆盖' : '上传'}到七牛云存储桶`,
             code: '200',
             msg: result.message,
             updateTime: new Date().toISOString(),
@@ -261,3 +322,5 @@ export const handleRoute = async (c: ListContext, noCache: boolean): Promise<Oth
         throw new HttpError(500, `BBTalk数据上传失败: ${errorMessage}`);
     }
 };
+
+export { BBTalkUploader };

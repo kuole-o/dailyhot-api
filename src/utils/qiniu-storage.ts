@@ -64,6 +64,11 @@ export class QiniuStorageManager {
         if (overwrite) {
             options.insertOnly = 0; // 设置为 0 表示允许覆盖:cite[3]:cite[6]
         }
+
+        if (key) {
+            options.scope = `${bucket}:${key}`;
+        }
+
         const putPolicy = new qiniu.rs.PutPolicy(options);
         return putPolicy.uploadToken(this.mac);
     }

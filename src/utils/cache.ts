@@ -4,7 +4,7 @@ import logger from "./logger.js";
 import NodeCache from "node-cache";
 import Redis from "ioredis";
 
-interface CacheData {
+export interface CacheData {
   updateTime: string;
   data: unknown;
 }
@@ -184,4 +184,111 @@ export const delCache = async (key: string): Promise<boolean> => {
     logger.info(`🗑️ [NodeCache] ${key} has been deleted`);
   }
   return success;
+};
+
+/**
+ * 根据模式删除缓存键
+ * @param pattern 缓存键模式（支持 * 通配符）
+ * @returns 删除的键数量
+ */
+export const delCacheByPattern = async (pattern: string): Promise<number> => {
+  let deletedCount = 0;
+
+  // 将模式转换为正则表达式
+  const regexPattern = pattern.replace(/\*/g, '.*');
+  const regex = new RegExp(`^${regexPattern}$`);
+
+  // 1. 优先尝试在 Redis 中模式删除
+  if (useRedis) {
+    try {
+      // Redis 支持使用 SCAN 命令进行模式匹配
+      const stream = redis.scanStream({
+        match: pattern, // Redis 支持简单的通配符
+        count: 100 // 每次扫描的数量
+      });
+
+      const keysToDelete: string[] = [];
+
+      // 收集匹配的键
+      await new Promise((resolve, reject) => {
+        stream.on('data', (keys: string[]) => {
+          keysToDelete.push(...keys.filter(key => regex.test(key)));
+        });
+
+        stream.on('end', resolve);
+        stream.on('error', reject);
+      });
+
+      // 批量删除匹配的键
+      if (keysToDelete.length > 0) {
+        await redis.del(...keysToDelete);
+        deletedCount += keysToDelete.length;
+        logger.info(`🗑️ [Redis] 根据模式删除 ${keysToDelete.length} 个键: ${pattern}`);
+      }
+    } catch (error) {
+      useRedis = false;
+      logger.error(`📦 [Redis] 模式删除错误，降级到 NodeCache: ${pattern}`, error);
+      // 降级到 NodeCache
+    }
+  }
+
+  // 2. 在 NodeCache 中模式删除
+  try {
+    const allKeys = nodeCache.keys();
+    const matchedKeys = allKeys.filter(key => regex.test(key));
+
+    if (matchedKeys.length > 0) {
+      matchedKeys.forEach(key => nodeCache.del(key));
+      deletedCount += matchedKeys.length;
+      logger.info(`🗑️ [NodeCache] 根据模式删除 ${matchedKeys.length} 个键: ${pattern}`);
+    }
+  } catch (error) {
+    logger.error(`💾 [NodeCache] 模式删除错误: ${pattern}`, error);
+  }
+
+  return deletedCount;
+};
+
+/**
+ * 获取匹配模式的缓存键
+ * @param pattern 缓存键模式
+ * @returns 匹配的键数组
+ */
+export const getKeysByPattern = async (pattern: string): Promise<string[]> => {
+  const matchedKeys: string[] = [];
+  const regexPattern = pattern.replace(/\*/g, '.*');
+  const regex = new RegExp(`^${regexPattern}$`);
+
+  // 1. 在 Redis 中查找
+  if (useRedis) {
+    try {
+      const stream = redis.scanStream({
+        match: pattern,
+        count: 100
+      });
+
+      await new Promise((resolve, reject) => {
+        stream.on('data', (keys: string[]) => {
+          matchedKeys.push(...keys.filter(key => regex.test(key)));
+        });
+
+        stream.on('end', resolve);
+        stream.on('error', reject);
+      });
+    } catch (error) {
+      logger.error(`📦 [Redis] 获取键列表错误: ${pattern}`, error);
+    }
+  }
+
+  // 2. 在 NodeCache 中查找
+  try {
+    const allKeys = nodeCache.keys();
+    const nodeCacheKeys = allKeys.filter(key => regex.test(key));
+    matchedKeys.push(...nodeCacheKeys);
+  } catch (error) {
+    logger.error(`💾 [NodeCache] 获取键列表错误: ${pattern}`, error);
+  }
+
+  // 去重
+  return [...new Set(matchedKeys)];
 };
