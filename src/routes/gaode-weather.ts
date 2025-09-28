@@ -23,15 +23,17 @@ interface IpInfo {
 export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: boolean) => {
   const key = c.req.query('key') || process.env.GAODE_KEY || '';
   const ip = c.req.query('ip');
-  const clientIp = c.req.header('cf-connecting-ipv6') || c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || c.req.ip;
   const city = c.req.query('city');
-  let listData;
+  
+  // 获取客户端IP
+  const xForwardedFor = c.req.header('x-forwarded-for') || '';
+  const clientIp = c.req.ip || c.req.header('cf-connecting-ip') || c.req.header('cf-connecting-ipv6') || c.req.header('x-real-ip') || xForwardedFor.split(',').map(ip => ip.trim())[0] || '';
 
-  logger.debug(`vercel解析ip: ${clientIp}`);
+  logger.debug(`解析ip: ${clientIp}`);
   logger.debug(`用户传入ip: ${ip}`);
   logger.debug(`用户传入city: ${city}`);
   
-  listData = await getList(noCache, key, ip, clientIp, city);
+  const listData = await getList(noCache, key, ip, clientIp, city);
 
   const routeData: OtherData = {
     name: "gaode",
@@ -46,6 +48,7 @@ export const handleRoute = async (c: { req: ExtendedHonoRequest }, noCache: bool
 const getIp = async (cache: boolean, key: string, ip: string | undefined) => {
   const url = `https://restapi.amap.com/v3/ip`;
   let params;
+  
   if (ip && ip.length > 0) {
     params = {
       key: key,
@@ -67,8 +70,7 @@ const getIp = async (cache: boolean, key: string, ip: string | undefined) => {
 
   return {
     ...result,
-    data:
-    {
+    data: {
       infocode: list.infocode,
       province: list.province,
       city: list.city,
@@ -79,39 +81,65 @@ const getIp = async (cache: boolean, key: string, ip: string | undefined) => {
 }
 
 const getList = async (noCache: boolean, key: string, ip: string | undefined, clientIp: string | undefined, city: string | undefined) => {
-  let result, cache, ipInfo: IpInfo | undefined;
   const url = `https://restapi.amap.com/v3/weather/weatherInfo`;
+  let result, ipInfo: IpInfo | undefined;
+  let targetCity = city;
+  let useCache = noCache;
 
-  if (!ip && !city) {
-    cache = false;
-  } else {
-    cache = noCache;
-  }
-
+  // 如果有city参数，优先使用city，忽略ip
   if (city) {
+    logger.debug(`使用用户提供的city: ${city}`);
+    // 有city参数，可以缓存
+    useCache = noCache;
     result = await get({
       url,
       params: {
         key: key,
         city: city,
       },
-      noCache: cache
+      noCache: useCache
     });
   } else {
-    ipInfo = await getIp(cache, key, ip ? ip : clientIp);
-    logger.debug(`ipInfo: ${ipInfo}`);
+    // 没有city参数，需要根据IP查询城市
+    const targetIp = ip || clientIp;
+    logger.debug(`根据IP查询城市，IP: ${targetIp}`);
+    
+    // 确定是否使用缓存：只有当用户明确提供了ip参数时才使用缓存
+    // 如果用户提供了ip参数，可以缓存；如果只靠解析的客户端IP，不能缓存
+    const shouldUseCacheForIp = !!(ip);
+    useCache = shouldUseCacheForIp ? noCache : true; // true表示不使用缓存
+    
+    ipInfo = await getIp(useCache, key, targetIp);
+    logger.debug(`IP查询结果: ${JSON.stringify(ipInfo.data)}`);
+    
+    // 检查IP查询结果中的城市是否有效
+    if (ipInfo.data.city && ipInfo.data.city.length > 0 && ipInfo.data.city !== '[]') {
+      targetCity = ipInfo.data.city;
+      logger.debug(`使用IP解析的城市: ${targetCity}`);
+      
+      // 如果是通过用户提供的IP解析出的城市，可以缓存
+      // 如果是通过自动解析的客户端IP解析出的城市，不能缓存
+      const shouldUseCacheForWeather = !!(ip);
+      useCache = shouldUseCacheForWeather ? noCache : true;
+    } else {
+      // IP查询返回的城市无效，使用默认城市
+      targetCity = '北京';
+      logger.debug(`IP解析城市无效，使用默认城市: ${targetCity}`);
+      // 使用默认城市查询，不能缓存
+      useCache = true;
+    }
 
     result = await get({
       url,
       params: {
         key: key,
-        city: ipInfo.data.city && ipInfo.data.city.length > 0 ? ipInfo.data.city : '北京',
+        city: targetCity,
       },
-      noCache: cache
+      noCache: useCache
     });
   }
 
-  logger.debug(`天气接口返回: ${result.data.lives}`);
+  logger.debug(`天气接口返回: ${JSON.stringify(result.data)}`);
 
   if (!result.data || !result.data.lives) {
     return {
@@ -119,6 +147,7 @@ const getList = async (noCache: boolean, key: string, ip: string | undefined, cl
       data: [],
     };
   }
+  
   const list = result.data.lives;
   return {
     ...result,
