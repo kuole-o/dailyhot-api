@@ -3,6 +3,10 @@ import { config } from "../config.js";
 import { getCache, setCache, delCache } from "./cache.js";
 import logger from "./logger.js";
 import axios from "axios";
+import { 
+  generateSecureCacheKey, 
+  validateRequestParams 
+} from './cacheSecurity.js';
 
 // 基础配置
 const request = axios.create({
@@ -39,7 +43,7 @@ request.interceptors.response.use(
 const logAxiosError = (error: any, method: string, url: string) => {
   if (axios.isAxiosError(error)) {
     logger.error(`❌ [AXIOS ERROR] ${method} ${url} 失败`);
-    
+
     // 请求配置信息
     if (error.config) {
       logger.error(`🔧 [请求配置] URL: ${error.config.url}`);
@@ -49,7 +53,7 @@ const logAxiosError = (error: any, method: string, url: string) => {
         logger.error(`🔧 [请求头] ${JSON.stringify(error.config.headers, null, 2)}`);
       }
     }
-    
+
     // 响应信息
     if (error.response) {
       logger.error(`📡 [响应状态] ${error.response.status} ${error.response.statusText}`);
@@ -61,10 +65,10 @@ const logAxiosError = (error: any, method: string, url: string) => {
       logger.error(`📡 [无响应] 请求已发送但未收到响应`);
       logger.error(`📡 [请求对象] ${error.request}`);
     }
-    
+
     // 错误消息
     logger.error(`💥 [错误消息] ${error.message}`);
-    
+
     // 错误代码
     if (error.code) {
       logger.error(`🔢 [错误代码] ${error.code}`);
@@ -86,47 +90,68 @@ export const get = async (options: Get): Promise<Response> => {
     originaInfo = false,
     responseType = "json",
   } = options;
-  logger.info(`🌐 [GET] ${url}`);
+
+  const validation = validateRequestParams(params, null);
+  if (!validation.valid) {
+    logger.error(`🚨 [REQUEST SECURITY] ${validation.reason}`);
+    throw new Error(validation.reason);
+  }
+
+  logger.info(`🌐 [GET] ${url}${noCache ? ' (no-cache)' : ''}`);
+
   try {
-    // 构造包含请求参数的缓存键，确保缓存内容与请求内容相符
-    const cacheKey = params && Object.keys(params).length > 0
-      ? `${url}?${new URLSearchParams(
-        Object.entries(params).reduce((acc, [key, value]) => {
-          acc[key] = String(value);
-          return acc;
-        }, {} as Record<string, string>)
-      ).toString()}`
-      : url;
-    // 检查缓存
-    if (noCache) await delCache(cacheKey);
-    else {
+    // 使用改进的缓存键生成方法
+    const cacheKey = generateSecureCacheKey('GET', url, params);
+
+    // 记录完整的缓存键用于调试
+    logger.debug(`🔑 [CACHE KEY] ${cacheKey}`);
+
+    // 如果不强制刷新缓存，先检查缓存
+    if (!noCache) {
       const cachedData = await getCache(cacheKey);
       if (cachedData) {
-        logger.debug("💾 [CHCHE] The request is cached");
+        logger.debug("💾 [CACHE] The request is cached");
+
+        const cacheHeaders: Record<string, any> = {
+          'x-cache': 'HIT',
+          'x-cache-time': cachedData.updateTime,
+          'content-type': 'application/json',
+          ...cachedData.originalHeaders // 合并原始headers（如果存在）
+        };
+
         return {
           fromCache: true,
           updateTime: cachedData.updateTime,
           data: cachedData.data,
-          status: undefined,
-          headers: undefined
+          status: cachedData.originalStatus || 200,
+          headers: cacheHeaders
         };
       }
     }
-    // 缓存不存在时请求接口
+
+    // 缓存不存在或强制刷新时请求接口
     const response = await request.get(url, { headers, params, responseType });
-
-    logger.debug(`GET ${url} response: ${response}`);
-
     const responseData = response?.data || response;
+
+    logger.debug(`GET ${url} response: ${responseData}`);
+
     // 存储新获取的数据到缓存
     const updateTime = new Date().toISOString();
     const data = originaInfo ? response : responseData;
-    await setCache(cacheKey, { data, updateTime }, ttl);
-    // 返回数据
+
+    await setCache(cacheKey, {
+      data,
+      updateTime,
+      originalStatus: response.status,
+      originalHeaders: response.headers
+    }, ttl);
+
     logger.info(`✅ [${response?.status}] request was successful`);
-    return { 
-      fromCache: false, 
-      updateTime, 
+
+    // 返回数据
+    return {
+      fromCache: false,
+      updateTime,
       data,
       status: response.status,
       headers: response.headers
@@ -140,46 +165,80 @@ export const get = async (options: Get): Promise<Response> => {
 // POST
 export const post = async (options: Post): Promise<Response> => {
   const { url, headers, body, noCache, ttl = config.CACHE_TTL, originaInfo = false } = options;
-  logger.info(`🌐 [POST] ${url}`);
+
+  const validation = validateRequestParams(null, body);
+  if (!validation.valid) {
+    logger.error(`🚨 [REQUEST SECURITY] ${validation.reason}`);
+    throw new Error(validation.reason);
+  }
+
+  logger.info(`🌐 [POST] ${url}${noCache ? ' (no-cache)' : ''}`);
+
   try {
-    // 构造包含请求参数的缓存键，确保缓存内容与请求内容相符
-    const cacheKey = body && Object.keys(body).length > 0
-      ? `${url}?${new URLSearchParams(
-        Object.entries(body).reduce((acc, [key, value]) => {
-          acc[key] = String(value);
-          return acc;
-        }, {} as Record<string, string>)
-      ).toString()}`
-      : url;
-    // 检查缓存
-    if (noCache) await delCache(cacheKey);
-    else {
+    // 使用改进的缓存键生成方法
+    const cacheKey = generateSecureCacheKey('POST', url, body);
+
+    // 记录完整的缓存键用于调试
+    logger.debug(`🔑 [CACHE KEY] ${cacheKey}`);
+
+    // 处理请求体，确保传递给 axios 的格式正确
+    let requestBody = body;
+    if (typeof body === 'string') {
+      try {
+        // 如果是 JSON 字符串，解析为对象供 axios 使用
+        requestBody = JSON.parse(body);
+      } catch {
+        // 如果不是 JSON，保持原样
+        requestBody = body;
+      }
+    }
+
+    // 如果不强制刷新缓存，先检查缓存
+    if (!noCache) {
       const cachedData = await getCache(cacheKey);
       if (cachedData) {
-        logger.debug("💾 [CHCHE] The request is cached");
+        logger.debug("💾 [CACHE] The request is cached");
+
+        const cacheHeaders: Record<string, any> = {
+          'x-cache': 'HIT',
+          'x-cache-time': cachedData.updateTime,
+          'content-type': 'application/json',
+          ...cachedData.originalHeaders // 合并原始headers（如果存在）
+        };
+
         return {
           fromCache: true,
           updateTime: cachedData.updateTime,
           data: cachedData.data,
-          status: undefined,
-          headers: undefined
+          status: cachedData.originalStatus || 200,
+          headers: cacheHeaders
         };
       }
     }
+
     // 缓存不存在时请求接口
     const response = await request.post(url, body, { headers });
     const responseData = response?.data || response;
+
+    logger.debug(`POST ${url} response: ${responseData}`);
+
     // 存储新获取的数据到缓存
     const updateTime = new Date().toISOString();
     const data = originaInfo ? response : responseData;
-    if (!noCache) {
-      await setCache(cacheKey, { data, updateTime }, ttl);
-    }
-    // 返回数据
+
+    await setCache(cacheKey, {
+      data,
+      updateTime,
+      originalStatus: response.status,
+      originalHeaders: response.headers
+    }, ttl);
+
     logger.info(`✅ [${response?.status}] request was successful`);
-    return { 
-      fromCache: false, 
-      updateTime, 
+
+    // 返回数据
+    return {
+      fromCache: false,
+      updateTime,
       data,
       status: response.status,
       headers: response.headers
@@ -193,21 +252,10 @@ export const post = async (options: Post): Promise<Response> => {
 // PUT 请求 - 不需要缓存
 export const put = async (options: Post): Promise<Response> => {
   const { url, headers, body, noCache, ttl = config.CACHE_TTL, originaInfo = false } = options;
+
   logger.info(`🌐 [PUT] ${url}`);
+
   try {
-    // 构造包含请求参数的缓存键
-    const cacheKey = body && Object.keys(body).length > 0
-      ? `${url}?${new URLSearchParams(
-        Object.entries(body).reduce((acc, [key, value]) => {
-          acc[key] = String(value);
-          return acc;
-        }, {} as Record<string, string>)
-      ).toString()}`
-      : url;
-
-    // 检查缓存，PUT操作不需要缓存
-    if (noCache) await delCache(cacheKey);
-
     // PUT请求不检查缓存，直接发送请求
     const response = await request.put(url, body, { headers });
     const responseData = response?.data || response;
@@ -216,16 +264,12 @@ export const put = async (options: Post): Promise<Response> => {
     const updateTime = new Date().toISOString();
     const data = originaInfo ? response : responseData;
 
-    // PUT操作通常不缓存，但根据noCache参数决定
-    if (!noCache) {
-      await setCache(cacheKey, { data, updateTime }, ttl);
-    }
+    logger.info(`✅ [${response?.status}] PUT request was successful`);
 
     // 返回数据
-    logger.info(`✅ [${response?.status}] PUT request was successful`);
-    return { 
-      fromCache: false, 
-      updateTime, 
+    return {
+      fromCache: false,
+      updateTime,
       data,
       status: response.status,
       headers: response.headers
@@ -238,13 +282,11 @@ export const put = async (options: Post): Promise<Response> => {
 
 export const del = async (options: Omit<Get, 'params'> & { body?: any }): Promise<Response> => {
   const { url, headers, body, noCache, originaInfo = false } = options;
+
   logger.info(`🌐 [DELETE] ${url}`);
 
   try {
-    const cacheKey = url;
-
-    if (noCache) await delCache(cacheKey);
-
+    // DELETE 请求不检查缓存，直接发送请求
     const response = await request.delete(url, {
       headers,
       data: body
@@ -255,9 +297,11 @@ export const del = async (options: Omit<Get, 'params'> & { body?: any }): Promis
     const data = originaInfo ? response : responseData;
 
     logger.info(`✅ [${response?.status}] DELETE request was successful`);
-    return { 
-      fromCache: false, 
-      updateTime, 
+
+    // DELETE 操作不缓存响应数据
+    return {
+      fromCache: false,
+      updateTime,
       data,
       status: response.status,
       headers: response.headers

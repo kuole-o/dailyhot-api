@@ -70,7 +70,7 @@ export interface Response {
   updateTime: string;
   data: any;
   status?: number;
-  headers?: any;
+  headers?: Record<string, any>;
 }
 
 // 其他数据 自定义

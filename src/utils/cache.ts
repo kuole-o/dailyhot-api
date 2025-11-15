@@ -7,6 +7,8 @@ import Redis from "ioredis";
 export interface CacheData {
   updateTime: string;
   data: unknown;
+  originalStatus?: number;
+  originalHeaders?: Record<string, any>;
 }
 
 // 日志辅助函数：截断长字符串
@@ -94,7 +96,7 @@ nodeCache.on("del", (key) => {
  */
 export const getCache = async (key: string): Promise<CacheData | undefined> => {
   const truncatedKey = truncateKeyForLog(key);
-  
+
   // 1. 优先尝试从 Redis 获取
   if (useRedis) {
     try {

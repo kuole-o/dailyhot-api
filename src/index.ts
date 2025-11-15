@@ -10,7 +10,7 @@ const serveHotApi: (port?: number) => void = (port: number = config.PORT) => {
       fetch: app.fetch,
       port,
     });
-    logger.info(`🔥 DailyHot API 成功在端口 ${port} 上运行`);
+    logger.info(`🎯 API Collection 成功在端口 ${port} 上运行`);
     logger.info(`🔗 Local: 👉 http://127.0.0.1:${port}`);
     return apiServer;
   } catch (error) {
