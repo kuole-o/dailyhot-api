@@ -9,6 +9,14 @@ export interface CacheData {
   data: unknown;
 }
 
+// 日志辅助函数：截断长字符串
+const truncateKeyForLog = (key: string, maxLength: number = 100): string => {
+  if (key.length <= maxLength) {
+    return key;
+  }
+  return `${key.substring(0, maxLength)}…`;
+};
+
 // init NodeCache (作为降级缓存)
 const nodeCache = new NodeCache({
   stdTTL: config.CACHE_TTL,
@@ -72,11 +80,11 @@ initRedis();
 
 // NodeCache 事件监听（可选）
 nodeCache.on("expired", (key) => {
-  logger.debug(`⏳ [NodeCache] Key "${key}" has expired.`);
+  logger.debug(`⏳ [NodeCache] Key "${truncateKeyForLog(key)}" has expired.`);
 });
 
 nodeCache.on("del", (key) => {
-  logger.debug(`🗑️ [NodeCache] Key "${key}" has been deleted.`);
+  logger.debug(`🗑️ [NodeCache] Key "${truncateKeyForLog(key)}" has been deleted.`);
 });
 
 /**
@@ -85,21 +93,23 @@ nodeCache.on("del", (key) => {
  * @returns 缓存数据
  */
 export const getCache = async (key: string): Promise<CacheData | undefined> => {
+  const truncatedKey = truncateKeyForLog(key);
+  
   // 1. 优先尝试从 Redis 获取
   if (useRedis) {
     try {
       const redisResult = await redis.get(key);
       if (redisResult) {
-        logger.info(`💾 [Redis] Cache hit for key: ${key}`);
+        logger.info(`💾 [Redis] Cache hit for key: ${truncatedKey}`);
         return parse(redisResult) as CacheData;
       } else {
-        logger.info(`💾 [Redis] Cache miss for key: ${key}`);
+        logger.info(`💾 [Redis] Cache miss for key: ${truncatedKey}`);
         // Redis中不存在，也返回undefined，不再检查NodeCache
         return undefined;
       }
     } catch (error) {
       useRedis = false; // 获取失败，触发降级
-      logger.error(`📦 [Redis] Get error, falling back to NodeCache for key: ${key}.`, error);
+      logger.error(`📦 [Redis] Get error, falling back to NodeCache for key: ${truncatedKey}.`, error);
       // 降级逻辑：继续尝试从 NodeCache 获取
     }
   }
@@ -107,10 +117,10 @@ export const getCache = async (key: string): Promise<CacheData | undefined> => {
   // 2. Redis不可用或失败，降级到 NodeCache
   const nodeCacheResult = nodeCache.get(key);
   if (nodeCacheResult) {
-    logger.info(`💾 [NodeCache] Cache hit for key: ${key}`);
+    logger.info(`💾 [NodeCache] Cache hit for key: ${truncatedKey}`);
     return nodeCacheResult as CacheData;
   } else {
-    logger.info(`💾 [NodeCache] Cache miss for key: ${key}`);
+    logger.info(`💾 [NodeCache] Cache miss for key: ${truncatedKey}`);
     return undefined;
   }
 };
@@ -127,19 +137,20 @@ export const setCache = async (
   value: CacheData,
   ttl: number = config.CACHE_TTL,
 ): Promise<boolean> => {
+  const truncatedKey = truncateKeyForLog(key);
   let success = false;
 
   // 1. 优先尝试写入 Redis
   if (useRedis && !Buffer.isBuffer(value?.data)) {
     try {
       await redis.set(key, stringify(value), "EX", ttl);
-      logger.info(`💾 [Redis] Cache set for key: ${key}`);
+      logger.info(`💾 [Redis] Cache set for key: ${truncatedKey}`);
       success = true;
       // Redis写入成功，不需要再写入NodeCache，避免冗余
       return success;
     } catch (error) {
       useRedis = false; // 写入失败，触发降级
-      logger.error(`📦 [Redis] Set error, falling back to NodeCache for key: ${key}.`, error);
+      logger.error(`📦 [Redis] Set error, falling back to NodeCache for key: ${truncatedKey}.`, error);
       // 降级逻辑：继续尝试写入 NodeCache
     }
   }
@@ -147,9 +158,9 @@ export const setCache = async (
   // 2. Redis不可用或失败，降级到 NodeCache
   success = nodeCache.set(key, value, ttl);
   if (success) {
-    logger.info(`💾 [NodeCache] Cache set for key: ${key}`);
+    logger.info(`💾 [NodeCache] Cache set for key: ${truncatedKey}`);
   } else {
-    logger.error(`💾 [NodeCache] Failed to set cache for key: ${key}`);
+    logger.error(`💾 [NodeCache] Failed to set cache for key: ${truncatedKey}`);
   }
   return success;
 };
@@ -160,19 +171,20 @@ export const setCache = async (
  * @returns 是否删除成功
  */
 export const delCache = async (key: string): Promise<boolean> => {
+  const truncatedKey = truncateKeyForLog(key);
   let success = false;
 
   // 1. 优先尝试从 Redis 删除
   if (useRedis) {
     try {
       await redis.del(key);
-      logger.info(`🗑️ [Redis] ${key} has been deleted`);
+      logger.info(`🗑️ [Redis] ${truncatedKey} has been deleted`);
       success = true;
       // Redis删除成功，不需要再删除NodeCache（因为可能不存在）
       return success;
     } catch (error) {
       useRedis = false; // 删除失败，触发降级
-      logger.error(`📦 [Redis] Del error, falling back to NodeCache for key: ${key}.`, error);
+      logger.error(`📦 [Redis] Del error, falling back to NodeCache for key: ${truncatedKey}.`, error);
       // 降级逻辑：继续尝试从 NodeCache 删除
     }
   }
@@ -181,7 +193,7 @@ export const delCache = async (key: string): Promise<boolean> => {
   const deletedCount = nodeCache.del(key);
   success = deletedCount > 0;
   if (success) {
-    logger.info(`🗑️ [NodeCache] ${key} has been deleted`);
+    logger.info(`🗑️ [NodeCache] ${truncatedKey} has been deleted`);
   }
   return success;
 };
@@ -192,6 +204,7 @@ export const delCache = async (key: string): Promise<boolean> => {
  * @returns 删除的键数量
  */
 export const delCacheByPattern = async (pattern: string): Promise<number> => {
+  const truncatedPattern = truncateKeyForLog(pattern);
   let deletedCount = 0;
 
   // 将模式转换为正则表达式
@@ -223,11 +236,11 @@ export const delCacheByPattern = async (pattern: string): Promise<number> => {
       if (keysToDelete.length > 0) {
         await redis.del(...keysToDelete);
         deletedCount += keysToDelete.length;
-        logger.info(`🗑️ [Redis] 根据模式删除 ${keysToDelete.length} 个键: ${pattern}`);
+        logger.info(`🗑️ [Redis] 根据模式删除 ${keysToDelete.length} 个键: ${truncatedPattern}`);
       }
     } catch (error) {
       useRedis = false;
-      logger.error(`📦 [Redis] 模式删除错误，降级到 NodeCache: ${pattern}`, error);
+      logger.error(`📦 [Redis] 模式删除错误，降级到 NodeCache: ${truncatedPattern}`, error);
       // 降级到 NodeCache
     }
   }
@@ -240,10 +253,10 @@ export const delCacheByPattern = async (pattern: string): Promise<number> => {
     if (matchedKeys.length > 0) {
       matchedKeys.forEach(key => nodeCache.del(key));
       deletedCount += matchedKeys.length;
-      logger.info(`🗑️ [NodeCache] 根据模式删除 ${matchedKeys.length} 个键: ${pattern}`);
+      logger.info(`🗑️ [NodeCache] 根据模式删除 ${matchedKeys.length} 个键: ${truncatedPattern}`);
     }
   } catch (error) {
-    logger.error(`💾 [NodeCache] 模式删除错误: ${pattern}`, error);
+    logger.error(`💾 [NodeCache] 模式删除错误: ${truncatedPattern}`, error);
   }
 
   return deletedCount;
@@ -255,6 +268,7 @@ export const delCacheByPattern = async (pattern: string): Promise<number> => {
  * @returns 匹配的键数组
  */
 export const getKeysByPattern = async (pattern: string): Promise<string[]> => {
+  const truncatedPattern = truncateKeyForLog(pattern);
   const matchedKeys: string[] = [];
   const regexPattern = pattern.replace(/\*/g, '.*');
   const regex = new RegExp(`^${regexPattern}$`);
@@ -276,7 +290,7 @@ export const getKeysByPattern = async (pattern: string): Promise<string[]> => {
         stream.on('error', reject);
       });
     } catch (error) {
-      logger.error(`📦 [Redis] 获取键列表错误: ${pattern}`, error);
+      logger.error(`📦 [Redis] 获取键列表错误: ${truncatedPattern}`, error);
     }
   }
 
@@ -286,9 +300,12 @@ export const getKeysByPattern = async (pattern: string): Promise<string[]> => {
     const nodeCacheKeys = allKeys.filter(key => regex.test(key));
     matchedKeys.push(...nodeCacheKeys);
   } catch (error) {
-    logger.error(`💾 [NodeCache] 获取键列表错误: ${pattern}`, error);
+    logger.error(`💾 [NodeCache] 获取键列表错误: ${truncatedPattern}`, error);
   }
 
   // 去重
   return [...new Set(matchedKeys)];
 };
+
+// 导出辅助函数用于测试或其他用途
+export { truncateKeyForLog };

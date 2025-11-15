@@ -1,4 +1,4 @@
-import type { Get, Post } from "../types.js";
+import type { Get, Post, Response } from "../types.js";
 import { config } from "../config.js";
 import { getCache, setCache, delCache } from "./cache.js";
 import logger from "./logger.js";
@@ -35,8 +35,48 @@ request.interceptors.response.use(
   },
 );
 
+// 详细的错误日志函数
+const logAxiosError = (error: any, method: string, url: string) => {
+  if (axios.isAxiosError(error)) {
+    logger.error(`❌ [AXIOS ERROR] ${method} ${url} 失败`);
+    
+    // 请求配置信息
+    if (error.config) {
+      logger.error(`🔧 [请求配置] URL: ${error.config.url}`);
+      logger.error(`🔧 [请求配置] 方法: ${error.config.method}`);
+      logger.error(`🔧 [请求配置] 超时: ${error.config.timeout}ms`);
+      if (error.config.headers) {
+        logger.error(`🔧 [请求头] ${JSON.stringify(error.config.headers, null, 2)}`);
+      }
+    }
+    
+    // 响应信息
+    if (error.response) {
+      logger.error(`📡 [响应状态] ${error.response.status} ${error.response.statusText}`);
+      logger.error(`📡 [响应头] ${JSON.stringify(error.response.headers, null, 2)}`);
+      if (error.response.data) {
+        logger.error(`📡 [响应数据] ${JSON.stringify(error.response.data, null, 2)}`);
+      }
+    } else if (error.request) {
+      logger.error(`📡 [无响应] 请求已发送但未收到响应`);
+      logger.error(`📡 [请求对象] ${error.request}`);
+    }
+    
+    // 错误消息
+    logger.error(`💥 [错误消息] ${error.message}`);
+    
+    // 错误代码
+    if (error.code) {
+      logger.error(`🔢 [错误代码] ${error.code}`);
+    }
+  } else {
+    // 非 Axios 错误
+    logger.error(`❌ [NON-AXIOS ERROR] ${method} ${url} 失败:`, error);
+  }
+};
+
 // GET
-export const get = async (options: Get) => {
+export const get = async (options: Get): Promise<Response> => {
   const {
     url,
     headers,
@@ -62,11 +102,13 @@ export const get = async (options: Get) => {
     else {
       const cachedData = await getCache(cacheKey);
       if (cachedData) {
-        // logger.info("💾 [CHCHE] The request is cached");
+        logger.debug("💾 [CHCHE] The request is cached");
         return {
           fromCache: true,
           updateTime: cachedData.updateTime,
           data: cachedData.data,
+          status: undefined,
+          headers: undefined
         };
       }
     }
@@ -82,16 +124,21 @@ export const get = async (options: Get) => {
     await setCache(cacheKey, { data, updateTime }, ttl);
     // 返回数据
     logger.info(`✅ [${response?.status}] request was successful`);
-    return { fromCache: false, updateTime, data };
+    return { 
+      fromCache: false, 
+      updateTime, 
+      data,
+      status: response.status,
+      headers: response.headers
+    };
   } catch (error) {
-    logger.error("❌ [ERROR] request failed");
-    logger.error(error);
+    logAxiosError(error, 'GET', url);
     throw error;
   }
 };
 
 // POST
-export const post = async (options: Post) => {
+export const post = async (options: Post): Promise<Response> => {
   const { url, headers, body, noCache, ttl = config.CACHE_TTL, originaInfo = false } = options;
   logger.info(`🌐 [POST] ${url}`);
   try {
@@ -109,8 +156,14 @@ export const post = async (options: Post) => {
     else {
       const cachedData = await getCache(cacheKey);
       if (cachedData) {
-        // logger.info("💾 [CHCHE] The request is cached");
-        return { fromCache: true, updateTime: cachedData.updateTime, data: cachedData.data };
+        logger.debug("💾 [CHCHE] The request is cached");
+        return {
+          fromCache: true,
+          updateTime: cachedData.updateTime,
+          data: cachedData.data,
+          status: undefined,
+          headers: undefined
+        };
       }
     }
     // 缓存不存在时请求接口
@@ -124,15 +177,21 @@ export const post = async (options: Post) => {
     }
     // 返回数据
     logger.info(`✅ [${response?.status}] request was successful`);
-    return { fromCache: false, updateTime, data };
+    return { 
+      fromCache: false, 
+      updateTime, 
+      data,
+      status: response.status,
+      headers: response.headers
+    };
   } catch (error) {
-    logger.error("❌ [ERROR] request failed");
+    logAxiosError(error, 'POST', url);
     throw error;
   }
 };
 
 // PUT 请求 - 不需要缓存
-export const put = async (options: Post) => {
+export const put = async (options: Post): Promise<Response> => {
   const { url, headers, body, noCache, ttl = config.CACHE_TTL, originaInfo = false } = options;
   logger.info(`🌐 [PUT] ${url}`);
   try {
@@ -164,14 +223,20 @@ export const put = async (options: Post) => {
 
     // 返回数据
     logger.info(`✅ [${response?.status}] PUT request was successful`);
-    return { fromCache: false, updateTime, data };
+    return { 
+      fromCache: false, 
+      updateTime, 
+      data,
+      status: response.status,
+      headers: response.headers
+    };
   } catch (error) {
-    logger.error("❌ [ERROR] PUT request failed");
+    logAxiosError(error, 'PUT', url);
     throw error;
   }
 };
 
-export const del = async (options: Omit<Get, 'params'> & { body?: any }) => {
+export const del = async (options: Omit<Get, 'params'> & { body?: any }): Promise<Response> => {
   const { url, headers, body, noCache, originaInfo = false } = options;
   logger.info(`🌐 [DELETE] ${url}`);
 
@@ -190,9 +255,15 @@ export const del = async (options: Omit<Get, 'params'> & { body?: any }) => {
     const data = originaInfo ? response : responseData;
 
     logger.info(`✅ [${response?.status}] DELETE request was successful`);
-    return { fromCache: false, updateTime, data };
+    return { 
+      fromCache: false, 
+      updateTime, 
+      data,
+      status: response.status,
+      headers: response.headers
+    };
   } catch (error) {
-    logger.error("❌ [ERROR] DELETE request failed");
+    logAxiosError(error, 'DELETE', url);
     throw error;
   }
 };

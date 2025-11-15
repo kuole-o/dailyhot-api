@@ -23,6 +23,8 @@ export interface RouterResType {
   fromCache: boolean;
   data: ListItem[];
   message?: string;
+  status?: number;
+  headers?: any;
 }
 
 // 路由数据
@@ -61,6 +63,14 @@ export interface Post {
 // 参数类型
 export interface Options {
   [key: string]: string | number | undefined;
+}
+
+export interface Response {
+  fromCache: boolean;
+  updateTime: string;
+  data: any;
+  status?: number;
+  headers?: any;
 }
 
 // 其他数据 自定义
