@@ -88,16 +88,22 @@ class QiniuSSLManager {
         throw lastError!;
     }
 
+    // 生成带日期的证书名称
+    private generateCertName(): string {
+        const now = new Date();
+        const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+        const dateStr = beijingTime.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD格式
+        return `lucky_${dateStr}`;
+    }
+
+    // 检查证书名称是否匹配lucky模式
+    private isLuckyCert(certName: string): boolean {
+        return certName === 'lucky' || certName.startsWith('lucky_');
+    }
+
     // 使用七牛云SDK生成认证头
     private generateAuthHeader(url: string, body: any = ''): string {
         try {
-            // 确保body是字符串
-            const bodyStr = typeof body === 'string' ? body : JSON.stringify(body);
-
-            logger.debug(`🔐 [SDK签名] 生成认证令牌, URL: ${url}, Body长度: ${bodyStr.length}`);
-            logger.debug(`🔐 [密钥信息] AccessKey: ${this.accessKey.substring(0, 10)}..., SecretKey: ${this.secretKey.substring(0, 10)}...`);
-            logger.debug(`🔐 [SDK签名] Body类型: ${typeof body}, 转换后类型: ${typeof bodyStr}`);
-
             // 使用七牛云SDK生成认证令牌
             const accessToken = qiniu.util.generateAccessToken(this.mac, url, body);
 
@@ -111,18 +117,6 @@ class QiniuSSLManager {
             }
             throw error;
         }
-    }
-
-    // 生成带日期的证书名称
-    private generateCertName(): string {
-        const now = new Date();
-        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD格式
-        return `lucky_${dateStr}`;
-    }
-
-    // 检查证书名称是否匹配lucky模式
-    private isLuckyCert(certName: string): boolean {
-        return certName === 'lucky' || certName.startsWith('lucky_');
     }
 
     // 获取域名列表
@@ -139,7 +133,8 @@ class QiniuSSLManager {
                     'Authorization': authHeader,
                     'Content-Type': 'application/json'
                 },
-                noCache: true
+                noCache: true,
+                ttl: 10000
             });
 
             if (response.data && response.data.domains) {
@@ -158,7 +153,7 @@ class QiniuSSLManager {
             } else {
                 throw new Error('获取域名列表失败：响应格式不正确');
             }
-        }, '获取域名列表', 3, 1000);
+        }, '获取域名列表', 2, 1000);
     }
 
     // 从WebDAV读取证书文件
@@ -211,7 +206,8 @@ class QiniuSSLManager {
                     'Authorization': authHeader,
                     'Content-Type': 'application/json'
                 },
-                noCache: true
+                noCache: true,
+                ttl: 10000
             });
 
             if (response.data && Array.isArray(response.data.certs)) {
@@ -232,7 +228,7 @@ class QiniuSSLManager {
             } else {
                 throw new Error('获取证书列表失败：响应格式不正确');
             }
-        }, '获取证书列表', 3, 1000);
+        }, '获取证书列表', 2, 1000);
     }
 
     // 获取证书详情
@@ -249,7 +245,8 @@ class QiniuSSLManager {
                     'Authorization': authHeader,
                     'Content-Type': 'application/json'
                 },
-                noCache: true
+                noCache: true,
+                ttl: 10000
             });
 
             if (response.data) {
@@ -257,7 +254,7 @@ class QiniuSSLManager {
             } else {
                 throw new Error(`获取证书详情失败：证书ID ${certId}`);
             }
-        }, `获取证书详情 ${certId}`, 3, 1000);
+        }, `获取证书详情 ${certId}`, 2, 1000);
     }
 
     // 检查证书是否需要更新
@@ -351,11 +348,12 @@ class QiniuSSLManager {
                         'Content-Type': 'application/json'
                     },
                     body: requestBody,
-                    noCache: true
+                    noCache: true,
+                ttl: 10000
                 });
 
                 if (response.data && response.data.certID) {
-                    logger.info(`新证书上传成功，ID: ${response.data.certID}`);
+                    logger.info(`新证书上传成功，ID: ${response.data.certID}, 名称: ${certName}`);
                     return response.data.certID;
                 } else {
                     logger.error(`上传证书失败，响应数据: ${JSON.stringify(response.data)}`);
@@ -370,7 +368,7 @@ class QiniuSSLManager {
                 }
                 throw error;
             }
-        }, '上传证书到七牛云', 3, 1500);
+        }, '上传证书到七牛云', 2, 1500);
     }
 
     // 更新域名SSL配置
@@ -420,11 +418,12 @@ class QiniuSSLManager {
                     'Content-Type': 'application/json'
                 },
                 body: requestBody,
-                noCache: true
+                noCache: true,
+                ttl: 10000
             });
 
             return response.data;
-        }, `更新域名 ${domain} HTTPS配置`, 3, 1000);
+        }, `更新域名 ${domain} HTTPS配置`, 2, 1000);
     }
 
     // 删除旧证书（支持批量删除）
@@ -478,7 +477,8 @@ class QiniuSSLManager {
                     'Authorization': authHeader,
                     'Content-Type': 'application/json'
                 },
-                noCache: true
+                noCache: true,
+                ttl: 10000
             });
 
             if (response.data) {
@@ -486,7 +486,7 @@ class QiniuSSLManager {
             } else {
                 throw new Error(`删除证书 ${certId} 失败: 响应数据为空`);
             }
-        }, `删除证书 ${certId}`, 3, 1000);
+        }, `删除证书 ${certId}`, 2, 1000);
     }
 
     // 主执行函数
@@ -494,10 +494,10 @@ class QiniuSSLManager {
         return this.withRetry(async () => {
             logger.info('开始SSL证书更新流程...');
 
-            // 获取现有证书列表
+            // 获取现有证书列表（包括所有lucky和lucky_开头的证书）
             const oldCertList = await this.getCertList();
             const oldCertIds = oldCertList.map(cert => cert.certid);
-            logger.info(`当前七牛云上有 ${oldCertIds.length} 个名称为 lucky 的证书: ${oldCertIds.join(', ')}`);
+            logger.info(`当前七牛云上有 ${oldCertIds.length} 个名称为 lucky 或 lucky_* 的证书: ${oldCertIds.join(', ')}`);
 
             // 从WebDAV读取证书
             const { cert, key } = await this.readCertFilesFromWebDAV();
@@ -528,7 +528,7 @@ class QiniuSSLManager {
                     failedDeletions: deleteResult.failed
                 }
             };
-        }, 'SSL证书更新整体流程', 2, 3000);
+        }, 'SSL证书更新整体流程', 1, 3000);
     }
 }
 

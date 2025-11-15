@@ -8,7 +8,7 @@ if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
   PROJECT_DIR="d:/src/api"
 else
   # macOS 或其他 UNIX 环境路径
-  PROJECT_DIR="/Users/guole/Documents/src/api"
+  PROJECT_DIR="$HOME/src/api"
 fi
 
 # 切换到项目目录
