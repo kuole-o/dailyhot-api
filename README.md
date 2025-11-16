@@ -1,6 +1,6 @@
 <div align="center">
 <h1>个人自用 API 接口集合</h1>
-<span>修改自：</span><a href="https://github.com/imsyy/DailyHotApi">DailyHotApi（v2.0.7）</a><span>，感谢<b>imsyy<b>的分享！</span>
+<span>修改自：</span><a href="https://github.com/imsyy/DailyHotApi">DailyHotApi（v2.0.8-3298e73）</a><span>，感谢<b>imsyy<b>的分享！</span>
 <br />
 <img src="https://img.shields.io/github/last-commit/imsyy/DailyHotApi" alt="last commit"/>
  <img src="https://img.shields.io/github/languages/code-size/imsyy/DailyHotApi" alt="code size"/>
