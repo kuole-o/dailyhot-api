@@ -40,6 +40,7 @@ const initRedis = () => {
     host: config.REDIS_HOST,
     port: config.REDIS_PORT,
     password: config.REDIS_PASSWORD,
+    db: config.REDIS_DB,
     maxRetriesPerRequest: 3,
     retryStrategy: (times) => {
       if (times >= MAX_REDIS_CONNECTION_ATTEMPTS) {

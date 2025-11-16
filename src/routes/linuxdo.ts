@@ -2,7 +2,6 @@ import type { RouterData } from "../types.js";
 import { get } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 
-
 interface Topic {
   id: number;
   title: string;
@@ -12,7 +11,6 @@ interface Topic {
   views: number;
   like_count: number;
 }
-
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
   const listData = await getList(noCache);
@@ -28,7 +26,6 @@ export const handleRoute = async (_: undefined, noCache: boolean) => {
   return routeData;
 };
 
-
 const getList = async (noCache: boolean) => {
   const url = "https://linux.do/top/weekly.json";
   const result = await get({
@@ -38,8 +35,7 @@ const getList = async (noCache: boolean) => {
       "Accept": "application/json",
     }
   });
-
-
+  
   const topics = result.data.topic_list.topics as Topic[];
   const list = topics.map((topic) => {
     return {
@@ -53,7 +49,6 @@ const getList = async (noCache: boolean) => {
       hot: topic.views || topic.like_count
     };
   });
-
 
   return {
     ...result,

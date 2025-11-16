@@ -36,7 +36,7 @@ const getList = async (noCache: boolean) => {
       const id = item.attr("id") || "";
       const title = item.find(".titleline a").first().text().trim();
       const url = item.find(".titleline a").first().attr("href");
-
+      
       // 获取分数并转换为数字
       const scoreText = $(`#score_${id}`).text().match(/\d+/)?.[0];
       const hot = scoreText ? parseInt(scoreText, 10) : undefined;

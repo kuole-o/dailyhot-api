@@ -3,6 +3,7 @@ import type { RouterType } from "../router.types.js";
 import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 import logger from "../utils/logger.js";
+import { config } from "../config";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
   const listData = await getList(noCache);
@@ -41,28 +42,30 @@ const getList = async (noCache: boolean) => {
   return {
     ...result,
     data: list
-    .filter((v: RouterType["weibo"]) => 
-      Boolean(v.is_ad) === false && Boolean(v.topic_ad) === false
-    )
-    .map((v: RouterType["weibo"]) => {
-      const key = v.word_scheme ? v.word_scheme : `#${v.desc}`;
-      return {
-        id: v.itemid,
-        title: v.desc,
-        desc: cleanPostContent(v.note || v.word_scheme || v.flag_desc || key),
-        hot: getNumber(v),
-        text: getText(v) ? getText(v) : '',
-        icon: v.icon,
-        icon_color: v.icon_desc_color,
-        // icon_width: v.icon_width,
-        // icon_height: v.icon_height,
-        timestamp: getTime(v.onboard_time || v.stime),
-        url: `https://s.weibo.com/weibo?q=${encodeURIComponent(key)}&t=31&band_rank=1&Refer=top`,
-        mobileUrl: `https://s.weibo.com/weibo?q=${encodeURIComponent(
-          key,
-        )}&t=31&band_rank=1&Refer=top`,
-      };
-    }),
+      .filter(
+        (v: RouterType["weibo"]) =>
+          !(
+            v?.pic === "https://simg.s.weibo.com/20210408_search_point_orange.png" &&
+            config.FILTER_WEIBO_ADVERTISEMENT
+          ),
+      )
+      .map((v: RouterType["weibo"]) => {
+        const key = v.word_scheme ?? `#${v.desc}`;
+        return {
+          id: v.itemid,
+          title: v.desc,
+          desc: cleanPostContent(key || v.note || v.flag_desc),
+          hot: getNumber(v.desc_extr),
+          text: getText(v) ? getText(v) : '',
+          icon: v.icon,
+          icon_color: v.icon_desc_color,
+          // icon_width: v.icon_width,
+          // icon_height: v.icon_height,
+          timestamp: getTime(v.onboard_time || v.stime),
+          url: `https://s.weibo.com/weibo?q=${encodeURIComponent(key)}&t=31&band_rank=1&Refer=top`,
+          mobileUrl: v?.scheme,
+        };
+      }),
   };
 };
 
@@ -87,7 +90,7 @@ const getText = (v: RouterType["weibo"]) => {
   return text
 }
 
-const getNumber = (v: RouterType["weibo"]) => {
-  const num = String(v.desc_extr);
+const getNumber = (desc: Number) => {
+  const num = String(desc);
   return num ? Number(num.match(/\d+/g)?.[0]) : 0;
 }

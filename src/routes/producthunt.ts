@@ -37,7 +37,7 @@ const getList = async (noCache: boolean) => {
       const title = $(el).find("a[data-test^=post-name]").text().trim();
       const id = $(el).attr("data-test")?.replace("post-item-", "");
       const vote = $(el).find("[data-test=vote-button]").text().trim();
-
+      
       if (path && id && title) {
         stories.push({
           id,

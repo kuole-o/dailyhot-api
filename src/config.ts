@@ -15,7 +15,9 @@ export type Config = {
   REDIS_HOST: string;
   REDIS_PORT: number;
   REDIS_PASSWORD: string;
+  REDIS_DB: number;
   ZHIHU_COOKIE: string;
+  FILTER_WEIBO_ADVERTISEMENT: boolean;
   VERSION: string;
   QINIU_ACCESS_KEY: string;
   QINIU_SECRET_KEY: string;
@@ -58,70 +60,40 @@ const getBooleanEnvVariable = (key: string, defaultValue: boolean): boolean => {
   return value.toLowerCase() === "true";
 };
 
-// 分步骤创建配置对象
-const PORT = getNumericEnvVariable("PORT", 6688);
-const DISALLOW_ROBOT = getBooleanEnvVariable("DISALLOW_ROBOT", true);
-const CACHE_TTL = getNumericEnvVariable("CACHE_TTL", 3600);
-const REQUEST_TIMEOUT = getNumericEnvVariable("REQUEST_TIMEOUT", 10000);
-const ALLOWED_DOMAIN = getEnvVariable("ALLOWED_DOMAIN") || "*";
-const USE_LOG_FILE = Boolean(process.env.USE_LOG_FILE) || getBooleanEnvVariable("USE_LOG_FILE", true);
-const ALLOWED_HOST = getEnvVariable("ALLOWED_HOST") || "guole.fun";
-const RSS_MODE = getBooleanEnvVariable("RSS_MODE", false);
-const REDIS_HOST = getEnvVariable("REDIS_HOST") || "127.0.0.1";
-const REDIS_PORT = getNumericEnvVariable("REDIS_PORT", 6379);
-const REDIS_PASSWORD = getEnvVariable("REDIS_PASSWORD") || "";
-const ZHIHU_COOKIE = getEnvVariable("ZHIHU_COOKIE") || "";
-const VERSION = getEnvVariable("APP_VERSION") || "";
-const QINIU_ACCESS_KEY = getEnvVariable("QINIU_ACCESS_KEY") || "";
-const QINIU_SECRET_KEY = getEnvVariable("QINIU_SECRET_KEY") || "";
-const WEBDAV_SERVER = getEnvVariable("WEBDAV_SERVER") || "http://192.168.3.1:18800";
-const WEBDAV_USERNAME = getEnvVariable("WEBDAV_USERNAME") || "";
-const WEBDAV_PASSWORD = getEnvVariable("WEBDAV_PASSWORD") || "";
-const WEBDAV_CERT_PATH = getEnvVariable("WEBDAV_CERT_PATH") || "/";
-const CERT_FILE_NAME = getEnvVariable("CERT_FILE_NAME") || "guole.fun.pem";
-const KEY_FILE_NAME = getEnvVariable("KEY_FILE_NAME") || "guole.fun.key";
-const SSL_SECRET_KEY = getEnvVariable("SSL_SECRET_KEY") || "";
-const LEANCLOUD_APP_ID = getEnvVariable("LEANCLOUD_APP_ID") || "";
-const LEANCLOUD_APP_KEY = getEnvVariable("LEANCLOUD_APP_KEY") || "";
-const LEANCLOUD_MASTER_KEY = getEnvVariable("LEANCLOUD_MASTER_KEY") || "";
-const LEANCLOUD_SERVER_URL = getEnvVariable("LEANCLOUD_SERVER_URL") || "https://leancloud.guole.fun";
-const BBTALK_PAGE_SIZE = getEnvVariable("BBTALK_PAGE_SIZE") || "12";
-const QINIU_BUCKET = getEnvVariable("QINIU_BUCKET") || "";
-const BBTALK_JSON_PATH = getEnvVariable("BBTALK_JSON_PATH") || "bbtalk";
-const BBTALK_TOKEN = getEnvVariable("BBTALK_TOKEN") || "";
-
 // 创建配置对象
 export const config: Config = {
-  PORT,
-  DISALLOW_ROBOT,
-  CACHE_TTL,
-  REQUEST_TIMEOUT,
-  ALLOWED_DOMAIN,
-  USE_LOG_FILE,
-  ALLOWED_HOST,
-  RSS_MODE,
-  REDIS_HOST,
-  REDIS_PORT,
-  REDIS_PASSWORD,
-  ZHIHU_COOKIE,
-  VERSION,
-  QINIU_ACCESS_KEY,
-  QINIU_SECRET_KEY,
-  WEBDAV_SERVER,
-  WEBDAV_USERNAME,
-  WEBDAV_PASSWORD,
-  WEBDAV_CERT_PATH,
-  CERT_FILE_NAME,
-  KEY_FILE_NAME,
-  SSL_SECRET_KEY,
-  LEANCLOUD_APP_ID,
-  LEANCLOUD_APP_KEY,
-  LEANCLOUD_MASTER_KEY,
-  LEANCLOUD_SERVER_URL,
-  BBTALK_PAGE_SIZE,
-  QINIU_BUCKET,
-  BBTALK_JSON_PATH,
-  BBTALK_TOKEN,
+  PORT: getNumericEnvVariable("PORT", 6688),
+  DISALLOW_ROBOT: getBooleanEnvVariable("DISALLOW_ROBOT", true),
+  CACHE_TTL: getNumericEnvVariable("CACHE_TTL", 3600),
+  REQUEST_TIMEOUT: getNumericEnvVariable("REQUEST_TIMEOUT", 10000),
+  ALLOWED_DOMAIN: getEnvVariable("ALLOWED_DOMAIN") || "*",
+  USE_LOG_FILE: Boolean(process.env.USE_LOG_FILE) || getBooleanEnvVariable("USE_LOG_FILE", true),
+  ALLOWED_HOST: getEnvVariable("ALLOWED_HOST") || "guole.fun",
+  RSS_MODE: getBooleanEnvVariable("RSS_MODE", false),
+  REDIS_HOST: getEnvVariable("REDIS_HOST") || "127.0.0.1",
+  REDIS_PORT: getNumericEnvVariable("REDIS_PORT", 6379),
+  REDIS_PASSWORD: getEnvVariable("REDIS_PASSWORD") || "",
+  REDIS_DB: getNumericEnvVariable("REDIS_DB", 0),
+  ZHIHU_COOKIE: getEnvVariable("ZHIHU_COOKIE") || "",
+  FILTER_WEIBO_ADVERTISEMENT: getBooleanEnvVariable("FILTER_WEIBO_ADVERTISEMENT", false),
+  VERSION: getEnvVariable("APP_VERSION") || "",
+  QINIU_ACCESS_KEY: getEnvVariable("QINIU_ACCESS_KEY") || "",
+  QINIU_SECRET_KEY: getEnvVariable("QINIU_SECRET_KEY") || "",
+  WEBDAV_SERVER: getEnvVariable("WEBDAV_SERVER") || "http://192.168.3.1:18800",
+  WEBDAV_USERNAME: getEnvVariable("WEBDAV_USERNAME") || "",
+  WEBDAV_PASSWORD: getEnvVariable("WEBDAV_PASSWORD") || "",
+  WEBDAV_CERT_PATH: getEnvVariable("WEBDAV_CERT_PATH") || "/",
+  CERT_FILE_NAME: getEnvVariable("CERT_FILE_NAME") || "guole.fun.pem",
+  KEY_FILE_NAME: getEnvVariable("KEY_FILE_NAME") || "guole.fun.key",
+  SSL_SECRET_KEY: getEnvVariable("SSL_SECRET_KEY") || "",
+  LEANCLOUD_APP_ID: getEnvVariable("LEANCLOUD_APP_ID") || "",
+  LEANCLOUD_APP_KEY: getEnvVariable("LEANCLOUD_APP_KEY") || "",
+  LEANCLOUD_MASTER_KEY: getEnvVariable("LEANCLOUD_MASTER_KEY") || "",
+  LEANCLOUD_SERVER_URL: getEnvVariable("LEANCLOUD_SERVER_URL") || "https://leancloud.guole.fun",
+  BBTALK_PAGE_SIZE: getEnvVariable("BBTALK_PAGE_SIZE") || "12",
+  QINIU_BUCKET: getEnvVariable("QINIU_BUCKET") || "",
+  BBTALK_JSON_PATH: getEnvVariable("BBTALK_JSON_PATH") || "bbtalk",
+  BBTALK_TOKEN: getEnvVariable("BBTALK_TOKEN") || "",
 };
 
 // 导出 SSL 配置接口和获取函数（可选）

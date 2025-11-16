@@ -30,6 +30,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=16319
       - REDIS_PASSWORD=
+      - REDIS_DB=0
       - ALLOWED_DOMAIN=["www.guole.fun", "blog.guole.fun", "hot.guole.fun", "api.guole.fun", "guole.fun", "kuole-o.github.io", "127.0.0.1"]
       - GAODE_KEY=
       - UMAMI_USER_NAME=

@@ -73,6 +73,7 @@ ENV LANG=en_US.UTF-8 \
     REDIS_HOST='' \
     REDIS_PORT='' \
     REDIS_PASSWORD='' \
+    REDIS_DB=0 \
     USE_LOG_FILE=true \
     LOG_LEVEL=info \
     APP_VERSION=${APP_VERSION} \

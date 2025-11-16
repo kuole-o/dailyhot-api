@@ -100,8 +100,7 @@ export type RouterType = {
     label_name: string;
     icon_width: number;
     icon_height: number;
-    topic_ad: boolean;
-    is_ad: boolean;
+    pic: string;
   };
   zhihu: {
     target: {

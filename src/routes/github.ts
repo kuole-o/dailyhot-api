@@ -189,18 +189,18 @@ export async function getTrendingRepos(
       lastError = error;
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       logger.error(`❌ [ERROR] 第 ${i + 1} 请求失败: ${errorMessage}`);
-
+      
       // 如果是最后一次重试，则抛出错误
       if (i === maxRetries - 1) {
         logger.error("❌ [ERROR] 所有尝试请求失败！");
         throw lastError;
       }
-
+      
       // 等待一段时间后重试 (1秒、2秒、4秒...)
       await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
       continue;
     }
   }
-
+  
   throw new Error("请求失败！");
 }

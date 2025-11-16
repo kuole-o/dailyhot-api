@@ -1,6 +1,7 @@
 import type { RouterData, ListItem } from "../types.ts";
 import { Feed } from "feed";
 import logger from "./logger.js";
+
 // 生成 RSS
 const getRSS = (data: RouterData) => {
   try {
@@ -57,4 +58,5 @@ const getRSS = (data: RouterData) => {
     throw error;
   }
 };
+
 export default getRSS;
