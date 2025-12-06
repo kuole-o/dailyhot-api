@@ -101,6 +101,7 @@ export type RouterType = {
     icon_width: number;
     icon_height: number;
     pic: string;
+    num: number;
   };
   zhihu: {
     target: {
