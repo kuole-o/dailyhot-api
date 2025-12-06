@@ -3,7 +3,7 @@ import type { RouterType } from "../router.types.js";
 import { get, cleanPostContent } from "../utils/getData.js";
 import { getTime } from "../utils/getTime.js";
 import logger from "../utils/logger.js";
-import { config } from "../config";
+import { config } from "../config.js";
 
 export const handleRoute = async (_: undefined, noCache: boolean) => {
   const listData = await getList(noCache);
