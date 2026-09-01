@@ -29,7 +29,6 @@ RUN [ ! -e ".env" ] && cp .env.example .env || true
 # 安装依赖
 RUN pnpm install --ignore-scripts
 RUN pnpm build
-RUN pnpm prune --production
 
 # 运行阶段
 FROM base AS runner
