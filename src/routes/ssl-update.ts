@@ -5,6 +5,7 @@ import logger from "../utils/logger.js";
 import { createClient } from "webdav";
 import { config, getSSLConfig } from "../config.js";
 import qiniu from 'qiniu';
+import * as crypto from 'crypto';
 
 // 定义证书信息接口
 interface CertInfo {
@@ -20,6 +21,7 @@ interface CertInfo {
 interface CertDetail extends Omit<CertInfo, 'certid'> {
     pri: string;
     ca: string;
+    fingerprint?: string;
 }
 
 class QiniuSSLManager {
@@ -34,7 +36,6 @@ class QiniuSSLManager {
         this.accessKey = config.accessKey;
         this.secretKey = config.secretKey;
 
-        // 初始化七牛云认证对象
         this.mac = new qiniu.auth.digest.Mac(this.accessKey, this.secretKey);
 
         logger.info(`🔐 [配置检查] AccessKey 长度: ${this.accessKey?.length}, 前5位: ${this.accessKey?.substring(0, 5)}...`);
@@ -50,7 +51,21 @@ class QiniuSSLManager {
         );
     }
 
-    // 重试装饰器
+    // 计算 PEM 证书的 SHA1 指纹，不受换行/空格差异影响
+    private computeFingerprint(pem: string): string {
+        try {
+            const b64 = pem
+                .replace(/-----BEGIN CERTIFICATE-----/g, '')
+                .replace(/-----END CERTIFICATE-----/g, '')
+                .replace(/\s/g, '');
+            const der = Buffer.from(b64, 'base64');
+            return crypto.createHash('sha1').update(der).digest('hex').toLowerCase();
+        } catch (error) {
+            logger.error(`计算证书指纹失败: ${error}`);
+            return '';
+        }
+    }
+
     private async withRetry<T>(
         operation: () => Promise<T>,
         operationName: string,
@@ -67,9 +82,14 @@ class QiniuSSLManager {
                 lastError = error as Error;
                 const errorMessage = error instanceof Error ? error.message : String(error);
 
-                // 如果是401错误，立即失败不重试
                 if (errorMessage.includes('401') || (error as any)?.response?.status === 401) {
                     logger.error(`🔐 [认证失败] ${operationName}: ${errorMessage}`);
+                    throw error;
+                }
+
+                // 证书已绑定域名：七牛不允许删除在用证书，不重试
+                if (errorMessage.includes('证书已绑定域名')) {
+                    logger.warn(`⏭️ [跳过] ${operationName}: ${errorMessage}`);
                     throw error;
                 }
 
@@ -88,30 +108,26 @@ class QiniuSSLManager {
         throw lastError!;
     }
 
-    // 生成带日期的证书名称
-    private generateCertName(): string {
+    // 生成带指纹的证书名称，同一天同一证书不会重复上传
+    private generateCertName(fingerprint: string): string {
         const now = new Date();
         const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-        const dateStr = beijingTime.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD格式
-        return `lucky_${dateStr}`;
+        const dateStr = beijingTime.toISOString().slice(0, 10).replace(/-/g, '');
+        const shortFp = fingerprint.slice(0, 8);
+        return `lucky_${dateStr}_${shortFp}`;
     }
 
-    // 检查证书名称是否匹配lucky模式
     private isLuckyCert(certName: string): boolean {
         return certName === 'lucky' || certName.startsWith('lucky_');
     }
 
-    // 使用七牛云SDK生成认证头
     private generateAuthHeader(url: string, body: any = ''): string {
         try {
-            // 使用七牛云SDK生成认证令牌
             const accessToken = qiniu.util.generateAccessToken(this.mac, url, body);
-
             logger.debug(`🔐 [SDK签名] 生成的认证令牌: ${accessToken}`);
             return accessToken;
         } catch (error) {
             logger.error(`🔐 [SDK签名错误] 生成认证令牌失败: ${error}`);
-            // 记录详细的错误信息
             if (error instanceof Error) {
                 logger.error(`🔐 [SDK签名错误] 错误堆栈: ${error.stack}`);
             }
@@ -119,8 +135,8 @@ class QiniuSSLManager {
         }
     }
 
-    // 获取域名列表
-    async getDomainList(): Promise<string[]> {
+    // 获取域名列表（包含当前绑定的证书ID，用于幂等检查）
+    async getDomainList(): Promise<{ name: string; certId?: string }[]> {
         return this.withRetry(async () => {
             const requestURL = 'https://api.qiniu.com/domain';
             logger.info(`🌐 [API调用] 获取域名列表: ${requestURL}`);
@@ -146,9 +162,12 @@ class QiniuSSLManager {
                         domain.name.endsWith('.guole.fun') &&
                         domain.operatingState === 'success'
                     )
-                    .map((domain: any) => domain.name);
+                    .map((domain: any) => ({
+                        name: domain.name,
+                        certId: domain.certId || domain.cert_id || undefined
+                    }));
 
-                logger.info(`找到 ${targetDomains.length} 个 guole.fun 子域名: ${targetDomains.join(', ')}`);
+                logger.info(`找到 ${targetDomains.length} 个 guole.fun 子域名: ${targetDomains.map((d: { name: string; certId?: string }) => d.name).join(', ')}`);
                 return targetDomains;
             } else {
                 throw new Error('获取域名列表失败：响应格式不正确');
@@ -156,7 +175,6 @@ class QiniuSSLManager {
         }, '获取域名列表', 2, 1000);
     }
 
-    // 从WebDAV读取证书文件
     async readCertFilesFromWebDAV(): Promise<{ cert: string; key: string }> {
         try {
             logger.info('连接WebDAV服务器获取证书文件...');
@@ -167,7 +185,6 @@ class QiniuSSLManager {
             logger.debug(`📁 [WebDAV] 证书文件路径: ${remoteCertPath}`);
             logger.debug(`📁 [WebDAV] 密钥文件路径: ${remoteKeyPath}`);
 
-            // 检查文件是否存在
             const certExists = await this.webdavClient.exists(remoteCertPath);
             const keyExists = await this.webdavClient.exists(remoteKeyPath);
 
@@ -175,7 +192,6 @@ class QiniuSSLManager {
                 throw new Error(`证书文件不存在: ${!certExists ? this.config.certFileName : ''} ${!keyExists ? this.config.keyFileName : ''}`);
             }
 
-            // 读取文件内容
             const certBuffer = await this.webdavClient.getFileContents(remoteCertPath);
             const keyBuffer = await this.webdavClient.getFileContents(remoteKeyPath);
 
@@ -192,7 +208,6 @@ class QiniuSSLManager {
         }
     }
 
-    // 获取证书列表（包括所有lucky和lucky_开头的证书）
     async getCertList(): Promise<CertInfo[]> {
         return this.withRetry(async () => {
             const requestURL = 'https://api.qiniu.com/sslcert';
@@ -214,11 +229,9 @@ class QiniuSSLManager {
                 const certs = response.data.certs as CertInfo[];
                 logger.info(`获取到 ${certs.length} 个证书`);
 
-                // 筛选名称为 'lucky' 或以 'lucky_' 开头的证书
                 const luckyCerts = certs.filter(cert => this.isLuckyCert(cert.name));
                 logger.info(`找到 ${luckyCerts.length} 个名称为 'lucky' 或 'lucky_*' 的证书`);
-                
-                // 记录找到的证书名称
+
                 if (luckyCerts.length > 0) {
                     const certNames = luckyCerts.map(cert => cert.name).join(', ');
                     logger.info(`找到的证书名称: ${certNames}`);
@@ -231,7 +244,6 @@ class QiniuSSLManager {
         }, '获取证书列表', 2, 1000);
     }
 
-    // 获取证书详情
     async getCertDetail(certId: string): Promise<CertDetail> {
         return this.withRetry(async () => {
             const requestURL = `https://api.qiniu.com/sslcert/${certId}`;
@@ -257,52 +269,71 @@ class QiniuSSLManager {
         }, `获取证书详情 ${certId}`, 2, 1000);
     }
 
-    // 检查证书是否需要更新
+    // 基于 SHA1 指纹比较，不受 PEM 格式差异影响
     async shouldUploadNewCert(localCert: string, localKey: string): Promise<{ shouldUpload: boolean; reason: string; existingCertId?: string }> {
         try {
+            const localFingerprint = this.computeFingerprint(localCert);
+            if (!localFingerprint) {
+                logger.warn('无法计算本地证书指纹，跳过检查');
+                return { shouldUpload: true, reason: '无法计算本地证书指纹，继续上传' };
+            }
+
+            logger.info(`🔍 [证书指纹] 本地证书指纹: ${localFingerprint}`);
+
             const certList = await this.getCertList();
 
             if (certList.length === 0) {
-                return { shouldUpload: true, reason: '七牛云上没有找到名称为 lucky 或 lucky_* 的证书，需要上传新证书' };
+                return { shouldUpload: true, reason: '七牛云上没有找到 lucky 证书，需要上传新证书' };
             }
 
-            // 如果有多个 lucky 证书，选择最新的（创建时间最晚的）
+            // 遍历所有 lucky 证书，找指纹匹配的
+            for (const cert of certList) {
+                try {
+                    const certDetail = await this.getCertDetail(cert.certid);
+
+                    let remoteFingerprint = certDetail.fingerprint;
+                    if (!remoteFingerprint) {
+                        remoteFingerprint = this.computeFingerprint(certDetail.ca);
+                    }
+
+                    logger.info(`🔍 [证书指纹] 远程证书 ${cert.certid} (${cert.name}) 指纹: ${remoteFingerprint}`);
+
+                    if (remoteFingerprint && remoteFingerprint.toLowerCase() === localFingerprint) {
+                        logger.info(`✅ [证书匹配] 本地证书与远程证书 ${cert.certid} 指纹一致`);
+
+                        const currentTime = Math.floor(Date.now() / 1000);
+                        if (cert.not_after > currentTime) {
+                            return {
+                                shouldUpload: false,
+                                reason: '指纹匹配且证书有效，无需重复上传',
+                                existingCertId: cert.certid
+                            };
+                        } else {
+                            logger.warn(`⚠️ [证书过期] 远程证书 ${cert.certid} 已过期，需要上传新证书`);
+                            return { shouldUpload: true, reason: '现有证书已过期，需要上传新证书' };
+                        }
+                    }
+                } catch (detailError) {
+                    logger.warn(`获取证书 ${cert.certid} 详情失败: ${detailError}，继续检查下一个`);
+                    continue;
+                }
+            }
+
             const latestCert = certList.reduce((latest, current) =>
                 current.create_time > latest.create_time ? current : latest
             );
-
-            // 获取证书详情进行比较
-            const certDetail = await this.getCertDetail(latestCert.certid);
-
-            // 比较证书内容
-            if (certDetail.ca === localCert && certDetail.pri === localKey) {
-                return {
-                    shouldUpload: false,
-                    reason: '本地证书与七牛云上最新证书内容完全相同，无需重复上传',
-                    existingCertId: latestCert.certid
-                };
-            }
-
-            // 检查证书有效期
             const currentTime = Math.floor(Date.now() / 1000);
             if (latestCert.not_after <= currentTime) {
-                return {
-                    shouldUpload: true,
-                    reason: '七牛云上证书已过期，需要上传新证书'
-                };
+                return { shouldUpload: true, reason: '所有 lucky 证书均已过期，需要上传新证书' };
             }
-
-            // 如果本地证书的有效期更短，给出警告但继续上传
-            // 注意：从本地证书解析有效期比较复杂，暂时只比较内容
 
             return {
                 shouldUpload: true,
-                reason: '本地证书与七牛云上证书内容不同，需要上传新证书'
+                reason: '本地证书指纹与七牛云上所有 lucky 证书均不匹配，需要上传新证书'
             };
 
         } catch (error) {
             logger.error(`检查证书更新状态失败: ${error}`);
-            // 如果检查失败，保守策略是继续上传
             return {
                 shouldUpload: true,
                 reason: `检查证书状态失败: ${error}`
@@ -312,66 +343,66 @@ class QiniuSSLManager {
 
     // 上传证书到七牛云
     async uploadCert(cert: string, key: string): Promise<string> {
-        return this.withRetry(async () => {
-            // 先检查是否需要上传
-            const checkResult = await this.shouldUploadNewCert(cert, key);
+        const localFingerprint = this.computeFingerprint(cert);
 
-            if (!checkResult.shouldUpload) {
-                logger.info(`📋 [证书检查] ${checkResult.reason}`);
-                if (checkResult.existingCertId) {
-                    logger.info(`📋 [证书检查] 将使用现有证书ID: ${checkResult.existingCertId}`);
-                    return checkResult.existingCertId;
-                }
-            }
+        // 先检查是否需要上传
+        const checkResult = await this.shouldUploadNewCert(cert, key);
 
+        if (!checkResult.shouldUpload) {
             logger.info(`📋 [证书检查] ${checkResult.reason}`);
+            if (checkResult.existingCertId) {
+                logger.info(`📋 [证书检查] 将使用现有证书ID: ${checkResult.existingCertId}`);
+                return checkResult.existingCertId;
+            }
+        }
 
-            // 生成带日期的证书名称
-            const certName = this.generateCertName();
-            const requestURL = 'https://api.qiniu.com/sslcert';
-            logger.info(`🌐 [API调用] 上传证书: ${requestURL}, 证书名称: ${certName}`);
+        logger.info(`📋 [证书检查] ${checkResult.reason}`);
 
-            const requestBody = JSON.stringify({
-                name: certName,
-                common_name: '*.guole.fun',
-                pri: key,
-                ca: cert
+        // 生成带指纹的证书名称，确保同一证书不会重复上传
+        const certName = this.generateCertName(localFingerprint);
+        const requestURL = 'https://api.qiniu.com/sslcert';
+        logger.info(`🌐 [API调用] 上传证书: ${requestURL}, 证书名称: ${certName}`);
+
+        const requestBody = JSON.stringify({
+            name: certName,
+            common_name: '*.guole.fun',
+            pri: key,
+            ca: cert
+        });
+
+        const authHeader = this.generateAuthHeader(requestURL, '');
+
+        try {
+            const response = await post({
+                url: requestURL,
+                headers: {
+                    'Authorization': authHeader,
+                    'Content-Type': 'application/json'
+                },
+                body: requestBody,
+                noCache: true,
+                ttl: 10000
             });
 
-            const authHeader = this.generateAuthHeader(requestURL, '');
-
-            try {
-                const response = await post({
-                    url: requestURL,
-                    headers: {
-                        'Authorization': authHeader,
-                        'Content-Type': 'application/json'
-                    },
-                    body: requestBody,
-                    noCache: true,
-                ttl: 10000
-                });
-
-                if (response.data && response.data.certID) {
-                    logger.info(`新证书上传成功，ID: ${response.data.certID}, 名称: ${certName}`);
-                    return response.data.certID;
-                } else {
-                    logger.error(`上传证书失败，响应数据: ${JSON.stringify(response.data)}`);
-                    throw new Error('上传证书失败：响应中缺少certID');
-                }
-            } catch (error: any) {
-                logger.error(`🌐 [上传证书详细错误]`);
-                logger.error(`🔐 [认证头调试] 请求Body长度: ${requestBody.length}`);
-                if (error.response) {
-                    logger.error(`🌐 [错误响应] 状态: ${error.response.status}`);
-                    logger.error(`🌐 [错误响应] 数据: ${JSON.stringify(error.response.data)}`);
-                }
-                throw error;
+            if (response.data && response.data.certID) {
+                logger.info(`新证书上传成功，ID: ${response.data.certID}, 名称: ${certName}`);
+                return response.data.certID;
+            } else {
+                logger.error(`上传证书失败，响应数据: ${JSON.stringify(response.data)}`);
+                throw new Error('上传证书失败：响应中缺少certID');
             }
-        }, '上传证书到七牛云', 2, 1500);
+        } catch (error: any) {
+            logger.error(`🌐 [上传证书详细错误]`);
+            logger.error(`🔐 [认证头调试] 请求Body长度: ${requestBody.length}`);
+            if (error.response) {
+                logger.error(`🌐 [错误响应] 状态: ${error.response.status}`);
+                logger.error(`🌐 [错误响应] 数据: ${JSON.stringify(error.response.data)}`);
+            }
+            throw error;
+        }
     }
 
-    // 更新域名SSL配置
+    // 更新域名SSL配置（幂等：检查当前绑定，相同则跳过）
     async updateDomainCerts(newCertId: string): Promise<{ success: string[], failed: Array<{ domain: string, error: string }> }> {
         const domains = await this.getDomainList();
 
@@ -384,20 +415,26 @@ class QiniuSSLManager {
 
         for (const domain of domains) {
             try {
-                await this.updateDomainHttpsConfig(domain, newCertId);
-                success.push(domain);
-                logger.info(`证书已绑定到域名: ${domain}`);
+                // 检查当前绑定是否已经是目标证书，避免重复绑定
+                if (domain.certId === newCertId) {
+                    logger.info(`⏭️ [跳过] 域名 ${domain.name} 已绑定证书 ${newCertId}，无需更新`);
+                    success.push(domain.name);
+                    continue;
+                }
+
+                await this.updateDomainHttpsConfig(domain.name, newCertId);
+                success.push(domain.name);
+                logger.info(`证书已绑定到域名: ${domain.name}`);
             } catch (error) {
                 const errorMessage = error instanceof Error ? error.message : String(error);
-                failed.push({ domain, error: errorMessage });
-                logger.error(`绑定域名 ${domain} 失败: ${errorMessage}`);
+                failed.push({ domain: domain.name, error: errorMessage });
+                logger.error(`绑定域名 ${domain.name} 失败: ${errorMessage}`);
             }
         }
 
         return { success, failed };
     }
 
-    // 更新域名HTTPS配置
     private async updateDomainHttpsConfig(domain: string, certId: string): Promise<any> {
         return this.withRetry(async () => {
             const requestURL = `https://api.qiniu.com/domain/${domain}/httpsconf`;
@@ -426,7 +463,7 @@ class QiniuSSLManager {
         }, `更新域名 ${domain} HTTPS配置`, 2, 1000);
     }
 
-    // 删除旧证书（支持批量删除）
+    // 删除旧证书（跳过仍被域名绑定的证书）
     async deleteOldCerts(oldCertIds: string[], excludeCertId?: string): Promise<{ success: string[], failed: Array<{ certId: string, error: string }> }> {
         if (oldCertIds.length === 0) {
             logger.info('无旧证书需要删除');
@@ -436,34 +473,57 @@ class QiniuSSLManager {
         const success: string[] = [];
         const failed: Array<{ certId: string, error: string }> = [];
 
-        // 过滤掉要排除的证书ID（当前正在使用的证书）
         const certsToDelete = excludeCertId
             ? oldCertIds.filter(id => id !== excludeCertId)
             : oldCertIds;
 
-        if (certsToDelete.length === 0) {
-            logger.info('没有需要删除的旧证书（所有证书都在使用中）');
+        // 获取当前域名绑定情况，跳过正在使用的证书
+        let domainsWithCerts: { name: string; certId?: string }[] = [];
+        try {
+            domainsWithCerts = await this.getDomainList();
+        } catch (error) {
+            logger.warn(`获取域名列表失败，将跳过所有"证书已绑定域名"错误: ${error}`);
+        }
+
+        const boundCertIds = new Set(domainsWithCerts
+            .filter(d => d.certId)
+            .map(d => d.certId));
+
+        const trulyUnused = certsToDelete.filter(id => !boundCertIds.has(id));
+
+        if (trulyUnused.length === 0 && certsToDelete.length > 0) {
+            logger.info('所有旧证书均被域名绑定中，无需删除');
             return { success: [], failed: [] };
         }
 
-        logger.info(`准备删除 ${certsToDelete.length} 个旧证书: ${certsToDelete.join(', ')}`);
+        logger.info(`准备删除 ${trulyUnused.length} 个未被绑定的旧证书: ${trulyUnused.join(', ')}`);
 
         for (const certId of certsToDelete) {
+            if (boundCertIds.has(certId)) {
+                logger.info(`⏭️ [跳过] 证书 ${certId} 正在被域名使用，不删除`);
+                success.push(certId);
+                continue;
+            }
+
             try {
                 await this.deleteSingleCert(certId);
                 success.push(certId);
                 logger.info(`旧证书 ${certId} 已删除`);
             } catch (error) {
                 const errorMessage = error instanceof Error ? error.message : String(error);
-                failed.push({ certId, error: errorMessage });
-                logger.error(`删除旧证书 ${certId} 失败: ${errorMessage}`);
+                if (errorMessage.includes('证书已绑定域名')) {
+                    logger.warn(`⏭️ [跳过] 证书 ${certId} 仍被域名绑定，跳过删除`);
+                    success.push(certId);
+                } else {
+                    failed.push({ certId, error: errorMessage });
+                    logger.error(`删除旧证书 ${certId} 失败: ${errorMessage}`);
+                }
             }
         }
 
         return { success, failed };
     }
 
-    // 删除单个证书
     private async deleteSingleCert(certId: string): Promise<boolean> {
         return this.withRetry(async () => {
             const requestURL = `https://api.qiniu.com/sslcert/${certId}`;
@@ -491,44 +551,41 @@ class QiniuSSLManager {
 
     // 主执行函数
     async execute(): Promise<{ code: number; message: string; data: any }> {
-        return this.withRetry(async () => {
-            logger.info('开始SSL证书更新流程...');
+        logger.info('开始SSL证书更新流程...');
 
-            // 获取现有证书列表（包括所有lucky和lucky_开头的证书）
-            const oldCertList = await this.getCertList();
-            const oldCertIds = oldCertList.map(cert => cert.certid);
-            logger.info(`当前七牛云上有 ${oldCertIds.length} 个名称为 lucky 或 lucky_* 的证书: ${oldCertIds.join(', ')}`);
+        const oldCertList = await this.getCertList();
+        const oldCertIds = oldCertList.map(cert => cert.certid);
+        logger.info(`当前七牛云上有 ${oldCertIds.length} 个名称为 lucky 或 lucky_* 的证书: ${oldCertIds.join(', ')}`);
 
-            // 从WebDAV读取证书
-            const { cert, key } = await this.readCertFilesFromWebDAV();
+        const { cert, key } = await this.readCertFilesFromWebDAV();
 
-            const domains = await this.getDomainList();
-            logger.info(`将更新以下域名的证书: ${domains.join(', ')}`);
+        const localFingerprint = this.computeFingerprint(cert);
+        logger.info(`🔍 [本地证书指纹] ${localFingerprint}`);
 
-            // 上传新证书到七牛云（内部会检查是否需要上传）
-            const newCertId = await this.uploadCert(cert, key);
+        const domains = await this.getDomainList();
+        logger.info(`将更新以下域名的证书: ${domains.map(d => d.name).join(', ')}`);
 
-            // 更新域名证书配置
-            const updateResult = await this.updateDomainCerts(newCertId);
+        const newCertId = await this.uploadCert(cert, key);
 
-            // 删除旧证书（排除当前正在使用的新证书）
-            const deleteResult = await this.deleteOldCerts(oldCertIds, newCertId);
+        const updateResult = await this.updateDomainCerts(newCertId);
 
-            logger.info('SSL证书更新流程完成');
+        const deleteResult = await this.deleteOldCerts(oldCertIds, newCertId);
 
-            return {
-                code: 200,
-                message: 'SSL证书更新成功',
-                data: {
-                    newCertId,
-                    oldCertIds,
-                    updatedDomains: updateResult.success,
-                    failedDomains: updateResult.failed,
-                    deletedCerts: deleteResult.success,
-                    failedDeletions: deleteResult.failed
-                }
-            };
-        }, 'SSL证书更新整体流程', 1, 3000);
+        logger.info('SSL证书更新流程完成');
+
+        return {
+            code: 200,
+            message: 'SSL证书更新成功',
+            data: {
+                newCertId,
+                oldCertIds,
+                updatedDomains: updateResult.success,
+                failedDomains: updateResult.failed,
+                deletedCerts: deleteResult.success,
+                failedDeletions: deleteResult.failed,
+                localFingerprint
+            }
+        };
     }
 }
 
@@ -544,7 +601,6 @@ export const handleRoute = async (c: ListContext, noCache: boolean): Promise<Oth
         throw new HttpError(401, `${c.req.path} 访问未经授权`);
     }
 
-    // 验证必要的配置
     if (!sslConfig.accessKey || !sslConfig.secretKey) {
         logger.error(`❌ [配置检查] AccessKey 或 SecretKey 未设置`);
         throw new HttpError(400, 'QINIU_ACCESS_KEY / QINIU_SECRET_KEY 未知或为空，请检查环境变量配置');
@@ -555,11 +611,9 @@ export const handleRoute = async (c: ListContext, noCache: boolean): Promise<Oth
         throw new HttpError(400, 'WEBDAV_USERNAME / WEBDAV_PASSWORD 环境变量未设置');
     }
 
-    // 执行SSL更新
     const sslManager = new QiniuSSLManager(sslConfig);
     const result = await sslManager.execute();
 
-    // 构建返回数据
     const routeData: OtherData = {
         name: "SSL证书更新",
         title: "七牛云SSL证书自动更新",
