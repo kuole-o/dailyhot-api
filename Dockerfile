@@ -27,7 +27,7 @@ COPY public ./public
 RUN [ ! -e ".env" ] && cp .env.example .env || true
 
 # 安装依赖
-RUN pnpm approve-builds 2>/dev/null; pnpm install
+RUN pnpm install
 RUN pnpm build
 RUN pnpm prune --production
 
