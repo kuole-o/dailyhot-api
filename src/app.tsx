@@ -61,7 +61,6 @@ app.use(
 app.route("/", registry);
 
 // CDN 回源鉴权（七牛云及后续其他 CDN 可复用）
-app.route("/qiniu-origin-auth", originAuth);
 app.route("/origin-auth", originAuth);
 
 // robots
