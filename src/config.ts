@@ -34,6 +34,13 @@ export type Config = {
   LEANCLOUD_SERVER_URL: string;
   BBTALK_PAGE_SIZE: string;
   QINIU_BUCKET: string;
+  QINIU_ORIGIN_AUTH_SECRET: string;
+  ORIGIN_AUTH_STATIC_HEADER: string;
+  ORIGIN_AUTH_STATIC_QUERY: string;
+  ORIGIN_AUTH_SIGN_QUERY: string;
+  ORIGIN_AUTH_SIGN_TIMESTAMP_QUERY: string;
+  ORIGIN_AUTH_SIGN_NONCE_QUERY: string;
+  ORIGIN_AUTH_TTL: number;
   BBTALK_JSON_PATH: string;
   BBTALK_TOKEN: string;
 };
@@ -92,6 +99,13 @@ export const config: Config = {
   LEANCLOUD_SERVER_URL: getEnvVariable("LEANCLOUD_SERVER_URL") || "https://leancloud.guole.fun",
   BBTALK_PAGE_SIZE: getEnvVariable("BBTALK_PAGE_SIZE") || "12",
   QINIU_BUCKET: getEnvVariable("QINIU_BUCKET") || "",
+  QINIU_ORIGIN_AUTH_SECRET: getEnvVariable("QINIU_ORIGIN_AUTH_SECRET") || "",
+  ORIGIN_AUTH_STATIC_HEADER: getEnvVariable("ORIGIN_AUTH_STATIC_HEADER") || "x-qiniu-origin-auth",
+  ORIGIN_AUTH_STATIC_QUERY: getEnvVariable("ORIGIN_AUTH_STATIC_QUERY") || "token",
+  ORIGIN_AUTH_SIGN_QUERY: getEnvVariable("ORIGIN_AUTH_SIGN_QUERY") || "sign",
+  ORIGIN_AUTH_SIGN_TIMESTAMP_QUERY: getEnvVariable("ORIGIN_AUTH_SIGN_TIMESTAMP_QUERY") || "t",
+  ORIGIN_AUTH_SIGN_NONCE_QUERY: getEnvVariable("ORIGIN_AUTH_SIGN_NONCE_QUERY") || "nonce",
+  ORIGIN_AUTH_TTL: getNumericEnvVariable("ORIGIN_AUTH_TTL", 300),
   BBTALK_JSON_PATH: getEnvVariable("BBTALK_JSON_PATH") || "bbtalk",
   BBTALK_TOKEN: getEnvVariable("BBTALK_TOKEN") || "",
 };

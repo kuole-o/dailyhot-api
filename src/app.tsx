@@ -7,6 +7,7 @@ import { prettyJSON } from "hono/pretty-json";
 import { trimTrailingSlash } from "hono/trailing-slash";
 import logger from "./utils/logger.js";
 import registry from "./registry.js";
+import originAuth from "./auth/origin-auth.js";
 import robotstxt from "./robots.txt.js";
 import NotFound from "./views/NotFound.js";
 import Home from "./views/Home.js";
@@ -58,6 +59,10 @@ app.use(
 
 // 主路由
 app.route("/", registry);
+
+// CDN 回源鉴权（七牛云及后续其他 CDN 可复用）
+app.route("/qiniu-origin-auth", originAuth);
+app.route("/origin-auth", originAuth);
 
 // robots
 app.get("/robots.txt", robotstxt);
