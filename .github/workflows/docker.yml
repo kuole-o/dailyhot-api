@@ -9,6 +9,7 @@ jobs:
   build-docker:
     name: Push Docker image to multiple registries
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       packages: write
       contents: read

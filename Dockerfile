@@ -11,8 +11,11 @@ ENV NODE_ENV=docker
 # 清理缓存
 RUN rm -rf /var/cache/apk/*
 
-# 构建阶段
-FROM base AS builder
+# 构建产物是平台无关的 JavaScript；固定在 runner 原生平台构建，避免在
+# QEMU 下执行 arm64 Node/npm 时因模拟器异常而长时间挂起。
+FROM --platform=$BUILDPLATFORM node:20-alpine AS builder
+
+ENV NODE_ENV=docker
 
 RUN npm install -g pnpm
 
